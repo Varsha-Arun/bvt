@@ -3,13 +3,19 @@
 var setupTests = require('../../../setupTests.js');
 var backoff = require('backoff');
 
-var testSuite = 'ACCT-GHC-ADM-IND';
-var testSuiteDesc = ' - TestSuite for Github Admin for login';
+var testSuite = 'GH_COL_LOGIN';
+var testSuiteDesc = 'Login workflow for Github Collaborator';
+var test = util.format('%s - %s', testSuite, testSuiteDesc);
 
-describe(testSuite + testSuiteDesc,
+describe(test,
   function () {
     var account = {};
     var ghSysIntId = null;
+    var testOrgSubscription = null;
+    var collabSystemCode = null;
+    var adminSystemCode = null;
+    var ghAdapter = null;
+
     this.timeout(0);
 
     before(
@@ -17,6 +23,12 @@ describe(testSuite + testSuiteDesc,
         setupTests().then(
           function () {
             ghSysIntId = global.stateFile.get('githubSystemIntegrationId') || [];
+            collabSystemCode = _.findWhere(global.systemCodes,
+              {name: 'collaborator', group: 'roles'}).code;
+            adminSystemCode = _.findWhere(global.systemCodes,
+              {name: 'admin', group: 'roles'}).code;
+
+            return done();
           },
           function (err) {
             logger.error(testSuite, 'failed to setup tests. err:', err);
@@ -29,18 +41,17 @@ describe(testSuite + testSuiteDesc,
     it('1. Login should generate API token',
       function (done) {
         var json = {
-          accessToken: global.githubOwnerAccessToken
+          accessToken: global.githubCollabAccessToken
         };
-        global.pubAdapter.postAuth(githubSysIntId, json,
+        global.pubAdapter.postAuth(ghSysIntId, json,
           function (err, body, res) {
             assert.isNotEmpty(res, 'Result should not be empty');
             assert.strictEqual(res.statusCode, 200, 'statusCode should be 200');
             assert.isNotEmpty(body, 'body should not be null');
             assert.isNotNull(body.apiToken, 'API token should not be null');
-
-            account.githubOwnerApiToken = body.apiToken;
-            account.ownerId = body.account.id;
-            global.setupGithubAdminAdapter(body.apiToken);
+            account = body.account;
+            account.apiToken = body.apiToken;
+            ghAdapter = global.newApiAdapterByToken(body.apiToken);
 
             return done(err);
           }
@@ -48,7 +59,7 @@ describe(testSuite + testSuiteDesc,
       }
     );
 
-    it('2. Login account should finish syncing',
+    it('2. Login account should finish syncing in 1 minute',
       function () {
         var accountSynced = new Promise(
           function (resolve, reject) {
@@ -56,23 +67,21 @@ describe(testSuite + testSuiteDesc,
               initialDelay: 100, // ms
               maxDelay: 5000 // max retry interval of 5 seconds
             });
-            expBackoff.failAfter(30); // fail after 30 attempts
+            expBackoff.failAfter(12); // fail after 12 attempts
             expBackoff.on('backoff',
               function (number, delay) {
-                logger.info('Account syncing. Retrying after ', delay, ' ms');
+                logger.debug('Account syncing. Retrying after ', delay, ' ms');
               }
             );
 
             expBackoff.on('ready',
               function () {
                 // set account when ready
-                var query = util.format('accountIds=%s', account.ownerId);
-                global.suAdapter.getAccounts(query,
+                ghAdapter.getAccounts('',
                   function (err, accounts) {
                     if (err)
                       return reject(new Error('Failed to get account with err',
                         err));
-
                     var acc = _.first(accounts);
                     if (acc.isSyncing !== false || !acc.lastSyncStartDate) {
                       expBackoff.backoff();
@@ -103,11 +112,11 @@ describe(testSuite + testSuiteDesc,
       }
     );
 
-    it('3. Login - should sync projects',
+    it('3. Check Project permissions (private, public, forks, orgs, ind',
       function () {
         var getProjects = new Promise(
           function (resolve, reject) {
-            global.ghcAdminAdapter.getProjects('',
+            ghAdapter.getProjects('',
               function (err, projects) {
                 if (err)
                   return reject(new Error('Unable to get projects with error',
@@ -119,19 +128,32 @@ describe(testSuite + testSuiteDesc,
         );
         return getProjects.then(
           function (projects) {
-            // TODO : check if a list of projects be checked to make the
-            //        test more narrow. should also run locally
             assert.isNotEmpty(projects, 'Projects should not be empty');
+
+            assert.equal(projects.length,
+              global.COL_GH_PROJECT_COUNT, 'Project count needs to match');
+
+            assert.equal(_.where(projects,{isOrg:true}).length,
+              global.COL_GH_ORG_PROJECT_COUNT, 'Org Project count needs to match');
+
+            assert.equal(_.where(projects,{isFork:true}).length,
+              global.COL_GH_FORK_PROJECT_COUNT, 'Fork Project count needs to match');
+
+            assert.equal(_.where(projects,{isOrg:false}).length,
+              global.COL_GH_IND_PROJECT_COUNT, 'Ind Project count needs to match');
+
+            assert.equal(_.where(projects,{isPrivateRepository:true}).length,
+              global.COL_GH_PRIV_PROJECT_COUNT, 'Private Project count needs to match');
           }
         );
       }
     );
 
-    it('4. Login - should create subscriptions',
+    it('4. Check Subscription permissions (ind,Org)',
       function () {
         var getSubs = new Promise(
           function (resolve, reject) {
-            global.ghcAdminAdapter.getSubscriptions('',
+            ghAdapter.getSubscriptions('',
               function (err, subs) {
                 if (err)
                   return reject(new Error('Unable to get subs with error',
@@ -143,9 +165,48 @@ describe(testSuite + testSuiteDesc,
         );
         return getSubs.then(
           function (subs) {
-            // TODO : check if a list of subscriptions be checked to make the
-            //        test more narrow. should also run locally
             assert.isNotEmpty(subs, 'Subscriptions should not be empty');
+
+            assert.equal(subs.length,
+              global.COL_GH_SUB_COUNT, 'Subscription count needs to match');
+
+            assert.equal(_.where(subs,{isOrgSubscription:true}).length,
+              global.COL_GH_ORG_SUB_COUNT, 'Org Subscription count needs to match');
+
+            assert.equal(_.where(subs,{isOrgSubscription:false}).length,
+              global.COL_GH_IND_SUB_COUNT, 'Ind Subscription count needs to match');
+
+            testOrgSubscription =
+              _.findWhere(subs, {orgName: global.TEST_GH_ORGNAME});
+
+            assert.isNotEmpty(testOrgSubscription,
+              'Test Org subscription should not be empty');
+          }
+        );
+      }
+    );
+
+    it('5. Check if the user is only a colab of TEST_ORG',
+      function (done) {
+
+        var query = util.format('subscriptionIds=%s', testOrgSubscription.id);
+
+        ghAdapter.getSubscriptionAccounts(query,
+          function (err, subAccounts) {
+
+            assert(!err, util.format('Unable to get subAccounts with error %s',
+              err));
+
+            assert.isNotEmpty(subAccounts,
+              'SubscriptionAccounts should not be empty');
+
+            assert.isNotEmpty(_.where(subAccounts, {roleCode: collabSystemCode}),
+              'Colab of the org is missing collaborator role');
+
+            assert.isEmpty(_.where(subAccounts, {roleCode: adminSystemCode}),
+              'Colab of the org is  having admin role');
+
+            return done();
           }
         );
       }
@@ -154,13 +215,7 @@ describe(testSuite + testSuiteDesc,
     after(
       function (done) {
         // save account id and apiToken
-        global.saveResource(
-          {
-            type: 'account',
-            id: account.ownerId,
-            apiToken: account.githubOwnerApiToken,
-            role: 'admin'
-          },
+        global.saveTestResource('ghCollaboratorAccount', account,
           function () {
             return done();
           }

@@ -23,19 +23,48 @@ global.TIMEOUT_VALUE = 0;
 global.ownerProjectsNum = 1;
 global.DELETE_PROJ_DELAY = 5000;
 
+global.TEST_GH_ORGNAME = process.env.TEST_GH_ORGNAME;
+
+global.ADM_GH_PRIV_PROJECT_COUNT = process.env.ADM_GH_PRIV_PROJECT_COUNT;
+global.ADM_GH_IND_PROJECT_COUNT = process.env.ADM_GH_IND_PROJECT_COUNT;
+global.ADM_GH_ORG_PROJECT_COUNT = process.env.ADM_GH_ORG_PROJECT_COUNT;
+global.ADM_GH_FORK_PROJECT_COUNT = process.env.ADM_GH_FORK_PROJECT_COUNT;
+global.ADM_GH_PROJECT_COUNT = process.env.ADM_GH_PROJECT_COUNT;
+global.ADM_GH_ORG_SUB_COUNT = process.env.ADM_GH_ORG_SUB_COUNT;
+global.ADM_GH_IND_SUB_COUNT = process.env.ADM_GH_IND_SUB_COUNT;
+global.ADM_GH_SUB_COUNT = process.env.ADM_GH_SUB_COUNT;
+
+global.COL_GH_PRIV_PROJECT_COUNT = process.env.COL_GH_PRIV_PROJECT_COUNT;
+global.COL_GH_IND_PROJECT_COUNT = process.env.COL_GH_IND_PROJECT_COUNT;
+global.COL_GH_ORG_PROJECT_COUNT = process.env.COL_GH_ORG_PROJECT_COUNT;
+global.COL_GH_FORK_PROJECT_COUNT = process.env.COL_GH_FORK_PROJECT_COUNT;
+global.COL_GH_PROJECT_COUNT = process.env.COL_GH_PROJECT_COUNT;
+global.COL_GH_ORG_SUB_COUNT = process.env.COL_GH_ORG_SUB_COUNT;
+global.COL_GH_IND_SUB_COUNT = process.env.COL_GH_IND_SUB_COUNT;
+global.COL_GH_SUB_COUNT = process.env.COL_GH_SUB_COUNT;
+
+global.MEM_GH_PRIV_PROJECT_COUNT = process.env.MEM_GH_PRIV_PROJECT_COUNT;
+global.MEM_GH_IND_PROJECT_COUNT = process.env.MEM_GH_IND_PROJECT_COUNT;
+global.MEM_GH_ORG_PROJECT_COUNT = process.env.MEM_GH_ORG_PROJECT_COUNT;
+global.MEM_GH_FORK_PROJECT_COUNT = process.env.MEM_GH_FORK_PROJECT_COUNT;
+global.MEM_GH_PROJECT_COUNT = process.env.MEM_GH_PROJECT_COUNT;
+global.MEM_GH_ORG_SUB_COUNT = process.env.MEM_GH_ORG_SUB_COUNT;
+global.MEM_GH_IND_SUB_COUNT = process.env.MEM_GH_IND_SUB_COUNT;
+global.MEM_GH_SUB_COUNT = process.env.MEM_GH_SUB_COUNT;
+
 global.config.apiUrl = process.env.SHIPPABLE_API_URL;
 global.GHC_ENDPOINT = 'https://api.github.com';
-
 
 global.githubOwnerAccessToken = process.env.GITHUB_ACCESS_TOKEN_OWNER;
 global.githubCollabAccessToken = process.env.GITHUB_ACCESS_TOKEN_COLLAB;
 global.githubMemberAccessToken = process.env.GITHUB_ACCESS_TOKEN_MEMBER;
+global.githubUnauthorizedAccessToken = process.env.GITHUB_ACCESS_TOKEN_DRSHIP;
 
 global.GITHUB_COLLAB_API_TOKEN_KEY = 'githubCollabApiToken';
 global.GITHUB_MEMBER_API_TOKEN_KEY = 'githubMemberApiToken';
 global.GITHUB_OWNER_API_TOKEN_KEY = 'githubOwnerApiToken';
 
-global.GITHUB_ORG_NAME = 'shiptest-github-organization-1';
+
 global.GHC_OWNER_NAME = 'shiptest-github-owner';
 
 global.GHC_MEMBER_PRIVATE_PROJ_FULL = 'shiptest-github-owner/testprivate';
@@ -50,7 +79,7 @@ global.GHC_CORE_TEST_U16_PROJ = 'coretest_single_build_nod_16';
 // each test starts off as a new process, setup required constants
 function setupTests() {
   var who = util.format('%s %s', self.name, setupTests.name);
-  logger.info('Inside', who);
+  logger.verbose('Inside', who);
 
   global.suAdapter = new ShippableAdapter(process.env.SHIPPABLE_API_TOKEN);
   global.pubAdapter = new ShippableAdapter(''); // init public adapter
@@ -64,6 +93,7 @@ function setupTests() {
       var bag = {
         systemCodes: null
       };
+
       // setup any more data needed for tests below
       async.parallel(
         [
@@ -94,68 +124,15 @@ function getSystemCodes(bag, next) {
   );
 }
 
-// if no param given, it reads from nconf
-global.setupGithubMemberAdapter = function (apiToken) {
-  nconf.file(global.resourcePath);
-  nconf.load();
-  if (apiToken) {
-    nconf.set(global.GITHUB_MEMBER_API_TOKEN_KEY, apiToken);
-    nconf.save(
-      function (err) {
-        if (err) {
-          logger.error('Failed to save account info to nconf. Exiting...');
-          process.exit(1);
-        }
-      }
-    );
-  } else {
-    apiToken = nconf.get(global.GITHUB_MEMBER_API_TOKEN_KEY);
-  }
-
-  global.ghcMemberAdapter = new ShippableAdapter(apiToken);
+global.newApiAdapterByToken = function (apiToken) {
+  return new ShippableAdapter(apiToken);
 };
 
-// if no param given, it reads from nconf
-global.setupGithubCollabAdapter = function (apiToken) {
-  nconf.file(global.resourcePath);
-  nconf.load();
-  if (apiToken) {
-    nconf.set(global.GITHUB_COLLAB_API_TOKEN_KEY, apiToken);
-    nconf.save(
-      function (err) {
-        if (err) {
-          logger.error('Failed to save account info to nconf. Exiting...');
-          process.exit(1);
-        }
-      }
-    );
-  } else {
-    apiToken = nconf.get(global.GITHUB_COLLAB_API_TOKEN_KEY);
-  }
-
-  global.ghcCollabAdapter = new ShippableAdapter(apiToken);
+global.newApiAdapterByStateAccount = function (account) {
+  var apiToken = nconf.get(account).apiToken;
+  return new ShippableAdapter(apiToken);
 };
 
-// if no param given, it reads from nconf
-global.setupGithubAdminAdapter = function (apiToken) {
-  nconf.file(global.resourcePath);
-  nconf.load();
-  if (apiToken) {
-    nconf.set(global.GITHUB_OWNER_API_TOKEN_KEY, apiToken);
-    nconf.save(
-      function (err) {
-        if (err) {
-          logger.error('Failed to save account info to nconf. Exiting...');
-          process.exit(1);
-        }
-      }
-    );
-  } else {
-    apiToken = nconf.get(global.GITHUB_OWNER_API_TOKEN_KEY);
-  }
-
-  global.ghcAdminAdapter = new ShippableAdapter(apiToken);
-};
 
 // NOTE: if state is not forwarded properly in case bvt gets stuck,
 //       use s3 to save the state instead of $JOB_PREVOUS_STATE

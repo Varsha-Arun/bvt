@@ -27,7 +27,7 @@ describe(test,
       }
     );
 
-    it('1. Github Auth System Integration',
+    it('1. Get Github Auth System Integration',
       function (done) {
         var query = 'masterName=githubKeys&name=auth';
         global.suAdapter.getSystemIntegrations(query,
@@ -48,7 +48,7 @@ describe(test,
       }
     );
 
-    it('2. Bitbucket Auth System Integration',
+    it('2. Get Bitbucket Auth System Integration',
       function (done) {
         var query = 'masterName=bitbucketKeys&name=auth';
         global.suAdapter.getSystemIntegrations(query,
@@ -67,10 +67,9 @@ describe(test,
         );
       }
     );
-
+    
     after(
       function (done) {
-        // save account id and apiToken
         global.saveTestResource('enabledSystemIntegrations', sysInts,
           function () {
             return done();

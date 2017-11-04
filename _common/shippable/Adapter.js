@@ -5,7 +5,7 @@ module.exports = self;
 var request = require('request');
 
 function ShippableAdapter(token) {
-  logger.verbose(util.format('Initializing %s', self.name));
+  logger.debug(util.format('Initializing %s', self.name));
   this.token = token;
   this.baseUrl = config.apiUrl;
   this.headers = {

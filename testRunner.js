@@ -50,16 +50,19 @@ function startTests() {
 
 function runTests(bag, next) {
   var who = util.format('%s %s', self.name, runTests.name);
-  logger.debug('Inside', who);
+  logger.info('Inside', who);
 
   // takes a list of files/ directories for mocha and runs all in series
   var tests = [
-    'tests/core/install/*.js'
+    'tests/core/install/*.js',
+    'tests/core/account/*.js',
+    'tests/core/project/*.js'
   ];
   async.eachSeries(tests,
     function (test, nextTest) {
       var _who = who + '|' + test;
-      logger.debug(_who, 'Inside');
+      logger.verbose('Inside', _who);
+
       var child = spawn('node_modules/mocha/bin/mocha', [test]);
       child.stdout.on('data',
         function (data) {
