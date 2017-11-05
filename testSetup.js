@@ -62,7 +62,7 @@ global.githubUnauthorizedAccessToken = process.env.GITHUB_ACCESS_TOKEN_DRSHIP;
 
 
 // each test starts off as a new process, setup required constants
-function testSetup() {
+function testSetup(done) {
   var who = util.format('%s|%s', self.name, testSetup.name);
   logger.debug(who, 'Inside');
 
@@ -72,34 +72,25 @@ function testSetup() {
   global.stateFile = nconf.file(global.resourcePath);
   global.stateFile.load();
 
-  
+  var bag = {
+    systemCodes: null
+  };
 
-
-  var testSetupPromise = new Promise(
-    function (resolve, reject) {
-
-      var bag = {
-        systemCodes: null
-      };
-
-      // setup any more data needed for tests below
-      async.parallel(
-        [
-          getSystemCodes.bind(null, bag)
-        ],
-        function (err) {
-          if (err) {
-            logger.error(who, 'Failed');
-            return reject(err);
-          }
-          global.systemCodes = bag.systemCodes;
-          logger.debug(who, 'Completed');
-          return resolve();
-        }
-      );
+  // setup any more data needed for tests below
+  async.parallel(
+    [
+      getSystemCodes.bind(null, bag)
+    ],
+    function (err) {
+      if (err) {
+        logger.error(who, 'Failed');
+        return done(err);
+      }
+      global.systemCodes = bag.systemCodes;
+      logger.debug(who, 'Completed');
+      return done();
     }
   );
-  return testSetupPromise;
 }
 
 function getSystemCodes(bag, next) {
