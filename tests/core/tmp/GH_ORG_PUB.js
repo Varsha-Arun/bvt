@@ -1,6 +1,6 @@
 'use strict';
 
-var setupTests = require('../../../setupTests.js');
+var testSetup = require('../../../testSetup.js');
 var backoff = require('backoff');
 
 var testSuite = 'GH_ORG_PUB';
@@ -22,7 +22,7 @@ describe(test,
 
     before(
       function (done) {
-        setupTests().then(
+        testSetup().then(
           function () {
 
             ownerApiAdapter =

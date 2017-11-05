@@ -1,6 +1,6 @@
 'use strict';
 
-var setupTests = require('../../../setupTests.js');
+var testSetup = require('../../../testSetup.js');
 var backoff = require('backoff');
 
 var testSuite = 'SRV_SU_SYSINT';
@@ -9,13 +9,11 @@ var test = util.format('%s - %s', testSuite, testSuiteDesc);
 
 describe(test,
   function () {
-    var sysInts = [];
-    var ghSysIntId = [];
     this.timeout(0);
 
     before(
       function (done) {
-        setupTests().then(
+        testSetup().then(
           function () {
             return done();
           },
@@ -40,9 +38,12 @@ describe(test,
             var si = _.first(systemIntegrations);
             assert.isOk(si, 'No System Integration found');
             assert.isOk(si.id, 'System Integration should be valid');
-            ghSysIntId = si.id;
-            sysInts.push(si);
-            return done();
+
+            global.saveTestResource('ghSystemIntegration', si,
+              function () {
+                return done();
+              }
+            );
           }
         );
       }
@@ -61,25 +62,19 @@ describe(test,
             var si = _.first(systemIntegrations);
             assert.isOk(si, 'No System Integration found');
             assert.isOk(si.id, 'System Integration should be valid');
-            sysInts.push(si);
-            return done();
+            global.saveTestResource('bbSystemIntegration', si,
+              function () {
+                return done();
+              }
+            );
           }
         );
       }
     );
-    
+
     after(
       function (done) {
-        global.saveTestResource('enabledSystemIntegrations', sysInts,
-          function () {
-            return done();
-          }
-        );
-        global.saveTestResource('githubSystemIntegrationId', ghSysIntId,
-          function () {
-            return done();
-          }
-        );
+        return done();
       }
     );
   }

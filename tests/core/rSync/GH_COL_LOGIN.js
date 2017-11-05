@@ -1,6 +1,6 @@
 'use strict';
 
-var setupTests = require('../../../setupTests.js');
+var testSetup = require('../../../testSetup.js');
 var backoff = require('backoff');
 
 var testSuite = 'GH_COL_LOGIN';
@@ -20,9 +20,9 @@ describe(test,
 
     before(
       function (done) {
-        setupTests().then(
+        testSetup().then(
           function () {
-            ghSysIntId = global.stateFile.get('githubSystemIntegrationId') || [];
+            ghSysIntId = global.stateFile.get('ghSystemIntegration').id;
             collabSystemCode = _.findWhere(global.systemCodes,
               {name: 'collaborator', group: 'roles'}).code;
             adminSystemCode = _.findWhere(global.systemCodes,
@@ -53,7 +53,11 @@ describe(test,
             account.apiToken = body.apiToken;
             ghAdapter = global.newApiAdapterByToken(body.apiToken);
 
-            return done(err);
+            global.saveTestResource('ghCollaboratorAccount', account,
+              function () {
+                return done(err);
+              }
+            );
           }
         );
       }
@@ -133,16 +137,16 @@ describe(test,
             assert.equal(projects.length,
               global.COL_GH_PROJECT_COUNT, 'Project count needs to match');
 
-            assert.equal(_.where(projects,{isOrg:true}).length,
+            assert.equal(_.where(projects, {isOrg: true}).length,
               global.COL_GH_ORG_PROJECT_COUNT, 'Org Project count needs to match');
 
-            assert.equal(_.where(projects,{isFork:true}).length,
+            assert.equal(_.where(projects, {isFork: true}).length,
               global.COL_GH_FORK_PROJECT_COUNT, 'Fork Project count needs to match');
 
-            assert.equal(_.where(projects,{isOrg:false}).length,
+            assert.equal(_.where(projects, {isOrg: false}).length,
               global.COL_GH_IND_PROJECT_COUNT, 'Ind Project count needs to match');
 
-            assert.equal(_.where(projects,{isPrivateRepository:true}).length,
+            assert.equal(_.where(projects, {isPrivateRepository: true}).length,
               global.COL_GH_PRIV_PROJECT_COUNT, 'Private Project count needs to match');
           }
         );
@@ -170,10 +174,10 @@ describe(test,
             assert.equal(subs.length,
               global.COL_GH_SUB_COUNT, 'Subscription count needs to match');
 
-            assert.equal(_.where(subs,{isOrgSubscription:true}).length,
+            assert.equal(_.where(subs, {isOrgSubscription: true}).length,
               global.COL_GH_ORG_SUB_COUNT, 'Org Subscription count needs to match');
 
-            assert.equal(_.where(subs,{isOrgSubscription:false}).length,
+            assert.equal(_.where(subs, {isOrgSubscription: false}).length,
               global.COL_GH_IND_SUB_COUNT, 'Ind Subscription count needs to match');
 
             testOrgSubscription =
@@ -214,12 +218,7 @@ describe(test,
 
     after(
       function (done) {
-        // save account id and apiToken
-        global.saveTestResource('ghCollaboratorAccount', account,
-          function () {
-            return done();
-          }
-        );
+        return done();
       }
     );
   }

@@ -1,6 +1,6 @@
 'use strict';
 
-var setupTests = require('../../../setupTests.js');
+var testSetup = require('../../../testSetup.js');
 var backoff = require('backoff');
 
 var testSuite = 'GH_OWN_LOGIN';
@@ -20,9 +20,9 @@ describe(test,
 
     before(
       function (done) {
-        setupTests().then(
+        testSetup().then(
           function () {
-            ghSysIntId = global.stateFile.get('githubSystemIntegrationId') || [];
+            ghSysIntId = global.stateFile.get('ghSystemIntegration').id;
             collabSystemCode = _.findWhere(global.systemCodes,
               {name: 'collaborator', group: 'roles'}).code;
             adminSystemCode = _.findWhere(global.systemCodes,
@@ -53,7 +53,11 @@ describe(test,
             account.apiToken = body.apiToken;
             ghAdapter = global.newApiAdapterByToken(body.apiToken);
 
-            return done(err);
+            global.saveTestResource('ghOwnerAccount', account,
+              function () {
+                return done(err);
+              }
+            );
           }
         );
       }

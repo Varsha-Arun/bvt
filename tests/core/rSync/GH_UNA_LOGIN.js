@@ -1,6 +1,6 @@
 'use strict';
 
-var setupTests = require('../../../setupTests.js');
+var testSetup = require('../../../testSetup.js');
 var backoff = require('backoff');
 
 var testSuite = 'GH_UNA_LOGIN';
@@ -17,9 +17,9 @@ describe(test,
 
     before(
       function (done) {
-        setupTests().then(
+        testSetup().then(
           function () {
-            ghSysIntId = global.stateFile.get('githubSystemIntegrationId') || [];
+            ghSysIntId = global.stateFile.get('ghSystemIntegration').id;
 
             return done();
           },
@@ -46,7 +46,11 @@ describe(test,
             account.apiToken = body.apiToken;
             ghAdapter = global.newApiAdapterByToken(body.apiToken);
 
-            return done(err);
+            global.saveTestResource('ghUnauthorizedAccount', account,
+              function () {
+                return done(err);
+              }
+            );
           }
         );
       }
@@ -54,12 +58,7 @@ describe(test,
 
     after(
       function (done) {
-        // save account id and apiToken
-        global.saveTestResource('ghUnauthorizedAccount', account,
-          function () {
-            return done();
-          }
-        );
+        return done()
       }
     );
   }

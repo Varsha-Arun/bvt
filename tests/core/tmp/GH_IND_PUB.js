@@ -1,17 +1,16 @@
 'use strict';
 
-var setupTests = require('../../../setupTests.js');
+var testSetup = require('../../../testSetup.js');
 var backoff = require('backoff');
 
-var testSuite = 'GH_ORG_PRI';
-var testSuiteDesc = 'Github Org private project tests';
+var testSuite = 'GH_IND_PUB';
+var testSuiteDesc = 'Github Individual public project tests';
 var test = util.format('%s - %s', testSuite, testSuiteDesc);
 
 describe(test,
   function () {
     var ownerApiAdapter = null;
     var collaboraterApiAdapter = null;
-    var memberApiAdapter = null;
     var unauthorizedApiAdapter = null;
     var project = {};
     var runId = null;
@@ -22,15 +21,13 @@ describe(test,
 
     before(
       function (done) {
-        setupTests().then(
+        testSetup().then(
           function () {
 
             ownerApiAdapter =
               global.newApiAdapterByStateAccount('ghOwnerAccount');
             collaboraterApiAdapter =
               global.newApiAdapterByStateAccount('ghCollaboratorAccount');
-            memberApiAdapter =
-              global.newApiAdapterByStateAccount('ghMemberAccount');
             unauthorizedApiAdapter =
               global.newApiAdapterByStateAccount('ghUnauthorizedAccount');
 
@@ -45,7 +42,11 @@ describe(test,
                 if (err || _.isEmpty(prjs))
                   return done(new Error('Project list is empty', err));
                 project = _.first(
-                  _.where(prjs, {isOrg: true, isPrivateRepository: true})
+                  _.where(prjs, {
+                    isOrg: false,
+                    isPrivateRepository: false,
+                    isFork: false
+                  })
                 );
 
                 assert.isNotEmpty(project, 'User cannot find the project');
@@ -72,16 +73,16 @@ describe(test,
                 )
               );
             // check if build triggered in previous test case is present
-            assert.isNotEmpty(prj,'Project cannot be empty');
+            assert.isNotEmpty(prj, 'Project cannot be empty');
             return done();
           }
         );
       }
     );
 
-    it('2. Member can get the project',
+    it('2. Collaborator can get the project',
       function (done) {
-        memberApiAdapter.getProjectById(project.id,
+        collaboraterApiAdapter.getProjectById(project.id,
           function (err, prj) {
             if (err)
               return done(
@@ -90,60 +91,50 @@ describe(test,
                 )
               );
             // check if build triggered in previous test case is present
-            assert.isNotEmpty(prj,'Project cannot be empty');
+            assert.isNotEmpty(prj, 'Project cannot be empty');
             return done();
           }
         );
       }
     );
 
-    // it('3. Collaborator can get the project',
-    //   function (done) {
-    //     collaboraterApiAdapter.getProjectById(project.id,
-    //       function (err, prj) {
-    //         if (err)
-    //           return done(
-    //             new Error(
-    //               util.format('User cannot get runId %s, err: %s', runId, err)
-    //             )
-    //           );
-    //         // check if build triggered in previous test case is present
-    //         assert.isNotEmpty(prj,'Project cannot be empty');
-    //         return done();
-    //       }
-    //     );
-    //   }
-    // );
-
-    it('4. Public cannot get the project',
+    it('3. Public can get the project',
       function (done) {
         global.pubAdapter.getProjectById(project.id,
           function (err, prj) {
-            assert.strictEqual(err, 404,
-              util.format('User should not be able to get the project. ' +
-                'err : %s %s', err, prj)
-            );
+            if (err)
+              return done(
+                new Error(
+                  util.format('User cannot get runId %s, err: %s', runId, err)
+                )
+              );
+            // check if build triggered in previous test case is present
+            assert.isNotEmpty(prj, 'Project cannot be empty');
             return done();
           }
         );
       }
     );
 
-    it('5. Unauthorized cannot get the project',
+    it('4. Unauthorized can get the project',
       function (done) {
         unauthorizedApiAdapter.getProjectById(project.id,
           function (err, prj) {
-            assert.strictEqual(err, 404,
-              util.format('User should not be able to get the project. ' +
-                'err : %s %s', err, prj)
-            );
+            if (err)
+              return done(
+                new Error(
+                  util.format('User cannot get runId %s, err: %s', runId, err)
+                )
+              );
+            // check if build triggered in previous test case is present
+            assert.isNotEmpty(prj, 'Project cannot be empty');
             return done();
           }
         );
       }
     );
 
-    it('6. Public User cannot enable the project',
+    it('5. Public User cannot enable the project',
       function (done) {
         var json = {
           type: 'ci'
@@ -160,24 +151,7 @@ describe(test,
       }
     );
 
-    it('7. Member cannot enable the project',
-      function (done) {
-        var json = {
-          type: 'ci'
-        };
-        memberApiAdapter.enableProjectById(project.id, json,
-          function (err, prj) {
-            assert.strictEqual(err, 404,
-              util.format('User should not be able to enable the project. ' +
-                'err : %s %s', err, prj)
-            );
-            return done();
-          }
-        );
-      }
-    );
-
-    it('8. Unauthorized cannot enable the project',
+    it('6. Unauthorized cannot enable the project',
       function (done) {
         var json = {
           type: 'ci'
@@ -194,7 +168,7 @@ describe(test,
       }
     );
 
-    it('9. Owner can enable the project',
+    it('7. Owner can enable the project',
       function (done) {
         var json = {
           type: 'ci'
@@ -214,7 +188,7 @@ describe(test,
       }
     );
 
-    it('10. Owner can trigger manual build for the project',
+    it('8. Owner can trigger manual build for the project',
       function (done) {
         var triggerBuild = new Promise(
           function (resolve, reject) {
@@ -293,7 +267,7 @@ describe(test,
       }
     );
 
-    it('11. Owner triggered build for the project was successful',
+    it('9. Owner triggered build for the project was successful',
       function (done) {
         var triggerBuild = new Promise(
           function (resolve, reject) {
@@ -368,7 +342,7 @@ describe(test,
       }
     );
 
-    it('12. Owner can view builds for the project',
+    it('10. Owner can view builds for the project',
       function (done) {
         ownerApiAdapter.getRunById(runId,
           function (err, run) {
@@ -379,14 +353,14 @@ describe(test,
                 )
               );
             // check if build triggered in previous test case is present
-            assert.isNotEmpty(run,'Run cannot be empty');
+            assert.isNotEmpty(run, 'Run cannot be empty');
             return done();
           }
         );
       }
     );
 
-    it('13. Collaborator can view builds for the project',
+    it('11. Collaborator can view builds for the project',
       function (done) {
         collaboraterApiAdapter.getRunById(runId,
           function (err, run) {
@@ -397,16 +371,16 @@ describe(test,
                 )
               );
             // check if build triggered in previous test case is present
-            assert.isNotEmpty(run,'Run cannot be empty');
+            assert.isNotEmpty(run, 'Run cannot be empty');
             return done();
           }
         );
       }
     );
 
-    it('14. Member can view builds for the project',
+    it('12. Public can view builds for the project',
       function (done) {
-        memberApiAdapter.getRunById(runId,
+        global.pubAdapter.getRunById(runId,
           function (err, run) {
             if (err)
               return done(
@@ -415,42 +389,32 @@ describe(test,
                 )
               );
             // check if build triggered in previous test case is present
-            assert.isNotEmpty(run,'Run cannot be empty');
+            assert.isNotEmpty(run, 'Run cannot be empty');
             return done();
           }
         );
       }
     );
 
-    it('15. Public cannot view builds for the project',
-      function (done) {
-        global.pubAdapter.getRunById(runId,
-          function (err, run) {
-            assert.strictEqual(err, 404,
-              util.format('User should not be able to get Run for id : %s ' +
-                'err : %s', runId, err)
-            );
-            return done();
-          }
-        );
-      }
-    );
-
-    it('16. Unauthorized cannot view builds for the project',
+    it('13. Unauthorized can view builds for the project',
       function (done) {
         unauthorizedApiAdapter.getRunById(runId,
           function (err, run) {
-            assert.strictEqual(err, 404,
-              util.format('User should not be able to get Run for id : %s ' +
-                'err : %s', runId, err)
-            );
+            if (err)
+              return done(
+                new Error(
+                  util.format('User cannot get Run %s, err: %s', runId, err)
+                )
+              );
+            // check if build triggered in previous test case is present
+            assert.isNotEmpty(run, 'Run cannot be empty');
             return done();
           }
         );
       }
     );
 
-    it('17. Owner can view consoles for the run',
+    it('14. Owner can view consoles for the run',
       function (done) {
         var bag = {
           runId: runId,
@@ -469,7 +433,7 @@ describe(test,
       }
     );
 
-    it('18. Collaborator can view consoles for the run',
+    it('15. Collaborator can view consoles for the run',
       function (done) {
         var bag = {
           runId: runId,
@@ -488,26 +452,7 @@ describe(test,
       }
     );
 
-    it('19. Member can view consoles for the run',
-      function (done) {
-        var bag = {
-          runId: runId,
-          adapter: memberApiAdapter,
-          logs: []
-        };
-        async.series([
-            _getJobs.bind(null, bag),
-            _getLogs.bind(null, bag)
-          ],
-          function (err) {
-            assert.isNotEmpty(bag.logs, 'User did not find console logs');
-            return done(err);
-          }
-        );
-      }
-    );
-
-    it('20. Unauthorized cannot view consoles for the run',
+    it('16. Unauthorized can view consoles for the run',
       function (done) {
         var bag = {
           runId: runId,
@@ -519,14 +464,14 @@ describe(test,
             _getLogs.bind(null, bag)
           ],
           function (err) {
-            assert.isEmpty(bag.logs, 'User should not find console logs');
-            return done();
+            assert.isNotEmpty(bag.logs, 'User should not find console logs');
+            return done(err);
           }
         );
       }
     );
 
-    it('21. Public cannot view consoles for the run',
+    it('17. Public can view consoles for the run',
       function (done) {
         var bag = {
           runId: runId,
@@ -538,8 +483,8 @@ describe(test,
             _getLogs.bind(null, bag)
           ],
           function (err) {
-            assert.isEmpty(bag.logs, 'User should not find console logs');
-            return done();
+            assert.isNotEmpty(bag.logs, 'User should not find console logs');
+            return done(err);
           }
         );
       }
@@ -578,7 +523,7 @@ describe(test,
       );
     }
 
-    it('22. Collaborator can trigger a build for the project',
+    it('18. Collaborator can trigger a build for the project',
       function (done) {
         var triggerBuild = new Promise(
           function (resolve, reject) {
@@ -656,20 +601,7 @@ describe(test,
       }
     );
 
-    it('23. Member cannot trigger a build for the project',
-      function (done) {
-        var json = {branchName: 'master'};
-        memberApiAdapter.triggerNewBuildByProjectId(project.id, json,
-          function (err, response) {
-            assert.strictEqual(err, 404, 'User should not be able to trigger ' +
-              'a build for the project', err, response);
-            return done();
-          }
-        );
-      }
-    );
-
-    it('24. Public cannot trigger a build for the project',
+    it('19. Public cannot trigger a build for the project',
       function (done) {
         var json = {branchName: 'master'};
         global.pubAdapter.triggerNewBuildByProjectId(project.id, json,
@@ -682,7 +614,7 @@ describe(test,
       }
     );
 
-    it('25. Unauthorized cannot trigger a build for the project',
+    it('20. Unauthorized cannot trigger a build for the project',
       function (done) {
         var json = {branchName: 'master'};
         unauthorizedApiAdapter.triggerNewBuildByProjectId(project.id, json,
@@ -695,7 +627,7 @@ describe(test,
       }
     );
 
-    it('26. Owner can run custom build with params for the project',
+    it('21. Owner can run custom build with params for the project',
       function (done) {
         var triggerBuild = new Promise(
           function (resolve, reject) {
@@ -773,7 +705,7 @@ describe(test,
       }
     );
 
-    it('27. Owner can rerun build for the project',
+    it('22. Owner can rerun build for the project',
       function (done) {
         var triggerBuild = new Promise(
           function (resolve, reject) {
@@ -851,7 +783,7 @@ describe(test,
       }
     );
 
-    it('28. Owner can pause the project',
+    it('23. Owner can pause the project',
       function () {
         var pauseProject = new Promise(
           function (resolve, reject) {
@@ -877,7 +809,7 @@ describe(test,
       }
     );
 
-    it('29. Owner can resume the project',
+    it('24. Owner can resume the project',
       function () {
         var pauseProject = new Promise(
           function (resolve, reject) {
@@ -908,20 +840,7 @@ describe(test,
       }
     );
 
-    it('30. Member cannot pause the project',
-      function (done) {
-        var json = {propertyBag: {isPaused: true}};
-        memberApiAdapter.putProjectById(project.id, json,
-          function (err, response) {
-            assert.strictEqual(err, 404, 'User should not be able to pause a ' +
-              'project', err, response);
-            return done();
-          }
-        );
-      }
-    );
-
-    it('31. Public cannot pause the project',
+    it('25. Public cannot pause the project',
       function (done) {
         var json = {propertyBag: {isPaused: true}};
         global.pubAdapter.putProjectById(project.id, json,
@@ -934,7 +853,7 @@ describe(test,
       }
     );
 
-    it('32. Unauthorized cannot pause the project',
+    it('26. Unauthorized cannot pause the project',
       function (done) {
         var json = {propertyBag: {isPaused: true}};
         unauthorizedApiAdapter.putProjectById(project.id, json,
@@ -947,7 +866,7 @@ describe(test,
       }
     );
 
-    it('33. Collaborator can pause the project',
+    it('27. Collaborator can pause the project',
       function (done) {
         var json = {propertyBag: {isPaused: true}};
         collaboraterApiAdapter.putProjectById(project.id, json,
@@ -970,20 +889,7 @@ describe(test,
       }
     );
 
-    it('34. Member cannot resume the project',
-      function (done) {
-        var json = {propertyBag: {isPaused: false}};
-        memberApiAdapter.putProjectById(project.id, json,
-          function (err, response) {
-            assert.strictEqual(err, 404, 'User should not be able to resume a ' +
-              'project', err, response);
-            return done();
-          }
-        );
-      }
-    );
-
-    it('35. Public cannot resume the project',
+    it('28. Public cannot resume the project',
       function (done) {
         var json = {propertyBag: {isPaused: false}};
         global.pubAdapter.putProjectById(project.id, json,
@@ -996,7 +902,7 @@ describe(test,
       }
     );
 
-    it('36. Unauthorized cannot resume the project',
+    it('29. Unauthorized cannot resume the project',
       function (done) {
         var json = {propertyBag: {isPaused: false}};
         unauthorizedApiAdapter.putProjectById(project.id, json,
@@ -1009,7 +915,7 @@ describe(test,
       }
     );
 
-    it('37. Collaborator can resume the project',
+    it('30. Collaborator can resume the project',
       function (done) {
         var json = {propertyBag: {isPaused: false}};
         collaboraterApiAdapter.putProjectById(project.id, json,
@@ -1031,8 +937,8 @@ describe(test,
         );
       }
     );
-    
-    it('38. Collaborator cannot Reset the project',
+
+    it('31. Collaborator cannot Reset the project',
       function (done) {
         var json = {projectId: project.id};
         collaboraterApiAdapter.resetProjectById(project.id, json,
@@ -1045,20 +951,7 @@ describe(test,
       }
     );
 
-    it('39. Member cannot Reset the project',
-      function (done) {
-        var json = {projectId: project.id};
-        memberApiAdapter.resetProjectById(project.id, json,
-          function (err, response) {
-            assert.strictEqual(err, 404, 'User should not be able to reset a ' +
-              'project', err, response);
-            return done();
-          }
-        );
-      }
-    );
-
-    it('40. Public cannot Reset the project',
+    it('32. Public cannot Reset the project',
       function (done) {
         var json = {projectId: project.id};
         global.pubAdapter.resetProjectById(project.id, json,
@@ -1071,7 +964,7 @@ describe(test,
       }
     );
 
-    it('41. Unauthorized cannot Reset the project',
+    it('33. Unauthorized cannot Reset the project',
       function (done) {
         var json = {projectId: project.id};
         unauthorizedApiAdapter.resetProjectById(project.id, json,
@@ -1084,7 +977,7 @@ describe(test,
       }
     );
 
-    it('42. Owner can Reset the project',
+    it('34. Owner can Reset the project',
       function (done) {
         var json = {projectId: project.id};
         ownerApiAdapter.resetProjectById(project.id, json,
@@ -1102,20 +995,7 @@ describe(test,
       }
     );
 
-    it('43. Member cannot delete the project',
-      function (done) {
-        var json = {projectId: project.id};
-        memberApiAdapter.deleteProjectById(project.id, json,
-          function (err, response) {
-            assert.strictEqual(err, 404, 'User should not be able to delete a ' +
-              'project', err, response);
-            return done();
-          }
-        );
-      }
-    );
-
-    it('44. Public cannot delete the project',
+    it('35. Public cannot delete the project',
       function (done) {
         var json = {projectId: project.id};
         global.pubAdapter.deleteProjectById(project.id, json,
@@ -1128,7 +1008,7 @@ describe(test,
       }
     );
 
-    it('45. Unauthorized cannot delete the project',
+    it('36. Unauthorized cannot delete the project',
       function (done) {
         var json = {projectId: project.id};
         unauthorizedApiAdapter.deleteProjectById(project.id, json,
@@ -1141,7 +1021,7 @@ describe(test,
       }
     );
 
-    it('46. Collaborator cannot delete the project',
+    it('37. Collaborator cannot delete the project',
       function (done) {
         var json = {projectId: project.id};
         collaboraterApiAdapter.deleteProjectById(project.id, json,
@@ -1154,7 +1034,7 @@ describe(test,
       }
     );
 
-    it('47. Owner can delete the project',
+    it('38. Owner can delete the project',
       function (done) {
         var json = {projectId: project.id};
         ownerApiAdapter.deleteProjectById(project.id, json,

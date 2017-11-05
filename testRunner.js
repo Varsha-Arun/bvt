@@ -13,22 +13,22 @@ module.exports = self;
 // will run mocha test modules
 //    https://github.com/mochajs/mocha/wiki/Using-mocha-programmatically
 
-var setupTests = require('./setupTests.js');
+var testSetup = require('./testSetup.js');
+var testCleanup = require('./testCleanup.js');
 var spawn = require('child_process').spawn;
 
 startTests();
 
 function startTests() {
-  var who = util.format('%s %s', self.name, startTests.name);
+  var who = util.format('%s|%s', self.name, startTests.name);
+  logger.info(who, 'Inside');
 
-  var bag = {};
-
-  setupTests().then(
+  testSetup().then(
     function () {
       async.series(
         [
-//          doCleanup.bind(null, bag),
-          runTests.bind(null, bag)
+          doCleanup.bind(null),
+//          testRun.bind(null)
         ],
         function (err) {
           if (err) {
@@ -43,14 +43,14 @@ function startTests() {
         logger.error(who, 'Failed to setup tests with error: %s', err);
         process.exit(1);
       }
-      logger.info('Completed', who);
+      logger.info(who, 'Completed');
     }
   );
 }
 
-function runTests(bag, next) {
-  var who = util.format('%s %s', self.name, runTests.name);
-  logger.info('Inside', who);
+function testRun(next) {
+  var who = util.format('%s|%s', self.name, testRun.name);
+  logger.verbose(who, 'Inside');
 
   // takes a list of files/ directories for mocha and runs all in series
   var tests = [
@@ -58,10 +58,11 @@ function runTests(bag, next) {
     'tests/core/account/*.js',
     'tests/core/project/*.js'
   ];
+
   async.eachSeries(tests,
     function (test, nextTest) {
       var _who = who + '|' + test;
-      logger.verbose('Inside', _who);
+      logger.debug(_who, 'Inside');
 
       var child = spawn('node_modules/mocha/bin/mocha', [test]);
       child.stdout.on('data',
@@ -91,28 +92,30 @@ function runTests(bag, next) {
     },
     function (err) {
       if (err) {
-        logger.warn(who, 'tests failed');
+        logger.error(who, 'tests failed');
         return next(err);
       }
-      logger.info(who, 'all tests done');
+      logger.verbose(who, 'all tests done');
       return next();
     }
   );
 }
 
-function doCleanup(bag, next) {
-  var who = bag.who + '|' + doCleanup.name;
-  logger.debug(who, 'Inside');
+function doCleanup(next) {
+  var who = util.format('%s|%s', self.name, testCleanup.name);
+  logger.verbose(who, 'Inside');
 
-  var child = spawn('node', ['doCleanup.js'], {stdio: 'inherit'});
-  child.on('close',
-    function (code, err) {
-      if (code > 0) {
-        logger.error(who, util.format('test cleanup failed with err %s', err));
-        return next(true);
+  testCleanup().then(
+    function () {
+      logger.debug('cleanup');
+    },
+    function (err) {
+      if (err) {
+        logger.error(who, 'Failed to setup tests with error: %s', err);
+        process.exit(1);
       }
+      logger.verbose(who, 'Completed');
       return next();
     }
   );
 }
-
