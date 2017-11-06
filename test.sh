@@ -3,7 +3,7 @@
 
 main() {
   #setup test comparison values
-  . testCompareParams.env
+  . testParams.env
   npm install
   npm run start-tests
 }

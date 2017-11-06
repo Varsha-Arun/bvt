@@ -11,7 +11,7 @@ module.exports = self;
 // setup the microservice for api health checks
 // fetch system integrations for Auth using service user token
 // will run mocha test modules
-//    https://github.com/mochajs/mocha/wiki/Using-mocha-programmatically
+// https://github.com/mochajs/mocha/wiki/Using-mocha-programmatically
 
 var testSetup = require('./testSetup.js');
 var testCleanup = require('./testCleanup.js');
@@ -47,7 +47,8 @@ function testRun(next) {
   var tests = [
     'tests/core/install/*.js',
     'tests/core/account/*.js',
-    'tests/core/project/*.js'
+    'tests/core/subscriptionIntegration/*.js',
+//    'tests/core/project/*.js'
   ];
 
   async.eachSeries(tests,
