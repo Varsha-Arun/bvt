@@ -4,11 +4,12 @@ var testSetup = require('../../../testSetup.js');
 var backoff = require('backoff');
 
 var testSuite = 'GH_OWN_LOGIN';
-var testSuiteDesc = 'Login workflow for Github Owner';
+var testSuiteDesc = 'Login workflow for Github Owner Tests';
 var test = util.format('%s - %s', testSuite, testSuiteDesc);
 
 describe(test,
   function () {
+
     var account = {};
     var ghSysIntId = null;
     var testOrgSubscription = null;
@@ -20,19 +21,23 @@ describe(test,
 
     before(
       function (done) {
-        testSetup().then(
-          function () {
+        async.series(
+          [
+            testSetup.bind(null)
+          ],
+          function (err) {
+            if (err) {
+              logger.error(test, 'Failed to setup tests. err:', err);
+              return done(err);
+            }
+
             ghSysIntId = global.stateFile.get('ghSystemIntegration').id;
             collabSystemCode = _.findWhere(global.systemCodes,
               {name: 'collaborator', group: 'roles'}).code;
             adminSystemCode = _.findWhere(global.systemCodes,
               {name: 'admin', group: 'roles'}).code;
-
+            
             return done();
-          },
-          function (err) {
-            logger.error(testSuite, 'failed to setup tests. err:', err);
-            return done(err);
           }
         );
       }
@@ -49,11 +54,15 @@ describe(test,
             assert.strictEqual(res.statusCode, 200, 'statusCode should be 200');
             assert.isNotEmpty(body, 'body should not be null');
             assert.isNotNull(body.apiToken, 'API token should not be null');
+
             account = body.account;
             account.apiToken = body.apiToken;
+            account.test_resource_type = 'account';
+            account.test_resource_name = 'ghOwnerAccount';
+
             ghAdapter = global.newApiAdapterByToken(body.apiToken);
 
-            global.saveTestResource('ghOwnerAccount', account,
+            global.saveTestResource(account.test_resource_name, account,
               function () {
                 return done(err);
               }
@@ -218,12 +227,7 @@ describe(test,
 
     after(
       function (done) {
-        // save account id and apiToken
-        global.saveTestResource('ghOwnerAccount', account,
-          function () {
-            return done();
-          }
-        );
+        return done();
       }
     );
   }

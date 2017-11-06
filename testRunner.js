@@ -23,25 +23,16 @@ function startTests() {
   var who = util.format('%s|%s', self.name, startTests.name);
   logger.info(who, 'Inside');
 
-  testSetup().then(
-    function () {
-      async.series(
-        [
-          doCleanup.bind(null),
-//          testRun.bind(null)
-        ],
-        function (err) {
-          if (err) {
-            logger.error('tests finished with errors');
-            process.exit(1);  // make the script fail on errors
-          }
-        }
-      );
-    },
+  async.series(
+    [
+      testSetup.bind(null),
+      testCleanup.bind(null),
+      testRun.bind(null)
+    ],
     function (err) {
       if (err) {
-        logger.error(who, 'Failed to setup tests with error: %s', err);
-        process.exit(1);
+        logger.error('tests finished with errors');
+        process.exit(1);  // make the script fail on errors
       }
       logger.info(who, 'Completed');
     }
@@ -96,25 +87,6 @@ function testRun(next) {
         return next(err);
       }
       logger.verbose(who, 'all tests done');
-      return next();
-    }
-  );
-}
-
-function doCleanup(next) {
-  var who = util.format('%s|%s', self.name, testCleanup.name);
-  logger.verbose(who, 'Inside');
-
-  testCleanup().then(
-    function () {
-      logger.debug('cleanup');
-    },
-    function (err) {
-      if (err) {
-        logger.error(who, 'Failed to setup tests with error: %s', err);
-        process.exit(1);
-      }
-      logger.verbose(who, 'Completed');
       return next();
     }
   );

@@ -20,19 +20,23 @@ describe(test,
 
     before(
       function (done) {
-        testSetup().then(
-          function () {
+        async.series(
+          [
+            testSetup.bind(null)
+          ],
+          function (err) {
+            if (err) {
+              logger.error(test, 'Failed to setup tests. err:', err);
+              return done(err);
+            }
+
             ghSysIntId = global.stateFile.get('ghSystemIntegration').id;
             collabSystemCode = _.findWhere(global.systemCodes,
               {name: 'collaborator', group: 'roles'}).code;
             adminSystemCode = _.findWhere(global.systemCodes,
               {name: 'admin', group: 'roles'}).code;
-
+            
             return done();
-          },
-          function (err) {
-            logger.error(testSuite, 'failed to setup tests. err:', err);
-            return done(err);
           }
         );
       }
@@ -49,11 +53,15 @@ describe(test,
             assert.strictEqual(res.statusCode, 200, 'statusCode should be 200');
             assert.isNotEmpty(body, 'body should not be null');
             assert.isNotNull(body.apiToken, 'API token should not be null');
+
             account = body.account;
             account.apiToken = body.apiToken;
+            account.test_resource_type = 'account';
+            account.test_resource_name = 'ghCollaboratorAccount';
+
             ghAdapter = global.newApiAdapterByToken(body.apiToken);
 
-            global.saveTestResource('ghCollaboratorAccount', account,
+            global.saveTestResource(account.test_resource_name, account,
               function () {
                 return done(err);
               }

@@ -138,7 +138,7 @@ global.saveTestResource = function (name, object, done) {
 global.removeTestResource = function (name, done) {
   nconf.file(global.resourcePath);
   nconf.load();
-  nconf.remove(name);
+  nconf.set(name, null);
   nconf.save(
     function (err) {
       if (err) {

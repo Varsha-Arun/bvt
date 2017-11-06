@@ -16,7 +16,7 @@
     "github": "6.1.0",
     "mocha": "3.4.2",
     "mocha-multi": "0.9.1",
-    "nconf": "0.8.4",
+    "nconf": "0.9.1",
     "oauth": "0.9.15",
     "parse-links": "0.1.0",
     "querystring": "0.2.0",

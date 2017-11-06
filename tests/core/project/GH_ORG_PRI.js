@@ -19,11 +19,18 @@ describe(test,
     var successStatusCode = null;
 
     this.timeout(0);
-
+    
     before(
       function (done) {
-        testSetup().then(
-          function () {
+        async.series(
+          [
+            testSetup.bind(null)
+          ],
+          function (err) {
+            if (err) {
+              logger.error(test, 'Failed to setup tests. err:', err);
+              return done(err);
+            }
 
             ownerApiAdapter =
               global.newApiAdapterByStateAccount('ghOwnerAccount');
@@ -45,17 +52,17 @@ describe(test,
                 if (err || _.isEmpty(prjs))
                   return done(new Error('Project list is empty', err));
                 project = _.first(
-                  _.where(prjs, {isOrg: true, isPrivateRepository: true})
+                  _.where(prjs, {isOrg: true, isPrivateRepository: true}
+                  )
                 );
+
+                project.test_resource_type = 'project';
+                project.test_resource_name = 'ghOrgPrivate';
 
                 assert.isNotEmpty(project, 'User cannot find the project');
                 return done();
               }
             );
-          },
-          function (err) {
-            logger.error(testSuite, 'failed to setup tests. err:', err);
-            return done(err);
           }
         );
       }
@@ -72,7 +79,7 @@ describe(test,
                 )
               );
             // check if build triggered in previous test case is present
-            assert.isNotEmpty(prj,'Project cannot be empty');
+            assert.isNotEmpty(prj, 'Project cannot be empty');
             return done();
           }
         );
@@ -90,30 +97,30 @@ describe(test,
                 )
               );
             // check if build triggered in previous test case is present
-            assert.isNotEmpty(prj,'Project cannot be empty');
+            assert.isNotEmpty(prj, 'Project cannot be empty');
             return done();
           }
         );
       }
     );
 
-    // it('3. Collaborator can get the project',
-    //   function (done) {
-    //     collaboraterApiAdapter.getProjectById(project.id,
-    //       function (err, prj) {
-    //         if (err)
-    //           return done(
-    //             new Error(
-    //               util.format('User cannot get runId %s, err: %s', runId, err)
-    //             )
-    //           );
-    //         // check if build triggered in previous test case is present
-    //         assert.isNotEmpty(prj,'Project cannot be empty');
-    //         return done();
-    //       }
-    //     );
-    //   }
-    // );
+    it('3. Collaborator can get the project',
+      function (done) {
+        collaboraterApiAdapter.getProjectById(project.id,
+          function (err, prj) {
+            if (err)
+              return done(
+                new Error(
+                  util.format('User cannot get runId %s, err: %s', runId, err)
+                )
+              );
+            // check if build triggered in previous test case is present
+            assert.isNotEmpty(prj, 'Project cannot be empty');
+            return done();
+          }
+        );
+      }
+    );
 
     it('4. Public cannot get the project',
       function (done) {
@@ -208,7 +215,12 @@ describe(test,
                     project.id, util.inspect(response))
                 )
               );
-            return done();
+
+            global.saveTestResource(project.test_resource_name, project,
+              function () {
+                return done();
+              }
+            );
           }
         );
       }
@@ -379,7 +391,7 @@ describe(test,
                 )
               );
             // check if build triggered in previous test case is present
-            assert.isNotEmpty(run,'Run cannot be empty');
+            assert.isNotEmpty(run, 'Run cannot be empty');
             return done();
           }
         );
@@ -397,7 +409,7 @@ describe(test,
                 )
               );
             // check if build triggered in previous test case is present
-            assert.isNotEmpty(run,'Run cannot be empty');
+            assert.isNotEmpty(run, 'Run cannot be empty');
             return done();
           }
         );
@@ -415,7 +427,7 @@ describe(test,
                 )
               );
             // check if build triggered in previous test case is present
-            assert.isNotEmpty(run,'Run cannot be empty');
+            assert.isNotEmpty(run, 'Run cannot be empty');
             return done();
           }
         );
@@ -1031,7 +1043,7 @@ describe(test,
         );
       }
     );
-    
+
     it('38. Collaborator cannot Reset the project',
       function (done) {
         var json = {projectId: project.id};
@@ -1166,7 +1178,12 @@ describe(test,
                     project.id, err, response)
                 )
               );
-            return done();
+
+            global.removeTestResource(project.test_resource_name,
+              function () {
+                return done();
+              }
+            );
           }
         );
       }
@@ -1204,16 +1221,11 @@ describe(test,
     //   }
     // );
     //
-
-
-    //
-    // after(
-    //   function (done) {
-    //     if (projectId)
-    //       global.deleteProjectWithBackoff(projectId, done);
-    //     else
-    //       return done();
-    //   }
-    // );
+    
+    after(
+      function (done) {
+        return done();
+      }
+    );
   }
 );

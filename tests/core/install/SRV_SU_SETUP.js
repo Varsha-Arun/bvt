@@ -3,8 +3,8 @@
 var testSetup = require('../../../testSetup.js');
 var backoff = require('backoff');
 
-var testSuite = 'SRV_SU_SYSINT';
-var testSuiteDesc = 'System Integrations Setup';
+var testSuite = 'SRV_SU_SETUP';
+var testSuiteDesc = 'Server Setup Tests';
 var test = util.format('%s - %s', testSuite, testSuiteDesc);
 
 describe(test,
@@ -13,13 +13,18 @@ describe(test,
 
     before(
       function (done) {
-        testSetup().then(
-          function () {
-            return done();
-          },
+
+        async.series(
+          [
+            testSetup.bind(null)
+          ],
           function (err) {
-            logger.error(testSuite, 'failed to setup tests. err:', err);
-            return done(err);
+            if (err) {
+              logger.error(test, 'Failed to setup tests. err:', err);
+              return done(err);
+            }
+            logger.debug(test, 'Completed');
+            return done();
           }
         );
       }

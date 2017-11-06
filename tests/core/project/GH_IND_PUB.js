@@ -3,15 +3,14 @@
 var testSetup = require('../../../testSetup.js');
 var backoff = require('backoff');
 
-var testSuite = 'GH_ORG_PUB';
-var testSuiteDesc = 'Github Org public project tests';
+var testSuite = 'GH_IND_PUB';
+var testSuiteDesc = 'Github Individual public project tests';
 var test = util.format('%s - %s', testSuite, testSuiteDesc);
 
 describe(test,
   function () {
     var ownerApiAdapter = null;
     var collaboraterApiAdapter = null;
-    var memberApiAdapter = null;
     var unauthorizedApiAdapter = null;
     var project = {};
     var runId = null;
@@ -22,18 +21,23 @@ describe(test,
 
     before(
       function (done) {
-        testSetup().then(
-          function () {
+        async.series(
+          [
+            testSetup.bind(null)
+          ],
+          function (err) {
+            if (err) {
+              logger.error(test, 'Failed to setup tests. err:', err);
+              return done(err);
+            }
 
             ownerApiAdapter =
               global.newApiAdapterByStateAccount('ghOwnerAccount');
             collaboraterApiAdapter =
               global.newApiAdapterByStateAccount('ghCollaboratorAccount');
-            memberApiAdapter =
-              global.newApiAdapterByStateAccount('ghMemberAccount');
             unauthorizedApiAdapter =
               global.newApiAdapterByStateAccount('ghUnauthorizedAccount');
-
+            
             processingStatusCode = _.findWhere(global.systemCodes,
               {group: 'statusCodes', name: 'PROCESSING'}).code;
 
@@ -45,17 +49,21 @@ describe(test,
                 if (err || _.isEmpty(prjs))
                   return done(new Error('Project list is empty', err));
                 project = _.first(
-                  _.where(prjs, {isOrg: true, isPrivateRepository: false})
+                  _.where(prjs, {
+                      isOrg: false,
+                      isPrivateRepository: false,
+                      isFork: false
+                    }
+                  )
                 );
+
+                project.test_resource_type = 'project';
+                project.test_resource_name = 'ghIndividualPublic';
 
                 assert.isNotEmpty(project, 'User cannot find the project');
                 return done();
               }
             );
-          },
-          function (err) {
-            logger.error(testSuite, 'failed to setup tests. err:', err);
-            return done(err);
           }
         );
       }
@@ -72,32 +80,14 @@ describe(test,
                 )
               );
             // check if build triggered in previous test case is present
-            assert.isNotEmpty(prj,'Project cannot be empty');
+            assert.isNotEmpty(prj, 'Project cannot be empty');
             return done();
           }
         );
       }
     );
 
-    it('2. Member can get the project',
-      function (done) {
-        memberApiAdapter.getProjectById(project.id,
-          function (err, prj) {
-            if (err)
-              return done(
-                new Error(
-                  util.format('User cannot get runId %s, err: %s', runId, err)
-                )
-              );
-            // check if build triggered in previous test case is present
-            assert.isNotEmpty(prj,'Project cannot be empty');
-            return done();
-          }
-        );
-      }
-    );
-
-    it('3. Collaborator can get the project',
+    it('2. Collaborator can get the project',
       function (done) {
         collaboraterApiAdapter.getProjectById(project.id,
           function (err, prj) {
@@ -108,14 +98,14 @@ describe(test,
                 )
               );
             // check if build triggered in previous test case is present
-            assert.isNotEmpty(prj,'Project cannot be empty');
+            assert.isNotEmpty(prj, 'Project cannot be empty');
             return done();
           }
         );
       }
     );
 
-    it('4. Public can get the project',
+    it('3. Public can get the project',
       function (done) {
         global.pubAdapter.getProjectById(project.id,
           function (err, prj) {
@@ -126,14 +116,14 @@ describe(test,
                 )
               );
             // check if build triggered in previous test case is present
-            assert.isNotEmpty(prj,'Project cannot be empty');
+            assert.isNotEmpty(prj, 'Project cannot be empty');
             return done();
           }
         );
       }
     );
 
-    it('5. Unauthorized can get the project',
+    it('4. Unauthorized can get the project',
       function (done) {
         unauthorizedApiAdapter.getProjectById(project.id,
           function (err, prj) {
@@ -144,14 +134,14 @@ describe(test,
                 )
               );
             // check if build triggered in previous test case is present
-            assert.isNotEmpty(prj,'Project cannot be empty');
+            assert.isNotEmpty(prj, 'Project cannot be empty');
             return done();
           }
         );
       }
     );
 
-    it('6. Public User cannot enable the project',
+    it('5. Public User cannot enable the project',
       function (done) {
         var json = {
           type: 'ci'
@@ -168,24 +158,7 @@ describe(test,
       }
     );
 
-    it('7. Member cannot enable the project',
-      function (done) {
-        var json = {
-          type: 'ci'
-        };
-        memberApiAdapter.enableProjectById(project.id, json,
-          function (err, prj) {
-            assert.strictEqual(err, 404,
-              util.format('User should not be able to enable the project. ' +
-                'err : %s %s', err, prj)
-            );
-            return done();
-          }
-        );
-      }
-    );
-
-    it('8. Unauthorized cannot enable the project',
+    it('6. Unauthorized cannot enable the project',
       function (done) {
         var json = {
           type: 'ci'
@@ -202,7 +175,7 @@ describe(test,
       }
     );
 
-    it('9. Owner can enable the project',
+    it('7. Owner can enable the project',
       function (done) {
         var json = {
           type: 'ci'
@@ -216,13 +189,18 @@ describe(test,
                     project.id, util.inspect(response))
                 )
               );
-            return done();
+
+            global.saveTestResource(project.test_resource_name, project,
+              function () {
+                return done();
+              }
+            );
           }
         );
       }
     );
 
-    it('10. Owner can trigger manual build for the project',
+    it('8. Owner can trigger manual build for the project',
       function (done) {
         var triggerBuild = new Promise(
           function (resolve, reject) {
@@ -301,7 +279,7 @@ describe(test,
       }
     );
 
-    it('11. Owner triggered build for the project was successful',
+    it('9. Owner triggered build for the project was successful',
       function (done) {
         var triggerBuild = new Promise(
           function (resolve, reject) {
@@ -376,7 +354,7 @@ describe(test,
       }
     );
 
-    it('12. Owner can view builds for the project',
+    it('10. Owner can view builds for the project',
       function (done) {
         ownerApiAdapter.getRunById(runId,
           function (err, run) {
@@ -387,14 +365,14 @@ describe(test,
                 )
               );
             // check if build triggered in previous test case is present
-            assert.isNotEmpty(run,'Run cannot be empty');
+            assert.isNotEmpty(run, 'Run cannot be empty');
             return done();
           }
         );
       }
     );
 
-    it('13. Collaborator can view builds for the project',
+    it('11. Collaborator can view builds for the project',
       function (done) {
         collaboraterApiAdapter.getRunById(runId,
           function (err, run) {
@@ -405,32 +383,14 @@ describe(test,
                 )
               );
             // check if build triggered in previous test case is present
-            assert.isNotEmpty(run,'Run cannot be empty');
+            assert.isNotEmpty(run, 'Run cannot be empty');
             return done();
           }
         );
       }
     );
 
-    it('14. Member can view builds for the project',
-      function (done) {
-        memberApiAdapter.getRunById(runId,
-          function (err, run) {
-            if (err)
-              return done(
-                new Error(
-                  util.format('User cannot get Run %s, err: %s', runId, err)
-                )
-              );
-            // check if build triggered in previous test case is present
-            assert.isNotEmpty(run,'Run cannot be empty');
-            return done();
-          }
-        );
-      }
-    );
-
-    it('15. Public can view builds for the project',
+    it('12. Public can view builds for the project',
       function (done) {
         global.pubAdapter.getRunById(runId,
           function (err, run) {
@@ -441,14 +401,14 @@ describe(test,
                 )
               );
             // check if build triggered in previous test case is present
-            assert.isNotEmpty(run,'Run cannot be empty');
+            assert.isNotEmpty(run, 'Run cannot be empty');
             return done();
           }
         );
       }
     );
 
-    it('16. Unauthorized can view builds for the project',
+    it('13. Unauthorized can view builds for the project',
       function (done) {
         unauthorizedApiAdapter.getRunById(runId,
           function (err, run) {
@@ -459,14 +419,14 @@ describe(test,
                 )
               );
             // check if build triggered in previous test case is present
-            assert.isNotEmpty(run,'Run cannot be empty');
+            assert.isNotEmpty(run, 'Run cannot be empty');
             return done();
           }
         );
       }
     );
 
-    it('17. Owner can view consoles for the run',
+    it('14. Owner can view consoles for the run',
       function (done) {
         var bag = {
           runId: runId,
@@ -485,7 +445,7 @@ describe(test,
       }
     );
 
-    it('18. Collaborator can view consoles for the run',
+    it('15. Collaborator can view consoles for the run',
       function (done) {
         var bag = {
           runId: runId,
@@ -504,26 +464,7 @@ describe(test,
       }
     );
 
-    it('19. Member can view consoles for the run',
-      function (done) {
-        var bag = {
-          runId: runId,
-          adapter: memberApiAdapter,
-          logs: []
-        };
-        async.series([
-            _getJobs.bind(null, bag),
-            _getLogs.bind(null, bag)
-          ],
-          function (err) {
-            assert.isNotEmpty(bag.logs, 'User did not find console logs');
-            return done(err);
-          }
-        );
-      }
-    );
-
-    it('20. Unauthorized can view consoles for the run',
+    it('16. Unauthorized can view consoles for the run',
       function (done) {
         var bag = {
           runId: runId,
@@ -542,7 +483,7 @@ describe(test,
       }
     );
 
-    it('21. Public can view consoles for the run',
+    it('17. Public can view consoles for the run',
       function (done) {
         var bag = {
           runId: runId,
@@ -594,7 +535,7 @@ describe(test,
       );
     }
 
-    it('22. Collaborator can trigger a build for the project',
+    it('18. Collaborator can trigger a build for the project',
       function (done) {
         var triggerBuild = new Promise(
           function (resolve, reject) {
@@ -615,7 +556,7 @@ describe(test,
             );
           }
         );
-    
+
         triggerBuild.then(
           function (response) {
             var customRunId = response.runId;
@@ -626,14 +567,14 @@ describe(test,
                 failAfter: 30 // fail after 30 attempts i.e ~ 3 minutes
               }
             );
-    
+
             expBackoff.on('backoff',
               function (number, delay) {
                 logger.info('Run with id:', customRunId, ' is still processing. ' +
                   'Retrying after ', delay, ' ms');
               }
             );
-    
+
             expBackoff.on('ready',
               function () {
                 collaboraterApiAdapter.getRunById(customRunId,
@@ -642,7 +583,7 @@ describe(test,
                       return done(
                         new Error('Failed to get run id:', customRunId, err)
                       );
-    
+
                     if (run.statusCode !== successStatusCode) {
                       expBackoff.backoff();
                     } else {
@@ -653,7 +594,7 @@ describe(test,
                 );
               }
             );
-    
+
             // max number of backoffs reached
             expBackoff.on('fail',
               function () {
@@ -662,7 +603,7 @@ describe(test,
                 );
               }
             );
-    
+
             expBackoff.backoff();
           },
           function (err) {
@@ -672,20 +613,7 @@ describe(test,
       }
     );
 
-    it('23. Member cannot trigger a build for the project',
-      function (done) {
-        var json = {branchName: 'master'};
-        memberApiAdapter.triggerNewBuildByProjectId(project.id, json,
-          function (err, response) {
-            assert.strictEqual(err, 404, 'User should not be able to trigger ' +
-              'a build for the project', err, response);
-            return done();
-          }
-        );
-      }
-    );
-
-    it('24. Public cannot trigger a build for the project',
+    it('19. Public cannot trigger a build for the project',
       function (done) {
         var json = {branchName: 'master'};
         global.pubAdapter.triggerNewBuildByProjectId(project.id, json,
@@ -698,7 +626,7 @@ describe(test,
       }
     );
 
-    it('25. Unauthorized cannot trigger a build for the project',
+    it('20. Unauthorized cannot trigger a build for the project',
       function (done) {
         var json = {branchName: 'master'};
         unauthorizedApiAdapter.triggerNewBuildByProjectId(project.id, json,
@@ -711,7 +639,163 @@ describe(test,
       }
     );
 
-    it('26. Owner can pause the project',
+    it('21. Owner can run custom build with params for the project',
+      function (done) {
+        var triggerBuild = new Promise(
+          function (resolve, reject) {
+            var json = {branchName: 'master', globalEnv: {key: 'value'}};
+            ownerApiAdapter.triggerNewBuildByProjectId(project.id, json,
+              function (err, response) {
+                if (err)
+                  return reject(
+                    new Error(
+                      util.format('User cannot trigger manual build for ' +
+                        'project id: %s, err: %s, %s', project.id, err,
+                        util.inspect(response)
+                      )
+                    )
+                  );
+                return resolve(response);
+              }
+            );
+          }
+        );
+
+        triggerBuild.then(
+          function (response) {
+            var customRunId = response.runId;
+            var expBackoff = backoff.exponential(
+              {
+                initialDelay: 100, // ms
+                maxDelay: 6400, // max retry interval of 6.4 seconds
+                failAfter: 30 // fail after 30 attempts i.e ~ 3 minutes
+              }
+            );
+
+            expBackoff.on('backoff',
+              function (number, delay) {
+                logger.info('Run with id:', customRunId, ' is still processing. ' +
+                  'Retrying after ', delay, ' ms');
+              }
+            );
+
+            expBackoff.on('ready',
+              function () {
+                ownerApiAdapter.getRunById(customRunId,
+                  function (err, run) {
+                    if (err)
+                      return done(
+                        new Error('Failed to get run id:', customRunId, err)
+                      );
+
+                    if (run.statusCode !== successStatusCode) {
+                      expBackoff.backoff();
+                    } else {
+                      expBackoff.reset();
+                      return done();
+                    }
+                  }
+                );
+              }
+            );
+
+            // max number of backoffs reached
+            expBackoff.on('fail',
+              function () {
+                return done(
+                  new Error('Max number of back-offs reached')
+                );
+              }
+            );
+
+            expBackoff.backoff();
+          },
+          function (err) {
+            return done(err);
+          }
+        );
+      }
+    );
+
+    it('22. Owner can rerun build for the project',
+      function (done) {
+        var triggerBuild = new Promise(
+          function (resolve, reject) {
+            var json = {runId: runId};
+            ownerApiAdapter.triggerNewBuildByProjectId(project.id, json,
+              function (err, response) {
+                if (err)
+                  return reject(
+                    new Error(
+                      util.format('User cannot trigger manual build for ' +
+                        'project id: %s, err: %s, %s', project.id, err,
+                        util.inspect(response)
+                      )
+                    )
+                  );
+                return resolve(response);
+              }
+            );
+          }
+        );
+
+        triggerBuild.then(
+          function (response) {
+            var customRunId = response.runId;
+            var expBackoff = backoff.exponential(
+              {
+                initialDelay: 100, // ms
+                maxDelay: 6400, // max retry interval of 6.4 seconds
+                failAfter: 30 // fail after 30 attempts i.e ~ 3 minutes
+              }
+            );
+
+            expBackoff.on('backoff',
+              function (number, delay) {
+                logger.info('Run with id:', customRunId, ' is still processing. ' +
+                  'Retrying after ', delay, ' ms');
+              }
+            );
+
+            expBackoff.on('ready',
+              function () {
+                ownerApiAdapter.getRunById(customRunId,
+                  function (err, run) {
+                    if (err)
+                      return done(
+                        new Error('Failed to get run id:', customRunId, err)
+                      );
+
+                    if (run.statusCode !== successStatusCode) {
+                      expBackoff.backoff();
+                    } else {
+                      expBackoff.reset();
+                      return done();
+                    }
+                  }
+                );
+              }
+            );
+
+            // max number of backoffs reached
+            expBackoff.on('fail',
+              function () {
+                return done(
+                  new Error('Max number of back-offs reached')
+                );
+              }
+            );
+
+            expBackoff.backoff();
+          },
+          function (err) {
+            return done(err);
+          }
+        );
+      }
+    );
+
+    it('23. Owner can pause the project',
       function () {
         var pauseProject = new Promise(
           function (resolve, reject) {
@@ -737,7 +821,7 @@ describe(test,
       }
     );
 
-    it('27. Owner can resume the project',
+    it('24. Owner can resume the project',
       function () {
         var pauseProject = new Promise(
           function (resolve, reject) {
@@ -768,20 +852,7 @@ describe(test,
       }
     );
 
-    it('28. Member cannot pause the project',
-      function (done) {
-        var json = {propertyBag: {isPaused: true}};
-        memberApiAdapter.putProjectById(project.id, json,
-          function (err, response) {
-            assert.strictEqual(err, 404, 'User should not be able to pause a ' +
-              'project', err, response);
-            return done();
-          }
-        );
-      }
-    );
-
-    it('29. Public cannot pause the project',
+    it('25. Public cannot pause the project',
       function (done) {
         var json = {propertyBag: {isPaused: true}};
         global.pubAdapter.putProjectById(project.id, json,
@@ -794,7 +865,7 @@ describe(test,
       }
     );
 
-    it('30. Unauthorized cannot pause the project',
+    it('26. Unauthorized cannot pause the project',
       function (done) {
         var json = {propertyBag: {isPaused: true}};
         unauthorizedApiAdapter.putProjectById(project.id, json,
@@ -807,7 +878,7 @@ describe(test,
       }
     );
 
-    it('31. Collaborator can pause the project',
+    it('27. Collaborator can pause the project',
       function (done) {
         var json = {propertyBag: {isPaused: true}};
         collaboraterApiAdapter.putProjectById(project.id, json,
@@ -830,20 +901,7 @@ describe(test,
       }
     );
 
-    it('32. Member cannot resume the project',
-      function (done) {
-        var json = {propertyBag: {isPaused: false}};
-        memberApiAdapter.putProjectById(project.id, json,
-          function (err, response) {
-            assert.strictEqual(err, 404, 'User should not be able to resume a ' +
-              'project', err, response);
-            return done();
-          }
-        );
-      }
-    );
-
-    it('33. Public cannot resume the project',
+    it('28. Public cannot resume the project',
       function (done) {
         var json = {propertyBag: {isPaused: false}};
         global.pubAdapter.putProjectById(project.id, json,
@@ -856,7 +914,7 @@ describe(test,
       }
     );
 
-    it('34. Unauthorized cannot resume the project',
+    it('29. Unauthorized cannot resume the project',
       function (done) {
         var json = {propertyBag: {isPaused: false}};
         unauthorizedApiAdapter.putProjectById(project.id, json,
@@ -869,7 +927,7 @@ describe(test,
       }
     );
 
-    it('35. Collaborator can resume the project',
+    it('30. Collaborator can resume the project',
       function (done) {
         var json = {propertyBag: {isPaused: false}};
         collaboraterApiAdapter.putProjectById(project.id, json,
@@ -892,12 +950,12 @@ describe(test,
       }
     );
 
-    it('36. Member cannot delete the project',
+    it('31. Collaborator cannot Reset the project',
       function (done) {
         var json = {projectId: project.id};
-        memberApiAdapter.deleteProjectById(project.id, json,
+        collaboraterApiAdapter.resetProjectById(project.id, json,
           function (err, response) {
-            assert.strictEqual(err, 404, 'User should not be able to delete a ' +
+            assert.strictEqual(err, 404, 'User should not be able to reset a ' +
               'project', err, response);
             return done();
           }
@@ -905,7 +963,51 @@ describe(test,
       }
     );
 
-    it('37. Public cannot delete the project',
+    it('32. Public cannot Reset the project',
+      function (done) {
+        var json = {projectId: project.id};
+        global.pubAdapter.resetProjectById(project.id, json,
+          function (err, response) {
+            assert.strictEqual(err, 401, 'User should not be able to reset a ' +
+              'project', err, response);
+            return done();
+          }
+        );
+      }
+    );
+
+    it('33. Unauthorized cannot Reset the project',
+      function (done) {
+        var json = {projectId: project.id};
+        unauthorizedApiAdapter.resetProjectById(project.id, json,
+          function (err, response) {
+            assert.strictEqual(err, 404, 'User should not be able to reset a ' +
+              'project', err, response);
+            return done();
+          }
+        );
+      }
+    );
+
+    it('34. Owner can Reset the project',
+      function (done) {
+        var json = {projectId: project.id};
+        ownerApiAdapter.resetProjectById(project.id, json,
+          function (err, response) {
+            if (err)
+              return done(
+                new Error(
+                  util.format('User cannot reset project id: %s, err: %s, %s',
+                    project.id, err, response)
+                )
+              );
+            return done();
+          }
+        );
+      }
+    );
+
+    it('35. Public cannot delete the project',
       function (done) {
         var json = {projectId: project.id};
         global.pubAdapter.deleteProjectById(project.id, json,
@@ -918,7 +1020,7 @@ describe(test,
       }
     );
 
-    it('38. Unauthorized cannot delete the project',
+    it('36. Unauthorized cannot delete the project',
       function (done) {
         var json = {projectId: project.id};
         unauthorizedApiAdapter.deleteProjectById(project.id, json,
@@ -931,7 +1033,7 @@ describe(test,
       }
     );
 
-    it('39. Collaborator cannot delete the project',
+    it('37. Collaborator cannot delete the project',
       function (done) {
         var json = {projectId: project.id};
         collaboraterApiAdapter.deleteProjectById(project.id, json,
@@ -944,7 +1046,7 @@ describe(test,
       }
     );
 
-    it('40. Owner can delete the project',
+    it('38. Owner can delete the project',
       function (done) {
         var json = {projectId: project.id};
         ownerApiAdapter.deleteProjectById(project.id, json,
@@ -956,54 +1058,21 @@ describe(test,
                     project.id, err, response)
                 )
               );
-            return done();
+
+            global.removeTestResource(project.test_resource_name,
+              function () {
+                return done();
+              }
+            );
           }
         );
       }
     );
-
-    // it('8. Can cancel build',
-    //   function (done) {
-    //     global.ghcAdminAdapter.cancelRunById(runId,
-    //       function (err, response) {
-    //         if (err)
-    //           return done(new Error(util.format('Cannot cancel build id: %d ' +
-    //             'for project id: %s, err: %s, %s', runId, projectId, err,
-    //             response)));
-    //         return done();
-    //       }
-    //     );
-    //   }
-    // );
-    // it('10. Can reset cache',
-    //   function (done) {
-    //     var json = {
-    //       propertyBag: {
-    //         cacheTag: 0,
-    //         cacheResetDate: Date.now()
-    //       }
-    //     };
-    //     global.ghcAdminAdapter.putProjectById(projectId, json,
-    //       function (err, response) {
-    //         if (err)
-    //           return done(new Error(util.format('Cannot reset cache project ' +
-    //             'id: %s, err: %s, %s', projectId, err, response)));
-    //         return done();
-    //       }
-    //     );
-    //   }
-    // );
-    //
-
-
-    //
-    // after(
-    //   function (done) {
-    //     if (projectId)
-    //       global.deleteProjectWithBackoff(projectId, done);
-    //     else
-    //       return done();
-    //   }
-    // );
+    
+    after(
+      function (done) {
+        return done();
+      }
+    );
   }
 );

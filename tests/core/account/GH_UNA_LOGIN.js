@@ -17,15 +17,18 @@ describe(test,
 
     before(
       function (done) {
-        testSetup().then(
-          function () {
-            ghSysIntId = global.stateFile.get('ghSystemIntegration').id;
-
-            return done();
-          },
+        async.series(
+          [
+            testSetup.bind(null)
+          ],
           function (err) {
-            logger.error(testSuite, 'failed to setup tests. err:', err);
-            return done(err);
+            if (err) {
+              logger.error(test, 'Failed to setup tests. err:', err);
+              return done(err);
+            }
+
+            ghSysIntId = global.stateFile.get('ghSystemIntegration').id;
+            return done();
           }
         );
       }
@@ -44,9 +47,12 @@ describe(test,
             assert.isNotNull(body.apiToken, 'API token should not be null');
             account = body.account;
             account.apiToken = body.apiToken;
+            account.test_resource_type = 'account';
+            account.test_resource_name = 'ghUnauthorizedAccount';
+
             ghAdapter = global.newApiAdapterByToken(body.apiToken);
 
-            global.saveTestResource('ghUnauthorizedAccount', account,
+            global.saveTestResource(account.test_resource_name, account,
               function () {
                 return done(err);
               }

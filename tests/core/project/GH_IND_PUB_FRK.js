@@ -19,8 +19,15 @@ describe(test,
 
     before(
       function (done) {
-        testSetup().then(
-          function () {
+        async.series(
+          [
+            testSetup.bind(null)
+          ],
+          function (err) {
+            if (err) {
+              logger.error(test, 'Failed to setup tests. err:', err);
+              return done(err);
+            }
 
             ownerApiAdapter =
               global.newApiAdapterByStateAccount('ghOwnerAccount');
@@ -37,20 +44,20 @@ describe(test,
                   return done(new Error('Project list is empty', err));
                 project = _.first(
                   _.where(prjs, {
-                    isOrg: false,
-                    isPrivateRepository: false,
-                    isFork: true
-                  })
+                      isOrg: false,
+                      isPrivateRepository: false,
+                      isFork: true
+                    }
+                  )
                 );
+
+                project.test_resource_type = 'project';
+                project.test_resource_name = 'ghIndividualPublicFork';
 
                 assert.isNotEmpty(project, 'User cannot find the project');
                 return done();
               }
             );
-          },
-          function (err) {
-            logger.error(testSuite, 'failed to setup tests. err:', err);
-            return done(err);
           }
         );
       }
@@ -88,7 +95,12 @@ describe(test,
                     project.id, util.inspect(response))
                 )
               );
-            return done();
+
+            global.saveTestResource(project.test_resource_name, project,
+              function () {
+                return done();
+              }
+            );
           }
         );
       }
@@ -387,54 +399,21 @@ describe(test,
                     project.id, err, response)
                 )
               );
-            return done();
+            
+            global.removeTestResource(project.test_resource_name,
+              function () {
+                return done();
+              }
+            );
           }
         );
       }
     );
 
-    // it('8. Can cancel build',
-    //   function (done) {
-    //     global.ghcAdminAdapter.cancelRunById(runId,
-    //       function (err, response) {
-    //         if (err)
-    //           return done(new Error(util.format('Cannot cancel build id: %d ' +
-    //             'for project id: %s, err: %s, %s', runId, projectId, err,
-    //             response)));
-    //         return done();
-    //       }
-    //     );
-    //   }
-    // );
-    // it('10. Can reset cache',
-    //   function (done) {
-    //     var json = {
-    //       propertyBag: {
-    //         cacheTag: 0,
-    //         cacheResetDate: Date.now()
-    //       }
-    //     };
-    //     global.ghcAdminAdapter.putProjectById(projectId, json,
-    //       function (err, response) {
-    //         if (err)
-    //           return done(new Error(util.format('Cannot reset cache project ' +
-    //             'id: %s, err: %s, %s', projectId, err, response)));
-    //         return done();
-    //       }
-    //     );
-    //   }
-    // );
-    //
-
-
-    //
-    // after(
-    //   function (done) {
-    //     if (projectId)
-    //       global.deleteProjectWithBackoff(projectId, done);
-    //     else
-    //       return done();
-    //   }
-    // );
+    after(
+      function (done) {
+        return done();
+      }
+    );
   }
 );

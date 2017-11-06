@@ -8,9 +8,9 @@ var fs = require('fs');
 
 var deleteFailedCIProjects = [];
 
-function testCleanup() {
+function testCleanup(done) {
   var who = util.format('%s|%s', self.name, testCleanup.name);
-  logger.debug(who, 'Inside');
+  logger.verbose(who, 'Inside');
 
   nconf.file(global.resourcePath);
   nconf.load();
@@ -22,7 +22,7 @@ function testCleanup() {
 
   // projects should be saved with a these properties 
   // {test_resource_type: 'ci', id:''}
-  var ciRes = _.where(testResource, {"test_resource_type": "ci"});
+  var ciRes = _.where(testResource, {"test_resource_type": "project"});
 
   if (!_.isEmpty(ciRes))
     bag.ciProjects = ciRes;
@@ -34,9 +34,10 @@ function testCleanup() {
     function (err) {
       if (err) {
         logger.error('Cleanup failed with errors');
-        process.exit(1);  // make the script fail on errors
+        return done(err);
       }
-      logger.debug(who, 'Completed');
+      logger.verbose(who, 'Completed');
+      return done();
     }
   );
 }
@@ -55,10 +56,14 @@ function deleteCI(bag, next) {
               util.format('Failed to delete project, %s with err: %s',
                 ci.fullName, err)
             );
-          } else {
+          } else
             logger.debug(who, 'Deleted project, ', ci.fullName);
-          }
-          callback();
+
+          global.removeTestResource(ci.test_resource_name,
+            function () {
+              callback();
+            }
+          );
         }
       );
     },
