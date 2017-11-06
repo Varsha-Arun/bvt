@@ -4,7 +4,7 @@ var testSetup = require('../../../testSetup.js');
 var backoff = require('backoff');
 
 var testSuite = 'GH_MEM_LOGIN';
-var testSuiteDesc = 'Login workflow for Github Member';
+var testSuiteDesc = 'Login workflow for Github Member test';
 var test = util.format('%s - %s', testSuite, testSuiteDesc);
 
 describe(test,

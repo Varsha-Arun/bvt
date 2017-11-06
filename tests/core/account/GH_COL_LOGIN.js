@@ -4,7 +4,7 @@ var testSetup = require('../../../testSetup.js');
 var backoff = require('backoff');
 
 var testSuite = 'GH_COL_LOGIN';
-var testSuiteDesc = 'Login workflow for Github Collaborator';
+var testSuiteDesc = 'Login workflow for Github Collaborator tests';
 var test = util.format('%s - %s', testSuite, testSuiteDesc);
 
 describe(test,
