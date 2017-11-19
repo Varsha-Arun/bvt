@@ -82,7 +82,7 @@ describe(test,
       }
     );
 
-    it('1. Owner can add a sync repo',
+    it('2. Owner can add a sync repo',
       function (done) {
 
         var body = {
@@ -111,7 +111,7 @@ describe(test,
       }
     );
 
-    it('1. Owner should be able to get sync Repo objects created',
+    it('3. Owner should be able to get sync Repo objects created',
       function (done) {
         ownerApiAdapter.getResources('',
           function (err, res) {
@@ -152,7 +152,7 @@ describe(test,
       }
     );
 
-    it('11. Owner added syncRepo build was successful',
+    it('4. Owner added syncRepo build was successful',
       function () {
         return new Promise(
           function (resolve, reject) {
@@ -212,7 +212,6 @@ describe(test,
         );
       }
     );
-    
 
     after(
       function (done) {
