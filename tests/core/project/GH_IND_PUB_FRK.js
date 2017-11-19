@@ -70,7 +70,8 @@ describe(test,
             if (err)
               return done(
                 new Error(
-                  util.format('User cannot get runId %s, err: %s', runId, err)
+                  util.format('User cannot get project with Id %s, err: %s',
+                    project.id, err)
                 )
               );
             // check if build triggered in previous test case is present

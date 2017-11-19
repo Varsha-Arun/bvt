@@ -48,7 +48,8 @@ function testRun(next) {
     'tests/core/install/*.js',
     'tests/core/account/*.js',
     'tests/core/subscriptionIntegration/*.js',
-//    'tests/core/project/*.js'
+    'tests/core/resources/*.js',
+    'tests/core/project/*.js'
   ];
 
   async.eachSeries(tests,
