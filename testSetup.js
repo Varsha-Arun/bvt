@@ -222,4 +222,111 @@ global.deleteProjectWithBackoff = function (projectId, done) {
   expBackoff.backoff();
 };
 
+global.getBuildStatusWithBackOff =
+  function (apiAdapter, runObject, testName, statusCode, done) {
+
+    var expBackoff = backoff.exponential(
+      {
+        initialDelay: 1000, // ms
+        maxDelay: 6400, // max retry interval of 6 seconds
+        failAfter: 30 // fail after 30 attempts(~180 sec)
+      }
+    );
+
+    expBackoff.on('backoff',
+      function (number, delay) {
+        logger.info(testName, ' in progress. Retrying after ', delay, ' ms');
+      }
+    );
+
+    expBackoff.on('ready',
+      function () {
+        var query = util.format('resourceIds=%s', runObject.id);
+        apiAdapter.getBuilds(query,
+          function (err, builds) {
+            if (err)
+              return done(
+                new Error(
+                  util.format('Failed to get builds for query %s with ' +
+                    'err %s', util.inspect(query), util.inspect(err)
+                  )
+                )
+              );
+
+            if (_.isEmpty(builds))
+              return expBackoff.backoff(); // wait for builds to reach statusCode
+
+            var build = _.first(builds);
+            if (build.statusCode !== statusCode) {
+              expBackoff.backoff();
+            } else {
+              expBackoff.reset();
+              return done();
+            }
+          }
+        );
+      }
+    );
+
+    // max number of backoffs reached
+    expBackoff.on('fail',
+      function () {
+        return done(
+          new Error('Max number of back-offs reached')
+        );
+      }
+    );
+
+    expBackoff.backoff();
+  };
+
+global.getRunByIdStatusWithBackOff =
+  function (apiAdapter, runId, statusCode, done) {
+
+    var expBackoff = backoff.exponential(
+      {
+        initialDelay: 1000, // ms
+        maxDelay: 6400, // max retry interval of 6 seconds
+        failAfter: 30 // fail after 30 attempts(~180 sec)
+      }
+    );
+
+    expBackoff.on('backoff',
+      function (number, delay) {
+        logger.info('Run with id:', runId, ' is still processing. ' +
+          'Retrying after ', delay, ' ms');
+      }
+    );
+
+    expBackoff.on('ready',
+      function () {
+        apiAdapter.getRunById(runId,
+          function (err, run) {
+            if (err)
+              return done(
+                new Error('Failed to get run for id:', runId, err)
+              );
+
+            if (run.statusCode !== statusCode) {
+              expBackoff.backoff();
+            } else {
+              expBackoff.reset();
+              return done();
+            }
+          }
+        );
+      }
+    );
+
+    // max number of backoffs reached
+    expBackoff.on('fail',
+      function () {
+        return done(
+          new Error('Max number of backoffs reached')
+        );
+      }
+    );
+
+    expBackoff.backoff();
+  };
 

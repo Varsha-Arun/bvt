@@ -3,7 +3,7 @@
 var testSetup = require('../../../testSetup.js');
 var backoff = require('backoff');
 
-var testSuite = 'GH_ORG_PRI_OW_RSYNC';
+var testSuite = 'GH_ORG_PRI_OWN_RSYNC';
 var testSuiteDesc = 'Github Organization owner private repo, rSync tests';
 var test = util.format('%s - %s', testSuite, testSuiteDesc);
 
@@ -62,20 +62,19 @@ describe(test,
 
     it('1. Owner can get the subscriptionIntegration',
       function (done) {
-        var query = {name: global.GH_ORG_SUB_INT_GH};
-        ownerApiAdapter.getSubscriptionIntegrations(query,
-          function (err, si) {
+        ownerApiAdapter.getSubscriptionIntegrations('',
+          function (err, sis) {
             if (err)
               return done(
                 new Error(
-                  util.format('User cannot get subscriptionIntegration %s, ' +
-                    'err: %s', global.GH_ORG_SUB_INT_GH, err)
+                  util.format('User cannot get subscriptionIntegrations', err)
                 )
               );
             // check if build triggered in previous test case is present
-            assert.isNotEmpty(si, 'Subscription Integration cannot be empty');
+            assert.isNotEmpty(sis, 'Subscription Integration cannot be empty');
 
-            subscriptionIntegration = _.first(si);
+            subscriptionIntegration =
+              _.findWhere(sis,{name: global.GH_ORG_SUB_INT_GH});
             return done();
           }
         );
@@ -153,63 +152,9 @@ describe(test,
     );
 
     it('4. Owner added syncRepo build was successful',
-      function () {
-        return new Promise(
-          function (resolve, reject) {
-
-            var expBackoff = backoff.exponential(
-              {
-                initialDelay: 1000, // ms
-                maxDelay: 6400, // max retry interval of 2 seconds
-                failAfter: 30 // fail after 30 attempts(~60 sec)
-              }
-            );
-
-            expBackoff.on('backoff',
-              function (number, delay) {
-                logger.info('rSync in progress. Retrying after ', delay, ' ms');
-              }
-            );
-
-            expBackoff.on('ready',
-              function () {
-                var query = util.format('resourceIds=%s', rSyncJob.id);
-                ownerApiAdapter.getBuilds(query,
-                  function (err, builds) {
-                    if (err)
-                      return reject(
-                        new Error(
-                          util.format('Failed to get builds for query %s with ' +
-                            'err %s', util.inspect(query), util.inspect(err)
-                          )
-                        )
-                      );
-
-                    if (_.isEmpty(builds))
-                      return expBackoff.backoff(); // wait till builds are created
-
-                    var build = _.first(builds);
-                    if (build.statusCode !== successStatusCode) {
-                      expBackoff.backoff();
-                    } else {
-                      expBackoff.reset();
-                      return resolve();
-                    }
-                  }
-                );
-              }
-            );
-
-            // max number of backoffs reached
-            expBackoff.on('fail',
-              function () {
-                return reject(new Error('Max number of back offs reached'));
-              }
-            );
-
-            expBackoff.backoff();
-          }
-        );
+      function (done) {
+        global.getBuildStatusWithBackOff(ownerApiAdapter, rSyncJob,
+          'rSyncJob', successStatusCode, done);
       }
     );
 

@@ -252,52 +252,8 @@ describe(test,
         triggerBuild.then(
           function (response) {
             runId = response.runId;
-
-            var expBackoff = backoff.exponential(
-              {
-                initialDelay: 100, // ms
-                maxDelay: 6400, // max retry interval of 6.4 seconds
-                failAfter: 30 // fail after 30 attempts i.e ~ 3 minutes
-              }
-            );
-
-            expBackoff.on('backoff',
-              function (number, delay) {
-                logger.info('Run with id:', runId, ' not yet in processing. ' +
-                  'Retrying after ', delay, ' ms');
-              }
-            );
-
-            expBackoff.on('ready',
-              function () {
-                ownerApiAdapter.getRunById(runId,
-                  function (err, run) {
-                    if (err)
-                      return done(
-                        new Error('Failed to get run id: %s, err:', runId, err)
-                      );
-
-                    if (run.statusCode !== processingStatusCode) {
-                      expBackoff.backoff();
-                    } else {
-                      expBackoff.reset();
-                      return done();
-                    }
-                  }
-                );
-              }
-            );
-
-            // max number of backoffs reached
-            expBackoff.on('fail',
-              function () {
-                return done(
-                  new Error('Max number of back-offs reached')
-                );
-              }
-            );
-
-            expBackoff.backoff();
+            global.getRunByIdStatusWithBackOff(ownerApiAdapter, runId,
+              processingStatusCode, done);
           },
           function (err) {
             return done(err);
@@ -328,51 +284,8 @@ describe(test,
 
         triggerBuild.then(
           function () {
-            var expBackoff = backoff.exponential(
-              {
-                initialDelay: 100, // ms
-                maxDelay: 6400, // max retry interval of 6.4 seconds
-                failAfter: 30 // fail after 30 attempts i.e ~ 3 minutes
-              }
-            );
-
-            expBackoff.on('backoff',
-              function (number, delay) {
-                logger.info('Run with id:', runId, ' is still processing. ' +
-                  'Retrying after ', delay, ' ms');
-              }
-            );
-
-            expBackoff.on('ready',
-              function () {
-                ownerApiAdapter.getRunById(runId,
-                  function (err, run) {
-                    if (err)
-                      return done(
-                        new Error('Failed to get run id:', runId, err)
-                      );
-
-                    if (run.statusCode !== successStatusCode) {
-                      expBackoff.backoff();
-                    } else {
-                      expBackoff.reset();
-                      return done();
-                    }
-                  }
-                );
-              }
-            );
-
-            // max number of backoffs reached
-            expBackoff.on('fail',
-              function () {
-                return done(
-                  new Error('Max number of back-offs reached')
-                );
-              }
-            );
-
-            expBackoff.backoff();
+            global.getRunByIdStatusWithBackOff(ownerApiAdapter, runId,
+              successStatusCode, done);
           },
           function (err) {
             return done(err);
@@ -615,52 +528,8 @@ describe(test,
 
         triggerBuild.then(
           function (response) {
-            var customRunId = response.runId;
-            var expBackoff = backoff.exponential(
-              {
-                initialDelay: 100, // ms
-                maxDelay: 6400, // max retry interval of 6.4 seconds
-                failAfter: 30 // fail after 30 attempts i.e ~ 3 minutes
-              }
-            );
-
-            expBackoff.on('backoff',
-              function (number, delay) {
-                logger.info('Run with id:', customRunId, ' is still processing. ' +
-                  'Retrying after ', delay, ' ms');
-              }
-            );
-
-            expBackoff.on('ready',
-              function () {
-                collaboraterApiAdapter.getRunById(customRunId,
-                  function (err, run) {
-                    if (err)
-                      return done(
-                        new Error('Failed to get run id:', customRunId, err)
-                      );
-
-                    if (run.statusCode !== successStatusCode) {
-                      expBackoff.backoff();
-                    } else {
-                      expBackoff.reset();
-                      return done();
-                    }
-                  }
-                );
-              }
-            );
-
-            // max number of backoffs reached
-            expBackoff.on('fail',
-              function () {
-                return done(
-                  new Error('Max number of back-offs reached')
-                );
-              }
-            );
-
-            expBackoff.backoff();
+            global.getRunByIdStatusWithBackOff(collaboraterApiAdapter,
+              response.runId, successStatusCode, done);
           },
           function (err) {
             return done(err);
@@ -732,52 +601,8 @@ describe(test,
 
         triggerBuild.then(
           function (response) {
-            var customRunId = response.runId;
-            var expBackoff = backoff.exponential(
-              {
-                initialDelay: 100, // ms
-                maxDelay: 6400, // max retry interval of 6.4 seconds
-                failAfter: 30 // fail after 30 attempts i.e ~ 3 minutes
-              }
-            );
-
-            expBackoff.on('backoff',
-              function (number, delay) {
-                logger.info('Run with id:', customRunId, ' is still processing. ' +
-                  'Retrying after ', delay, ' ms');
-              }
-            );
-
-            expBackoff.on('ready',
-              function () {
-                ownerApiAdapter.getRunById(customRunId,
-                  function (err, run) {
-                    if (err)
-                      return done(
-                        new Error('Failed to get run id:', customRunId, err)
-                      );
-
-                    if (run.statusCode !== successStatusCode) {
-                      expBackoff.backoff();
-                    } else {
-                      expBackoff.reset();
-                      return done();
-                    }
-                  }
-                );
-              }
-            );
-
-            // max number of backoffs reached
-            expBackoff.on('fail',
-              function () {
-                return done(
-                  new Error('Max number of back-offs reached')
-                );
-              }
-            );
-
-            expBackoff.backoff();
+            global.getRunByIdStatusWithBackOff(ownerApiAdapter, response.runId,
+              successStatusCode, done);
           },
           function (err) {
             return done(err);
@@ -810,52 +635,8 @@ describe(test,
 
         triggerBuild.then(
           function (response) {
-            var customRunId = response.runId;
-            var expBackoff = backoff.exponential(
-              {
-                initialDelay: 100, // ms
-                maxDelay: 6400, // max retry interval of 6.4 seconds
-                failAfter: 30 // fail after 30 attempts i.e ~ 3 minutes
-              }
-            );
-
-            expBackoff.on('backoff',
-              function (number, delay) {
-                logger.info('Run with id:', customRunId, ' is still processing. ' +
-                  'Retrying after ', delay, ' ms');
-              }
-            );
-
-            expBackoff.on('ready',
-              function () {
-                ownerApiAdapter.getRunById(customRunId,
-                  function (err, run) {
-                    if (err)
-                      return done(
-                        new Error('Failed to get run id:', customRunId, err)
-                      );
-
-                    if (run.statusCode !== successStatusCode) {
-                      expBackoff.backoff();
-                    } else {
-                      expBackoff.reset();
-                      return done();
-                    }
-                  }
-                );
-              }
-            );
-
-            // max number of backoffs reached
-            expBackoff.on('fail',
-              function () {
-                return done(
-                  new Error('Max number of back-offs reached')
-                );
-              }
-            );
-
-            expBackoff.backoff();
+            global.getRunByIdStatusWithBackOff(ownerApiAdapter, response.runId,
+              successStatusCode, done);
           },
           function (err) {
             return done(err);
