@@ -9,6 +9,7 @@ var fs = require('fs');
 var backoff = require('backoff');
 
 var ShippableAdapter = require('./_common/shippable/Adapter.js');
+var GithubAdapter = require('./_common/github/Adapter.js');
 
 global.util = require('util');
 global._ = require('underscore');
@@ -24,9 +25,11 @@ global.TIMEOUT_VALUE = 0;
 global.DELETE_PROJ_DELAY = 5000;
 
 global.config.apiUrl = process.env.SHIPPABLE_API_URL;
-global.GHC_ENDPOINT = 'https://api.github.com';
+global.GH_API_URL = process.env.GH_API_URL;
 
 global.TEST_GH_ORGNAME = process.env.TEST_GH_ORGNAME;
+global.TEST_GH_PR_REPO = process.env.TEST_GH_PR_REPO;
+
 global.ADM_GH_PRIV_PROJECT_COUNT = process.env.ADM_GH_PRIV_PROJECT_COUNT;
 global.ADM_GH_IND_PROJECT_COUNT = process.env.ADM_GH_IND_PROJECT_COUNT;
 global.ADM_GH_ORG_PROJECT_COUNT = process.env.ADM_GH_ORG_PROJECT_COUNT;
@@ -111,6 +114,10 @@ function getSystemCodes(bag, next) {
     }
   );
 }
+
+global.newGHAdapterByToken = function (apiToken) {
+  return new GithubAdapter(apiToken, global.GH_API_URL);
+};
 
 global.newApiAdapterByToken = function (apiToken) {
   return new ShippableAdapter(apiToken);
@@ -330,3 +337,41 @@ global.getRunByIdStatusWithBackOff =
     expBackoff.backoff();
   };
 
+global.getResourceByNameAndTypeCode =
+  function (adapter, name, typeCode, callback) {
+    var response = {};
+
+    var query = util.format('typeCode=%s', typeCode);
+    adapter.getResources(query,
+      function (err, res) {
+        if (err) {
+          response.error = new Error(
+            util.format('User cannot get resources for query %s, err: %s',
+              query, util.inspect(err))
+          );
+          return callback(response);
+        }
+        response.resource = _.findWhere(res, {"name": name});
+        return callback(response);
+      }
+    );
+  };
+
+global.getVersionsByResourceId = function (adapter, resourceId, callback) {
+  var response = {};
+  
+  var query = util.format('resourceIds=%s', resourceId);
+  adapter.getVersions(query,
+    function (err, vers) {
+      if (err) {
+        response.error = new Error(
+          util.format('User cannot get versions for query %s, err: %s',
+            query, util.inspect(err))
+        );
+        return callback(response);
+      }
+      response.versions = vers;
+      return callback(response);
+    }
+  );
+};

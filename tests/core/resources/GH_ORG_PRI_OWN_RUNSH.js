@@ -10,15 +10,23 @@ var test = util.format('%s - %s', testSuite, testSuiteDesc);
 describe(test,
   function () {
     var ownerApiAdapter = null;
+    var ghAdapter = null;
     var subscriptionIntegration = {};
     var successStatusCode = null;
     var runShCode = null;
+    var gitRepoCode = null;
     var testRunJob = {};
     var testRunParamJob = {};
     var testNoRunParamJob = {};
     var testRunSSH = {};
     var testCommitRun = {};
     var testOutRun = {};
+    var indPubGitRepo = {};
+    var indPubTagOnlyGitRepo = {};
+    var indPubTagExceptGitRepo = {};
+    var orgPROnlyPubGitRepo = {};
+    var orgPRClosePubGitRepo = {};
+    var testPR = {};
 
     this.timeout(0);
 
@@ -36,11 +44,17 @@ describe(test,
             ownerApiAdapter =
               global.newApiAdapterByStateAccount('ghOwnerAccount');
 
+            ghAdapter =
+              global.newGHAdapterByToken(global.githubOwnerAccessToken);
+
             successStatusCode = _.findWhere(global.systemCodes,
               {name: 'success', group: 'status'}).code;
 
             runShCode = _.findWhere(global.systemCodes,
               {name: 'runSh', group: 'resource'}).code;
+
+            gitRepoCode = _.findWhere(global.systemCodes,
+              {name: 'gitRepo', group: 'resource'}).code;
 
             var query = {name: global.GH_ORG_SUB_INT_GH};
             ownerApiAdapter.getSubscriptionIntegrations(query,
@@ -64,26 +78,17 @@ describe(test,
       }
     );
 
-    it('1. Owner should be able to get test_run runSh job',
+    it('1. Owner should be able to get test_run runSh job. This is the root ' +
+      'trigger job to test other runSh cases',
       function (done) {
-        ownerApiAdapter.getResources('',
-          function (err, res) {
-            if (err)
-              return done(
-                new Error(
-                  util.format('User cannot get resources, err: %s',
-                    util.inspect(err))
-                )
-              );
-            // check if build triggered in previous test case is present
-            assert.isNotEmpty(res, 'User resources cannot be empty');
+        global.getResourceByNameAndTypeCode(ownerApiAdapter, 'test_run',
+          runShCode,
+          function (response) {
+            if (response.error)
+              return done(response.error);
 
-            testRunJob = _.findWhere(res, {
-              "typeCode": runShCode,
-              "name": 'test_run'
-            });
-            assert.isNotEmpty(testRunJob, 'User could not find runSh Job');
-
+            testRunJob = response.resource;
+            assert.isNotEmpty(testRunJob, 'User cannot find resource');
             return done();
           }
         );
@@ -107,27 +112,18 @@ describe(test,
       }
     );
 
-    it('4. Owner should be able to get test_param_run runSh job',
+    it('4. Owner should be able to get test_param_run runSh job. This runs ' +
+      'automatically when test_run finishes. It also tests whether params are ' +
+      'set to ENV automatically',
       function (done) {
-        ownerApiAdapter.getResources('',
-          function (err, res) {
-            if (err)
-              return done(
-                new Error(
-                  util.format('User cannot get resources, err: %s',
-                    util.inspect(err))
-                )
-              );
-            // check if build triggered in previous test case is present
-            assert.isNotEmpty(res, 'User resources cannot be empty');
+        global.getResourceByNameAndTypeCode(ownerApiAdapter, 'test_param_run',
+          runShCode,
+          function (response) {
+            if (response.error)
+              return done(response.error);
 
-            testRunParamJob =
-              _.findWhere(res, {
-                "typeCode": runShCode,
-                "name": 'test_param_run'
-              });
-            assert.isNotEmpty(testRunJob, 'User could not find runSh Job');
-
+            testRunParamJob = response.resource;
+            assert.isNotEmpty(testRunParamJob, 'User cannot find resource');
             return done();
           }
         );
@@ -141,33 +137,28 @@ describe(test,
       }
     );
 
-    it('6. Owner should be able to get test_param_norun runSh job',
+    it('6. Owner should be able to get test_param_norun runSh job. This job ' +
+      'should not have triggered automatically due to switch:off tag. This also ' +
+      'tests if state variable for gitRepo is set using ' +
+      '---shipctl get_resource_state---. Also tests if list of params are set ' +
+      'automatically',
       function (done) {
-        ownerApiAdapter.getResources('',
-          function (err, res) {
-            if (err)
-              return done(
-                new Error(
-                  util.format('User cannot get resources, err: %s',
-                    util.inspect(err))
-                )
-              );
-            // check if build triggered in previous test case is present
-            assert.isNotEmpty(res, 'User resources cannot be empty');
+        global.getResourceByNameAndTypeCode(ownerApiAdapter, 'test_param_norun',
+          runShCode,
+          function (response) {
+            if (response.error)
+              return done(response.error);
 
-            testNoRunParamJob = _.findWhere(res, {
-              "typeCode": runShCode,
-              "name": 'test_param_norun'
-            });
-            assert.isNotEmpty(testRunJob, 'User could not find runSh Job');
-
+            testNoRunParamJob = response.resource;
+            assert.isNotEmpty(testNoRunParamJob, 'User cannot find resource');
             return done();
           }
         );
       }
     );
 
-    it('7. test_param_norun was not triggered automatically',
+    it('7. test_param_norun was not triggered automatically, since builds are ' +
+      'empty',
       function (done) {
         var query = util.format('resourceIds=%s', testNoRunParamJob.id);
         ownerApiAdapter.getBuilds(query,
@@ -205,26 +196,19 @@ describe(test,
       }
     );
 
-    it('10. Owner should be able to get test_ssh runSh job',
+    it('10. Owner should be able to get test_ssh runSh job which uses ssh ' +
+      'integration and pushes a commit to git repo which triggers a github ' +
+      'commit webhook. This also tests --- shipctl get_resource_meta --- as ' +
+      'version.json is needed to get the ssh key value of the integration.',
       function (done) {
-        ownerApiAdapter.getResources('',
-          function (err, res) {
-            if (err)
-              return done(
-                new Error(
-                  util.format('User cannot get resources, err: %s',
-                    util.inspect(err))
-                )
-              );
-            // check if build triggered in previous test case is present
-            assert.isNotEmpty(res, 'User resources cannot be empty');
+        global.getResourceByNameAndTypeCode(ownerApiAdapter, 'test_ssh',
+          runShCode,
+          function (response) {
+            if (response.error)
+              return done(response.error);
 
-            testRunSSH = _.findWhere(res, {
-              "typeCode": runShCode,
-              "name": 'test_ssh'
-            });
-            assert.isNotEmpty(testRunSSH, 'User could not find runSh Job');
-
+            testRunSSH = response.resource;
+            assert.isNotEmpty(testRunSSH, 'User cannot find resource');
             return done();
           }
         );
@@ -248,26 +232,21 @@ describe(test,
       }
     );
 
-    it('13. Owner should be able to get test_commit_run runSh job',
+    it('13. Owner should be able to get test_commit_run runSh job. This tests ' +
+      'whether shippable is listening to commit webhooks and subsequently ' +
+      'triggers a runSh build. This job when run also outputs key value state ' +
+      'using --- shipctl post_resource_state --- & ' +
+      '--- shipctl put_resource_state ---. This also tests replicate ' +
+      'functionality for gitRepo',
       function (done) {
-        ownerApiAdapter.getResources('',
-          function (err, res) {
-            if (err)
-              return done(
-                new Error(
-                  util.format('User cannot get resources, err: %s',
-                    util.inspect(err))
-                )
-              );
-            // check if build triggered in previous test case is present
-            assert.isNotEmpty(res, 'User resources cannot be empty');
+        global.getResourceByNameAndTypeCode(ownerApiAdapter, 'test_commit_run',
+          runShCode,
+          function (response) {
+            if (response.error)
+              return done(response.error);
 
-            testCommitRun = _.findWhere(res, {
-              "typeCode": runShCode,
-              "name": 'test_commit_run'
-            });
-            assert.isNotEmpty(testCommitRun, 'User could not find runSh Job');
-
+            testCommitRun = response.resource;
+            assert.isNotEmpty(testCommitRun, 'User cannot find resource');
             return done();
           }
         );
@@ -281,26 +260,19 @@ describe(test,
       }
     );
 
-    it('15. Owner should be able to get test_out_run runSh job',
+    it('15. Owner should be able to get test_out_run runSh job. This job is ' +
+      'automatically since the IN params resource was updated from upstream ' +
+      'processing i.e. a new version for the param was created. If the ' +
+      'upstream job did not output the version correctly, this fails',
       function (done) {
-        ownerApiAdapter.getResources('',
-          function (err, res) {
-            if (err)
-              return done(
-                new Error(
-                  util.format('User cannot get resources, err: %s',
-                    util.inspect(err))
-                )
-              );
-            // check if build triggered in previous test case is present
-            assert.isNotEmpty(res, 'User resources cannot be empty');
+        global.getResourceByNameAndTypeCode(ownerApiAdapter, 'test_out_run',
+          runShCode,
+          function (response) {
+            if (response.error)
+              return done(response.error);
 
-            testOutRun = _.findWhere(res, {
-              "typeCode": runShCode,
-              "name": 'test_out_run'
-            });
-            assert.isNotEmpty(testOutRun, 'User could not find runSh Job');
-
+            testOutRun = response.resource;
+            assert.isNotEmpty(testOutRun, 'User cannot find resource');
             return done();
           }
         );
@@ -314,6 +286,254 @@ describe(test,
       }
     );
 
+    it('17. Owner should be able to get ind_pub_replicate gitRepo resource.',
+      function (done) {
+        global.getResourceByNameAndTypeCode(ownerApiAdapter, 'ind_pub_replicate',
+          gitRepoCode,
+          function (response) {
+            if (response.error)
+              return done(response.error);
+
+            indPubGitRepo = response.resource;
+            assert.isNotEmpty(indPubGitRepo, 'User cannot find resource');
+            return done();
+          }
+        );
+      }
+    );
+
+    it('18. test_commit_run from test 13 should have created a new version ' +
+      'for ind_pub_replicate, i.e. 2 version records in total',
+      function (done) {
+        global.getVersionsByResourceId(ownerApiAdapter, indPubGitRepo.id,
+          function (response) {
+            if (response.error)
+              return done(response.error);
+
+            assert.isNotEmpty(response.versions, 'User cannot find versions');
+            var size = response.versions.length;
+            //TODO figure out how to do greater than in assert
+            assert.notEqual(size, 0, 'Versions length cannot be 0');
+            assert.notEqual(size, 1, 'Versions length cannot be 1');
+            return done();
+          }
+        );
+      }
+    );
+
+    it('19. Owner should be able to get ind_pub_tag_non_latest gitRepo resource.',
+      function (done) {
+        global.getResourceByNameAndTypeCode(ownerApiAdapter, 'ind_pub_tag_non_latest',
+          gitRepoCode,
+          function (response) {
+            if (response.error)
+              return done(response.error);
+
+            indPubTagExceptGitRepo = response.resource;
+            assert.isNotEmpty(indPubTagExceptGitRepo, 'User cannot find resource');
+            return done();
+          }
+        );
+      }
+    );
+
+    it('20. test_ssh from test 10 should not have created a new version for ' +
+      'ind_pub_tag_non_latest, as latest tag is in except list. i.e. 1 ' +
+      'version record in total',
+      function (done) {
+        global.getVersionsByResourceId(ownerApiAdapter, indPubTagExceptGitRepo.id,
+          function (response) {
+            if (response.error)
+              return done(response.error);
+
+            assert.isNotEmpty(response.versions, 'User cannot find versions');
+            var size = response.versions.length;
+            //TODO figure out how to do greater than in assert
+            assert.notEqual(size, 0, 'Versions length cannot be 0');
+            assert.notEqual(size, 2, 'Versions length cannot be 2');
+            return done();
+          }
+        );
+      }
+    );
+
+    it('21. Owner should be able to get ind_pub_tag_only_latest gitRepo resource.',
+      function (done) {
+        global.getResourceByNameAndTypeCode(ownerApiAdapter, 'ind_pub_tag_only_latest',
+          gitRepoCode,
+          function (response) {
+            if (response.error)
+              return done(response.error);
+
+            indPubTagOnlyGitRepo = response.resource;
+            assert.isNotEmpty(indPubTagOnlyGitRepo, 'User cannot find resource');
+            return done();
+          }
+        );
+      }
+    );
+
+    it('22. test_ssh from test 10 should have created a new version for ' +
+      'ind_pub_tag_only_latest, as latest tag is in only list. i.e. 2 version ' +
+      'records in total',
+      function (done) {
+        global.getVersionsByResourceId(ownerApiAdapter, indPubTagOnlyGitRepo.id,
+          function (response) {
+            if (response.error)
+              return done(response.error);
+
+            assert.isNotEmpty(response.versions, 'User cannot find versions');
+            var size = response.versions.length;
+            //TODO figure out how to do greater than in assert
+            assert.notEqual(size, 0, 'Versions length cannot be 0');
+            //assert.notEqual(size, 1, 'Versions length cannot be 1');
+            return done();
+          }
+        );
+      }
+    );
+
+    it('23. Owner should be able to get a PR to re-open on Github ',
+      function (done) {
+        var query = {state: 'all'};
+        ghAdapter.getPullRequests(global.TEST_GH_PR_REPO, query,
+          function (err, res) {
+            testPR = _.findWhere(res, {"number": 1});
+            assert.isNotEmpty(testPR, 'User cannot find PR to re-open');
+            return done(err);
+          }
+        );
+      }
+    );
+
+    it('24. Owner should be able to re-open the PR on Github',
+      function (done) {
+        async.series([
+            _closePR.bind(null),
+            _reOpenPR.bind(null)
+          ],
+          function (err) {
+              return done(err);
+          }
+        );
+      }
+    );
+
+    function _closePR(next) {
+      if (testPR.state === 'closed') return next();
+      _updatePR('closed',
+        function (err) {
+          if (err)
+            return next(
+              new Error(
+                util.format('User cannot close PR: %s, err: %s', testPR.number,
+                  err)
+              )
+            );
+          assert.equal(testPR.state, 'closed', 'User is unable to close ' +
+            'open PR');
+          return next();
+        }
+      );
+    }
+
+    function _reOpenPR(next) {
+      if (testPR.state != 'closed') return next();
+      _updatePR('open',
+        function (err) {
+          if (err)
+            return next(
+              new Error(
+                util.format('User cannot reopen PR: %s, err: %s', testPR.number,
+                  err)
+              )
+            );
+          assert.equal(testPR.state, 'open', 'User is unable to re-open ' +
+            'closed PR');
+          return next();
+        }
+      );
+    }
+
+    function _updatePR(status, callback) {
+      ghAdapter.updatePullRequest(global.TEST_GH_PR_REPO, testPR.number, status,
+        function (err, response) {
+          if (err) return callback(err);
+          testPR = response;
+          return callback();
+        }
+      );
+    }
+
+    it('25. Owner should be able to get org_pub_pr_only gitRepo resource.',
+      function (done) {
+        global.getResourceByNameAndTypeCode(ownerApiAdapter, 'org_pub_pr_only',
+          gitRepoCode,
+          function (response) {
+            if (response.error)
+              return done(response.error);
+
+            orgPROnlyPubGitRepo = response.resource;
+            assert.isNotEmpty(orgPROnlyPubGitRepo, 'User cannot find resource');
+            return done();
+          }
+        );
+      }
+    );
+
+    it('26. test 24 should have created a new version for org_pub_pr_only, ' +
+      'it is turned on to process PR only. i.e. 2 version records in total',
+      function (done) {
+        global.getVersionsByResourceId(ownerApiAdapter, orgPROnlyPubGitRepo.id,
+          function (response) {
+            if (response.error)
+              return done(response.error);
+
+            assert.isNotEmpty(response.versions, 'User cannot find versions');
+            var size = response.versions.length;
+            //TODO figure out how to do greater than in assert
+            assert.notEqual(size, 0, 'Versions length cannot be 0');
+            assert.notEqual(size, 1, 'Versions length cannot be 1');
+            return done();
+          }
+        );
+      }
+    );
+
+    it('27. Owner should be able to get org_pub_pr_close gitRepo resource.',
+      function (done) {
+        global.getResourceByNameAndTypeCode(ownerApiAdapter, 'org_pub_pr_close',
+          gitRepoCode,
+          function (response) {
+            if (response.error)
+              return done(response.error);
+
+            orgPRClosePubGitRepo = response.resource;
+            assert.isNotEmpty(orgPRClosePubGitRepo, 'User cannot find resource');
+            return done();
+          }
+        );
+      }
+    );
+
+    it('28. test 24 should have created a new version for org_pub_pr_close, ' +
+      'it is turned on to process PR only. i.e. 2 version records in total',
+      function (done) {
+        global.getVersionsByResourceId(ownerApiAdapter, orgPRClosePubGitRepo.id,
+          function (response) {
+            if (response.error)
+              return done(response.error);
+
+            assert.isNotEmpty(response.versions, 'User cannot find versions');
+            var size = response.versions.length;
+            //TODO figure out how to do greater than in assert
+            assert.notEqual(size, 0, 'Versions length cannot be 0');
+            assert.notEqual(size, 1, 'Versions length cannot be 1');
+            return done();
+          }
+        );
+      }
+    );
     after(
       function (done) {
         return done();

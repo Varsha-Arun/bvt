@@ -47,7 +47,7 @@ function testRun(next) {
   var tests = [
     'tests/core/install/*.js',
     'tests/core/account/*.js',
-    'tests/core/project/*.js',
+//    'tests/core/project/*.js',
     'tests/core/subscriptionIntegration/*.js',
     'tests/core/resources/*.js'
   ];
