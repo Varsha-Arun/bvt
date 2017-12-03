@@ -10,9 +10,10 @@ var test = util.format('%s - %s', testSuite, testSuiteDesc);
 describe(test,
   function () {
     var ownerApiAdapter = null;
-    var collaboraterApiAdapter = null;
+    var collaboratorApiAdapter = null;
     var unauthorizedApiAdapter = null;
     var project = {};
+    var matrixCIProject = {};
     var runId = null;
     var processingStatusCode = null;
     var successStatusCode = null;
@@ -33,11 +34,11 @@ describe(test,
 
             ownerApiAdapter =
               global.newApiAdapterByStateAccount('ghOwnerAccount');
-            collaboraterApiAdapter =
+            collaboratorApiAdapter =
               global.newApiAdapterByStateAccount('ghCollaboratorAccount');
             unauthorizedApiAdapter =
               global.newApiAdapterByStateAccount('ghUnauthorizedAccount');
-            
+
             processingStatusCode = _.findWhere(global.systemCodes,
               {group: 'statusCodes', name: 'PROCESSING'}).code;
 
@@ -90,7 +91,7 @@ describe(test,
 
     it('2. Collaborator can get the project',
       function (done) {
-        collaboraterApiAdapter.getProjectById(project.id,
+        collaboratorApiAdapter.getProjectById(project.id,
           function (err, prj) {
             if (err)
               return done(
@@ -288,7 +289,7 @@ describe(test,
 
     it('11. Collaborator can view builds for the project',
       function (done) {
-        collaboraterApiAdapter.getRunById(runId,
+        collaboratorApiAdapter.getRunById(runId,
           function (err, run) {
             if (err)
               return done(
@@ -363,7 +364,7 @@ describe(test,
       function (done) {
         var bag = {
           runId: runId,
-          adapter: collaboraterApiAdapter,
+          adapter: collaboratorApiAdapter,
           logs: []
         };
         async.series([
@@ -454,7 +455,7 @@ describe(test,
         var triggerBuild = new Promise(
           function (resolve, reject) {
             var json = {branchName: 'master', globalEnv: {key: 'value'}};
-            collaboraterApiAdapter.triggerNewBuildByProjectId(project.id, json,
+            collaboratorApiAdapter.triggerNewBuildByProjectId(project.id, json,
               function (err, response) {
                 if (err)
                   return reject(
@@ -473,7 +474,7 @@ describe(test,
 
         triggerBuild.then(
           function (response) {
-            global.getRunByIdStatusWithBackOff(collaboraterApiAdapter,
+            global.getRunByIdStatusWithBackOff(collaboratorApiAdapter,
               response.runId, successStatusCode, done);
           },
           function (err) {
@@ -614,7 +615,7 @@ describe(test,
                   return reject(
                     new Error(
                       util.format('User cannot resume project id: %s, err: %s',
-                        projectId, err)
+                        project.id, err)
                     )
                   );
                 return resolve(project);
@@ -663,7 +664,7 @@ describe(test,
     it('27. Collaborator can pause the project',
       function (done) {
         var json = {propertyBag: {isPaused: true}};
-        collaboraterApiAdapter.putProjectById(project.id, json,
+        collaboratorApiAdapter.putProjectById(project.id, json,
           function (err, prj) {
             if (err)
               return done(
@@ -712,7 +713,7 @@ describe(test,
     it('30. Collaborator can resume the project',
       function (done) {
         var json = {propertyBag: {isPaused: false}};
-        collaboraterApiAdapter.putProjectById(project.id, json,
+        collaboratorApiAdapter.putProjectById(project.id, json,
           function (err, prj) {
             if (err)
               return done(
@@ -735,7 +736,7 @@ describe(test,
     it('31. Collaborator cannot Reset the project',
       function (done) {
         var json = {projectId: project.id};
-        collaboraterApiAdapter.resetProjectById(project.id, json,
+        collaboratorApiAdapter.resetProjectById(project.id, json,
           function (err, response) {
             assert.strictEqual(err, 404, 'User should not be able to reset a ' +
               'project', err, response);
@@ -788,7 +789,7 @@ describe(test,
         );
       }
     );
-
+    
     it('35. Public cannot delete the project',
       function (done) {
         var json = {projectId: project.id};
@@ -801,7 +802,7 @@ describe(test,
         );
       }
     );
-
+    
     it('36. Unauthorized cannot delete the project',
       function (done) {
         var json = {projectId: project.id};
@@ -818,7 +819,7 @@ describe(test,
     it('37. Collaborator cannot delete the project',
       function (done) {
         var json = {projectId: project.id};
-        collaboraterApiAdapter.deleteProjectById(project.id, json,
+        collaboratorApiAdapter.deleteProjectById(project.id, json,
           function (err, response) {
             assert.strictEqual(err, 404, 'User should not be able to delete a ' +
               'project', err, response);
@@ -850,7 +851,7 @@ describe(test,
         );
       }
     );
-    
+
     after(
       function (done) {
         return done();

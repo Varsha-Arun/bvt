@@ -10,6 +10,9 @@ var test = util.format('%s - %s', testSuite, testSuiteDesc);
 describe(test,
   function () {
     var ownerApiAdapter = null;
+    var collaboraterApiAdapter = null;
+    var memberApiAdapter = null;
+    var unauthorizedApiAdapter = null;
     var ghAdapter = null;
     var subscriptionIntegration = {};
     var successStatusCode = null;
@@ -21,6 +24,8 @@ describe(test,
     var testRunSSH = {};
     var testCommitRun = {};
     var testOutRun = {};
+    var testMemberRun = {};
+    var testCollabRun = {};
     var indPubGitRepo = {};
     var indPubTagOnlyGitRepo = {};
     var indPubTagExceptGitRepo = {};
@@ -43,6 +48,12 @@ describe(test,
             }
             ownerApiAdapter =
               global.newApiAdapterByStateAccount('ghOwnerAccount');
+            collaboraterApiAdapter =
+              global.newApiAdapterByStateAccount('ghCollaboratorAccount');
+            memberApiAdapter =
+              global.newApiAdapterByStateAccount('ghMemberAccount');
+            unauthorizedApiAdapter =
+              global.newApiAdapterByStateAccount('ghUnauthorizedAccount');
 
             ghAdapter =
               global.newGHAdapterByToken(global.githubOwnerAccessToken);
@@ -413,7 +424,7 @@ describe(test,
             _reOpenPR.bind(null)
           ],
           function (err) {
-              return done(err);
+            return done(err);
           }
         );
       }
@@ -534,6 +545,94 @@ describe(test,
         );
       }
     );
+
+    it('29. Collaborator should be able to get test_collab_run',
+      function (done) {
+        global.getResourceByNameAndTypeCode(collaboraterApiAdapter,
+          'test_collab_run', runShCode,
+          function (response) {
+            if (response.error)
+              return done(response.error);
+
+            testCollabRun = response.resource;
+            assert.isNotEmpty(testCollabRun, 'User cannot find resource');
+            return done();
+          }
+        );
+      }
+    );
+
+    it('30. Collaborator should be able to trigger test_collab_run runSh job',
+      function (done) {
+        collaboraterApiAdapter.triggerNewBuildByResourceId(testCollabRun.id, {},
+          function (err) {
+            return done(err);
+          }
+        );
+      }
+    );
+
+    it('31. Collaborator triggered test_collab_run build was successful',
+      function (done) {
+        global.getBuildStatusWithBackOff(collaboraterApiAdapter, testCollabRun,
+          'test_collab_run', successStatusCode, done);
+      }
+    );
+
+    it('32. Collaborator should be able to get version for test_collab_run',
+      function (done) {
+        global.getVersionsByResourceId(collaboraterApiAdapter, testCollabRun.id,
+          function (response) {
+            if (response.error)
+              return done(response.error);
+
+            assert.isNotEmpty(response.versions, 'User cannot find versions');
+
+            //TODO figure out how to do greater than in assert
+            assert.notEqual(response.versions.length, 0, '' +
+              'Versions length cannot be 0');
+            return done();
+          }
+        );
+      }
+    );
+    
+    it('33. Member should not be able to trigger test_collab_run runSh job',
+      function (done) {
+        memberApiAdapter.triggerNewBuildByResourceId(testCollabRun.id, {},
+          function (err) {
+            if (err)
+              return done();
+            else
+              return done(
+                new Error(
+                  util.format('Should not be able to trigger a build ',
+                    util.inspect(err)
+                  )
+                )
+              );
+          }
+        );
+      }
+    );
+
+    it('34. Member should be able to get version for test_collab_run',
+      function (done) {
+        global.getVersionsByResourceId(memberApiAdapter, testCollabRun.id,
+          function (response) {
+            if (response.error)
+              return done(response.error);
+
+            assert.isNotEmpty(response.versions, 'User cannot find versions');
+            //TODO figure out how to do greater than in assert
+            assert.notEqual(response.versions.length, 0, '' +
+              'Versions length cannot be 0');
+            return done();
+          }
+        );
+      }
+    );
+
     after(
       function (done) {
         return done();

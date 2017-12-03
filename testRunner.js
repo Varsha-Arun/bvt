@@ -49,7 +49,8 @@ function testRun(next) {
     'tests/core/account/*.js',
 //    'tests/core/project/*.js',
     'tests/core/subscriptionIntegration/*.js',
-    'tests/core/resources/*.js'
+    'tests/core/resources/GH_ORG_PRI_OWN_RSYNC.js',
+    'tests/core/resources/GH_ORG_PRI_OWN_RUNSH.js'
   ];
 
   async.eachSeries(tests,

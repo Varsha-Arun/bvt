@@ -29,6 +29,8 @@ global.GH_API_URL = process.env.GH_API_URL;
 
 global.TEST_GH_ORGNAME = process.env.TEST_GH_ORGNAME;
 global.TEST_GH_PR_REPO = process.env.TEST_GH_PR_REPO;
+global.TEST_GH_CACHE_REPO = process.env.TEST_GH_CACHE_REPO;
+global.TEST_GH_MATRIX_REPO = process.env.TEST_GH_MATRIX_REPO;
 
 global.ADM_GH_PRIV_PROJECT_COUNT = process.env.ADM_GH_PRIV_PROJECT_COUNT;
 global.ADM_GH_IND_PROJECT_COUNT = process.env.ADM_GH_IND_PROJECT_COUNT;
@@ -300,8 +302,8 @@ global.getRunByIdStatusWithBackOff =
 
     expBackoff.on('backoff',
       function (number, delay) {
-        logger.info('Run with id:', runId, ' is still processing. ' +
-          'Retrying after ', delay, ' ms');
+        logger.info('Run with id:', runId, 'is still processing. ' +
+          'Retrying after', delay, ' ms');
       }
     );
 
