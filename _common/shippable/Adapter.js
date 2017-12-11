@@ -114,6 +114,23 @@ ShippableAdapter.prototype.getAccountTokens =
     );
   };
 
+ShippableAdapter.prototype.postAccountIntegration =
+  function (json, callback) {
+    this.post(
+      '/accountIntegrations',
+      json,
+      callback
+    );
+  };
+
+ShippableAdapter.prototype.deleteAccountIntegrationById =
+  function (accountIntegrationId, callback) {
+    this.delete(
+      util.format('/accountIntegrations/%s', accountIntegrationId),
+      callback
+    );
+  };
+
 ShippableAdapter.prototype.getArtifactUrlByBuildJobId =
   function (buildJobId, query, callback) {
     this.get(
