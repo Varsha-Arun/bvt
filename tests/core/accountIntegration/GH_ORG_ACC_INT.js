@@ -11,9 +11,7 @@ describe(test,
   function () {
     var ownerApiAdapter = null;
     var unauthorizedApiAdapter = null;
-    var masterIntegrationId = null;
-    var masterIntegration = {};
-    var ownerAccount = {};
+    var masterIntegrations = [];
     var accountIntegration = {};
 
     this.timeout(0);
@@ -44,8 +42,8 @@ describe(test,
                         query, err)
                     )
                   );
-                masterIntegration = masInts;
-                assert.isNotEmpty(masterIntegration, 'Account Integration ' +
+                masterIntegrations = masInts;
+                assert.isNotEmpty(masterIntegrations, 'Account Integration ' +
                   'cannot be empty');
                 return done();
               }
@@ -57,7 +55,9 @@ describe(test,
 
     it('1. Owner can create PEM Key Account Integration',
       function (done) {
-        var masterInt = _.findWhere(masterIntegration, {name:"pemKey"});
+        var masterInt = _.findWhere(masterIntegrations, {name:"pemKey"}) || {};
+        assert.isNotEmpty(masterInt,
+          'Master integration cannot be empty.');
         var body = {
           "name" : "ghOrgAccIntPemKey",
           "masterDisplayName": "PEM Key",
