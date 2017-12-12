@@ -10,6 +10,9 @@ var test = util.format('%s - %s', testSuite, testSuiteDesc);
 describe(test,
   function () {
     var ownerApiAdapter = null;
+    var unauthorizedApiAdapter = null;
+    var masterIntegrationId = null;
+    var masterIntegration = {};
     var ownerAccount = {};
     var accountIntegration = {};
 
@@ -29,8 +32,24 @@ describe(test,
 
             ownerApiAdapter =
               global.newApiAdapterByStateAccount('ghOwnerAccount');
-            ownerAccount = global.stateFile.get('ghOwnerAccount');
-            return done();
+            unauthorizedApiAdapter =
+              global.newApiAdapterByStateAccount('ghUnauthorizedAccount');
+
+            ownerApiAdapter.getMasterIntegrations('',
+              function (err, masInts) {
+                if (err)
+                  return done(
+                    new Error(
+                      util.format('User cannot get master integration for query %s',
+                        query, err)
+                    )
+                  );
+                masterIntegration = masInts;
+                assert.isNotEmpty(masterIntegration, 'Account Integration ' +
+                  'cannot be empty');
+                return done();
+              }
+            );
           }
         );
       }
@@ -38,10 +57,11 @@ describe(test,
 
     it('1. Owner can create PEM Key Account Integration',
       function (done) {
+        var masterInt = _.findWhere(masterIntegration, {name:"pemKey"});
         var body = {
           "name" : "ghOrgAccIntPemKey",
           "masterDisplayName": "PEM Key",
-          "masterIntegrationId": "59d3692f0c3f421becfae3f0",
+          "masterIntegrationId": masterInt.id,
           "masterName": "pemKey",
           "masterType": "generic",
           "formJSONValues": [
@@ -51,7 +71,6 @@ describe(test,
               }
            ]
         };
-
         ownerApiAdapter.postAccountIntegration(body,
           function (err, acctInt) {
             if (err)
@@ -66,7 +85,6 @@ describe(test,
             acctInt.test_resource_name = acctInt.name;
 
             accountIntegration = acctInt;
-
             global.saveTestResource(acctInt.test_resource_name, acctInt,
               function () {
                 return done();
@@ -90,7 +108,7 @@ describe(test,
                 )
               );
             accountIntegration = _.first(acctInts);
-            assert.isNotEmpty(accountIntegration, 'Account Integration ' +
+            assert.isNotEmpty(acctInts, 'Account Integration ' +
               'cannot be empty');
             return done();
           }
@@ -98,7 +116,35 @@ describe(test,
       }
     );
 
-    it('3. Owner can delete PEM Key Account Integration',
+    it('3. Unauthorized cannot get the account integration',
+      function (done) {
+        unauthorizedApiAdapter.getAccountIntegrationById(accountIntegration.id,
+          function (err, acctInts) {
+            assert.strictEqual(err, 404,
+              util.format('User cannot get account integration.' +
+                ' err : %s %s', err, acctInts)
+            );
+            return done();
+          }
+        );
+      }
+    );
+
+    it('4. Public User cannot get the account integration',
+      function (done) {
+        global.pubAdapter.getAccountIntegrationById(accountIntegration.id,
+          function (err, acctInts) {
+            assert.strictEqual(err, 401,
+              util.format('User cannot get account integration.' +
+                ' err : %s %s', err, acctInts)
+            );
+            return done();
+          }
+        );
+      }
+    );
+
+    it('5. Owner can delete PEM Key Account Integration',
       function (done) {
         ownerApiAdapter.deleteAccountIntegrationById(
           accountIntegration.id,

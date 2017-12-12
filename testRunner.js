@@ -47,6 +47,7 @@ function testRun(next) {
   var tests = [
     'tests/core/install/*.js',
 //    'tests/core/account/GH_OWN*.js',
+    'tests/core/account/GH_UNA*.js',
     'tests/core/accountIntegration/*.js',
 //    'tests/core/project/*.js',
 //    'tests/core/subscriptionIntegration/*.js',
