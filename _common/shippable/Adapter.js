@@ -371,6 +371,14 @@ ShippableAdapter.prototype.getRunStatusBySubscriptionId =
     );
   };
 
+ShippableAdapter.prototype.getBuildStatusBySubscriptionId =
+  function (id, callback) {
+    this.get(
+      util.format('/subscriptions/%s/buildStatus', id),
+      callback
+    );
+  };
+
 ShippableAdapter.prototype.getSystemMachineImageById =
   function (id, callback) {
     this.get(
