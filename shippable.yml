@@ -27,3 +27,5 @@ jobs:
             - pushd $(shipctl get_resource_state "bvt_repo")
             - ./test.sh
             - popd
+    on_failure:
+      - NOTIFY: rc_slack
