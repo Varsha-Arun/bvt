@@ -363,6 +363,30 @@ ShippableAdapter.prototype.getSubscriptionById =
     );
   };
 
+ShippableAdapter.prototype.getRunStatusBySubscriptionId =
+  function (id, callback) {
+    this.get(
+      util.format('/subscriptions/%s/runStatus', id),
+      callback
+    );
+  };
+
+ShippableAdapter.prototype.getBuildStatusBySubscriptionId =
+  function (id, callback) {
+    this.get(
+      util.format('/subscriptions/%s/buildStatus', id),
+      callback
+    );
+  };
+
+ShippableAdapter.prototype.getBranchRunStatusByProjectId =
+function (id, callback) {
+  this.get(
+    util.format('/projects/%s/runStatus', id),
+    callback
+  );
+};
+
 ShippableAdapter.prototype.getSystemMachineImageById =
   function (id, callback) {
     this.get(

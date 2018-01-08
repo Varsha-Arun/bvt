@@ -46,13 +46,14 @@ function testRun(next) {
   // takes a list of files/ directories for mocha and runs all in series
   var tests = [
     'tests/core/install/*.js',
-//    'tests/core/account/GH_OWN*.js',
-    'tests/core/account/GH_UNA*.js',
-    'tests/core/accountIntegration/*.js',
+    'tests/core/account/*.js',
+//    'tests/core/accountIntegration/*.js',
+    'tests/core/api/PROJECTS.js',
 //    'tests/core/project/*.js',
 //    'tests/core/subscriptionIntegration/*.js',
 //    'tests/core/resources/GH_ORG_PRI_OWN_RSYNC.js',
-//    'tests/core/resources/GH_ORG_PRI_OWN_RUNSH.js'
+//    'tests/core/resources/GH_ORG_PRI_OWN_RUNSH.js',
+//    'tests/core/resources/GH_IND_PUB_OWN_RUNCI.js'
   ];
 
   async.eachSeries(tests,
