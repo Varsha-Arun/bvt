@@ -10,6 +10,8 @@ echo $(eval echo "$"$RES_KEYS_UP"_6")
 echo $(eval echo "$"$RES_KEYS_UP"_7")
 #echo $(shipctl get_integration_resource_field $RES_KEYS "TEST")
 
+printenv
+
 main() {
   #setup test comparison values
   . testParams.env
