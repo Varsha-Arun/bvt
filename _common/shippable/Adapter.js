@@ -379,6 +379,14 @@ ShippableAdapter.prototype.getBuildStatusBySubscriptionId =
     );
   };
 
+ShippableAdapter.prototype.getBranchRunStatusByProjectId =
+function (id, callback) {
+  this.get(
+    util.format('/projects/%s/runStatus', id),
+    callback
+  );
+};
+
 ShippableAdapter.prototype.getSystemMachineImageById =
   function (id, callback) {
     this.get(

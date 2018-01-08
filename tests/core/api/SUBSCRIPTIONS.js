@@ -3,7 +3,7 @@
 var testSetup = require('../../../testSetup.js');
 var backoff = require('backoff');
 
-var testSuite = 'GH_ORG_SUB_API';
+var testSuite = 'API_SUBSCRIPTIONS';
 var testSuiteDesc = 'Github Organization subscription API tests';
 var test = util.format('%s - %s', testSuite, testSuiteDesc);
 
