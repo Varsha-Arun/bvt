@@ -382,7 +382,7 @@ ShippableAdapter.prototype.getBuildStatusBySubscriptionId =
 ShippableAdapter.prototype.getBranchRunStatusByProjectId =
 function (id, callback) {
   this.get(
-    util.format('/projects/%s/runStatus', id),
+    util.format('/projects/%s/branchRunStatus', id),
     callback
   );
 };
