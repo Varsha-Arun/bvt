@@ -262,7 +262,10 @@ describe(test,
         var json = {
           type: 'ci'
         };
-        var project =  _.findWhere(projects, {isPrivateRepository: true});
+        var project = _.first(
+          _.where(projects, {isOrg: true, isPrivateRepository: true}
+          )
+        );
         assert.isNotEmpty(project,
           'Projects cannot be empty.');
         ownerApiAdapter.enableProjectById(project.id, json,
@@ -274,12 +277,7 @@ describe(test,
                     project.id, util.inspect(response))
                 )
               );
-
-            global.saveTestResource(project.test_resource_name, project,
-              function () {
-                return done();
-              }
-            );
+            return done();
           }
         );
       }
@@ -290,7 +288,10 @@ describe(test,
         var json = {
           type: 'ci'
         };
-        var project =  _.findWhere(projects, {isPrivateRepository: false});
+        var project = _.first(
+          _.where(projects, {isOrg: true, isPrivateRepository: false}
+          )
+        );
         assert.isNotEmpty(project,
           'Projects cannot be empty.');
         ownerApiAdapter.enableProjectById(project.id, json,
@@ -302,12 +303,7 @@ describe(test,
                     project.id, util.inspect(response))
                 )
               );
-
-            global.saveTestResource(project.test_resource_name, project,
-              function () {
-                return done();
-              }
-            );
+            return done();
           }
         );
       }
@@ -695,13 +691,13 @@ describe(test,
         );
         assert.isNotEmpty(project,
           'Projects cannot be empty.');
-        var json = {projectId: project.id};;
+        var json = {projectId: project.id};
         ownerApiAdapter.deleteProjectById(project.id, json,
           function (err, response) {
             if (err)
               return done(
                 new Error(
-                  util.format('User can delete project id: %s, err: %s, %s',
+                  util.format('User cannot delete project id: %s, err: %s, %s',
                     project.id, err, response)
                 )
               );
@@ -729,7 +725,7 @@ describe(test,
             if (err)
               return done(
                 new Error(
-                  util.format('User can delete project id: %s, err: %s, %s',
+                  util.format('User cannot delete project id: %s, err: %s, %s',
                     project.id, err, response)
                 )
               );
