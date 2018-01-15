@@ -14,6 +14,10 @@ describe(test,
     var memberApiAdapter = null;
     var unauthorizedApiAdapter = null;
     var projects = [];
+    var branchRunStatus = [];
+    var successStatusCode = null;
+    var privateProjectRunId = null;
+    var publicProjectRunId = null;
 
     this.timeout(0);
     before(
@@ -35,6 +39,9 @@ describe(test,
               global.newApiAdapterByStateAccount('ghMemberAccount');
             unauthorizedApiAdapter =
               global.newApiAdapterByStateAccount('ghUnauthorizedAccount');
+
+            successStatusCode = _.findWhere(global.systemCodes,
+              {group: 'statusCodes', name: 'SUCCESS'}).code;
 
             return done();
 
@@ -255,7 +262,10 @@ describe(test,
         var json = {
           type: 'ci'
         };
-        var project =  _.findWhere(projects, {isPrivateRepository: true});
+        var project = _.first(
+          _.where(projects, {isOrg: true, isPrivateRepository: true}
+          )
+        );
         assert.isNotEmpty(project,
           'Projects cannot be empty.');
         ownerApiAdapter.enableProjectById(project.id, json,
@@ -267,12 +277,7 @@ describe(test,
                     project.id, util.inspect(response))
                 )
               );
-
-            global.saveTestResource(project.test_resource_name, project,
-              function () {
-                return done();
-              }
-            );
+            return done();
           }
         );
       }
@@ -283,7 +288,10 @@ describe(test,
         var json = {
           type: 'ci'
         };
-        var project =  _.findWhere(projects, {isPrivateRepository: false});
+        var project = _.first(
+          _.where(projects, {isOrg: true, isPrivateRepository: false}
+          )
+        );
         assert.isNotEmpty(project,
           'Projects cannot be empty.');
         ownerApiAdapter.enableProjectById(project.id, json,
@@ -295,58 +303,85 @@ describe(test,
                     project.id, util.inspect(response))
                 )
               );
+            return done();
+          }
+        );
+      }
+    );
 
-            global.saveTestResource(project.test_resource_name, project,
-              function () {
-                return done();
+    it('14. Owner triggers manual build for private project and build is successful',
+      function (done) {
+        var project =  _.first(
+          _.where(projects, {isOrg: true, isPrivateRepository: true}
+          )
+        );
+        var triggerBuild = new Promise(
+          function (resolve, reject) {
+            var json = {branchName: 'master'};
+            ownerApiAdapter.triggerNewBuildByProjectId(project.id, json,
+              function (err, response) {
+                if (err)
+                  return reject(
+                    new Error(
+                      util.format('user cannot trigger manual build for ' +
+                        'project id: %s, err: %s, %s', project.id, err,
+                        util.inspect(response)
+                      )
+                    )
+                  );
+                return resolve(response);
               }
             );
           }
         );
-      }
-    );
 
-    it('14. Owner can trigger manual build for the private project',
-      function (done) {
-        var project =  _.findWhere(projects, {isPrivateRepository: true});
-        assert.isNotEmpty(project,
-          'Projects cannot be empty.');
-        var json = {branchName: 'master'};
-        ownerApiAdapter.triggerNewBuildByProjectId(project.id, json,
-          function (err, response) {
-            if (err)
-              return done(
-                new Error(
-                  util.format('user cannot trigger manual build for ' +
-                    'project id: %s, err: %s, %s', project.id, err,
-                    util.inspect(response)
-                  )
-                )
-              );
-            return done();
+        triggerBuild.then(
+          function (response) {
+            privateProjectRunId = response.runId;
+            global.getRunByIdStatusWithBackOff(ownerApiAdapter, privateProjectRunId,
+              successStatusCode, done);
+          },
+          function (err) {
+            return done(err);
           }
         );
       }
     );
 
-    it('15. Owner can trigger manual build for the public project',
+    it('15. Owner triggers manual build for public project and build is successful',
       function (done) {
-        var project =  _.findWhere(projects, {isPrivateRepository: false});
-        assert.isNotEmpty(project,
-          'Projects cannot be empty.');
-        var json = {branchName: 'master'};
-        ownerApiAdapter.triggerNewBuildByProjectId(project.id, json,
-          function (err, response) {
-            if (err)
-              return done(
-                new Error(
-                  util.format('user cannot trigger manual build for ' +
-                    'project id: %s, err: %s, %s', project.id, err,
-                    util.inspect(response)
-                  )
-                )
-              );
-            return done();
+        var project =  _.first(
+          _.where(projects, {isOrg: true, isPrivateRepository: false}
+          )
+        );
+        var triggerBuild = new Promise(
+          function (resolve, reject) {
+            var json = {branchName: 'master'};
+            ownerApiAdapter.triggerNewBuildByProjectId(project.id, json,
+              function (err, response) {
+                if (err)
+                  return reject(
+                    new Error(
+                      util.format('user cannot trigger manual build for ' +
+                        'project id: %s, err: %s, %s', project.id, err,
+                        util.inspect(response)
+                      )
+                    )
+                  );
+                return resolve(response);
+              }
+            );
+          }
+        );
+
+        triggerBuild.then(
+          function (response) {
+            publicProjectRunId = response.runId;
+            global.getRunByIdStatusWithBackOff(ownerApiAdapter, publicProjectRunId,
+              successStatusCode, done);
+          },
+          function (err) {
+            return done(err);
           }
         );
       }
@@ -506,18 +541,163 @@ describe(test,
       }
     );
 
-    it('24. Owner deletes the private project',
+    it('24. Owner can get Branch Run Status by project Id',
       function (done) {
-        var project =  _.findWhere(projects, {isPrivateRepository: true});
+        var project = _.findWhere(projects, {isPrivateRepository: true});
+        assert.isNotEmpty(project, 'Projects cannot be empty.');
+        ownerApiAdapter.getBranchRunStatusByProjectId(project.id,
+          function (err, branchRunStas) {
+            if (err || _.isEmpty(branchRunStas))
+              return done(
+                new Error(
+                  util.format('User cannot get branch run status',
+                    project.id, err)
+                )
+              );
+
+            branchRunStatus = branchRunStas;
+            assert.isNotEmpty(branchRunStatus, 'User cannot find the branch run status by project Id');
+            return done();
+          }
+        );
+      }
+    );
+
+    it('25. Member can get Branch Run Status by project Id',
+      function (done) {
+        var project = _.findWhere(projects, {isPrivateRepository: true});
+        assert.isNotEmpty(project, 'Projects cannot be empty.');
+        memberApiAdapter.getBranchRunStatusByProjectId(project.id,
+          function (err, branchRunStas) {
+            if (err || _.isEmpty(branchRunStas))
+              return done(
+                new Error(
+                  util.format('User cannot get branch run status',
+                    project.id, err)
+                )
+              );
+
+            branchRunStatus = branchRunStas;
+            assert.isNotEmpty(branchRunStatus, 'User cannot find the branch run status by project Id');
+            return done();
+          }
+        );
+      }
+    );
+
+    it('26. Collaborater can get Branch Run Status by project Id',
+      function (done) {
+        var project = _.findWhere(projects, {isPrivateRepository: true});
+        assert.isNotEmpty(project, 'Projects cannot be empty.');
+        collaboraterApiAdapter.getBranchRunStatusByProjectId(project.id,
+          function (err, branchRunStas) {
+            if (err || _.isEmpty(branchRunStas))
+              return done(
+                new Error(
+                  util.format('User cannot get branch run status',
+                    project.id, err)
+                )
+              );
+
+            branchRunStatus = branchRunStas;
+            assert.isNotEmpty(branchRunStatus, 'User cannot find the branch run status by project Id');
+            return done();
+          }
+        );
+      }
+    );
+
+    it('27. Public user cannot get Branch Run Status by private project Id',
+      function (done) {
+        var project = _.findWhere(projects, {isPrivateRepository: true});
+        assert.isNotEmpty(project, 'Projects cannot be empty.');
+        global.pubAdapter.getBranchRunStatusByProjectId(project.id,
+          function (err, branchRunStas) {
+            assert.strictEqual(err, 404,
+              util.format('User should not be able to get branch run status by project Id' +
+                'err : %s %s', err, branchRunStas)
+            );
+            return done();
+          }
+        );
+      }
+    );
+
+    it('28. Public user can get Branch Run Status by public project Id',
+      function (done) {
+        var project = _.findWhere(projects, {isPrivateRepository: false});
+        assert.isNotEmpty(project, 'Projects cannot be empty.');
+        global.pubAdapter.getBranchRunStatusByProjectId(project.id,
+          function (err, branchRunStas) {
+            if (err || _.isEmpty(branchRunStas))
+              return done(
+                new Error(
+                  util.format('User cannot get branch run status',
+                    project.id, err)
+                )
+              );
+
+            branchRunStatus = branchRunStas;
+            assert.isNotEmpty(branchRunStatus, 'User cannot find the branch run status by project Id');
+            return done();
+          }
+        );
+      }
+    );
+
+    it('29. Unauthorized user can get Branch Run Status by private project Id',
+      function (done) {
+        var project = _.findWhere(projects, {isPrivateRepository: true});
+        assert.isNotEmpty(project, 'Projects cannot be empty.');
+        unauthorizedApiAdapter.getBranchRunStatusByProjectId(project.id,
+          function (err, branchRunStas) {
+            assert.strictEqual(err, 404,
+              util.format('User should not be able to get tbranch run status by project Id' +
+                'err : %s %s', err, branchRunStas)
+            );
+            return done();
+          }
+        );
+      }
+    );
+
+    it('30. Unauthorized user can get Branch Run Status by public project Id',
+      function (done) {
+        var project = _.findWhere(projects, {isPrivateRepository: false});
+        assert.isNotEmpty(project, 'Projects cannot be empty.');
+        unauthorizedApiAdapter.getBranchRunStatusByProjectId(project.id,
+          function (err, branchRunStas) {
+            if (err || _.isEmpty(branchRunStas))
+              return done(
+                new Error(
+                  util.format('User cannot get branch run status',
+                    project.id, err)
+                )
+              );
+
+            branchRunStatus = branchRunStas;
+            assert.isNotEmpty(branchRunStatus, 'User cannot find the branch run status by project Id');
+            return done();
+          }
+        );
+      }
+    );
+
+    it('31. Owner deletes the private project',
+      function (done) {
+        var project =  _.first(
+          _.where(projects, {isOrg: true, isPrivateRepository: true}
+          )
+        );
         assert.isNotEmpty(project,
           'Projects cannot be empty.');
-        var json = {projectId: project.id};;
+        var json = {projectId: project.id};
         ownerApiAdapter.deleteProjectById(project.id, json,
           function (err, response) {
             if (err)
               return done(
                 new Error(
-                  util.format('User can delete project id: %s, err: %s, %s',
+                  util.format('User cannot delete project id: %s, err: %s, %s',
                     project.id, err, response)
                 )
               );
@@ -531,9 +711,12 @@ describe(test,
       }
     );
 
-    it('25. Owner deletes the public project',
+    it('32. Owner deletes the public project',
       function (done) {
-        var project =  _.findWhere(projects, {isPrivateRepository: false});
+        var project =  _.first(
+          _.where(projects, {isOrg: true, isPrivateRepository: false}
+          )
+        );
         assert.isNotEmpty(project,
           'Projects cannot be empty.');
         var json = {projectId: project.id};
@@ -542,7 +725,7 @@ describe(test,
             if (err)
               return done(
                 new Error(
-                  util.format('User can delete project id: %s, err: %s, %s',
+                  util.format('User cannot delete project id: %s, err: %s, %s',
                     project.id, err, response)
                 )
               );
