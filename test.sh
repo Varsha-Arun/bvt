@@ -1,6 +1,5 @@
 #!/bin/bash -e
 
-
 main() {
   #setup test comparison values
   . testParams.env

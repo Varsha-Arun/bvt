@@ -1,0 +1,31 @@
+resources:
+  - name: bvt_keys
+    type: integration
+    integration: bvt_keys
+
+  - name: bvt_repo
+    type: gitRepo
+    integration: avinci_gh
+    pointer:
+      sourceName: shippable/bvt
+      branch: master
+
+jobs:
+  - name: bvt
+    type: runSh
+    triggerMode: parallel
+    dependencyMode: strict
+    steps:
+      - IN: bvt_repo
+        switch: off
+      - IN: bvt_keys
+        switch: off
+      - IN: rc_deploy
+        switch: off
+      - TASK:
+          script:
+            - pushd $(shipctl get_resource_state "bvt_repo")
+            - ./test.sh
+            - popd
+    on_failure:
+      - NOTIFY: rc_slack
