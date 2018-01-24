@@ -25,7 +25,14 @@ jobs:
       - TASK:
           script:
             - pushd $(shipctl get_resource_state "bvt_repo")
+            - shipctl copy_file_from_prev_state conf.json .
             - ./test.sh
             - popd
     on_failure:
       - NOTIFY: rc_slack
+    always:
+      - TASK:
+          script:
+            - pushd $(shipctl get_resource_state "bvt_repo")
+            - shipctl copy_file_to_state conf.json
+            - popd
