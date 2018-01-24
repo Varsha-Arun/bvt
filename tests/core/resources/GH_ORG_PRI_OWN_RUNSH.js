@@ -424,7 +424,12 @@ describe(test,
             _reOpenPR.bind(null)
           ],
           function (err) {
-            return done(err);
+            // TODO: Check if this delay actually helps. Currently, test 26 fails because it sees
+            // only one version, but if you manually verify the resource after everything is done,
+            // it actually has 2 versions, so it appears the tests are running too quickly.
+            setTimeout(function() {
+              return done(err);
+            }, 30000);
           }
         );
       }
