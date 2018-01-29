@@ -410,7 +410,108 @@ describe(test,
       }
     );
 
-    it('17. Owner deletes the private project',
+    it('17. Owner can delete job by job Id',
+      function (done) {
+        ownerApiAdapter.deleteJobsById(privateProjectJob.id,
+          function (err) {
+            if (err)
+              return done(
+                new Error(
+                  util.format('User cannot delete job by job Id %s err %s',
+                    publicProjectJob.id, err)
+                )
+              );
+            return done();
+          }
+        );
+      }
+    );
+
+    it('18. Member cannot delete job by job Id',
+      function (done) {
+        memberApiAdapter.deleteJobsById(privateProjectJob.id,
+          function (err, response) {
+            assert.strictEqual(err, 404,
+              util.format('User should not be able to delete job by job Id: %s ' +
+                'err : %s, %s', privateProjectJob.id, err, response)
+            );
+            return done();
+          }
+        );
+      }
+    );
+
+    it('19. Collaborater cannot delete job by job Id',
+      function (done) {
+        collaboraterApiAdapter.deleteJobsById(privateProjectJob.id,
+          function (err, response) {
+            assert.strictEqual(err, 404,
+              util.format('User should not be able to delete job by job Id: %s ' +
+                'err : %s, %s', privateProjectJob.id, err, response)
+            );
+            return done();
+          }
+        );
+      }
+    );
+
+    it('20. Public user cannot delete private job by job Id',
+      function (done) {
+        global.pubAdapter.deleteJobsById(privateProjectJob.id,
+          function (err, response) {
+            assert.strictEqual(err, 401,
+              util.format('User should not be able to delete job by job Id: %s ' +
+                'err : %s, %s', privateProjectJob.id, err, response)
+            );
+            return done();
+          }
+        );
+      }
+    );
+
+    it('21. Public user cannot delete public project job by job Id',
+      function (done) {
+        global.pubAdapter.deleteJobsById(publicProjectJob.id,
+          function (err, response) {
+            assert.strictEqual(err, 401,
+              util.format('User should not be able to delete job by job Id: %s ' +
+                'err : %s, %s', publicProjectJob.id, err, response)
+            );
+            return done();
+          }
+        );
+      }
+    );
+
+    it('22. Unauthorized user cannot delete private job by job Id',
+      function (done) {
+        unauthorizedApiAdapter.deleteJobsById(privateProjectJob.id,
+          function (err, response) {
+            assert.strictEqual(err, 404,
+              util.format('User should not be able to delete job by job Id: %s ' +
+                'err : %s, %s', privateProjectJob.id, err, response)
+            );
+            return done();
+          }
+        );
+      }
+    );
+
+    it('23. Unauthorized user cannot delete public project job by job Id',
+      function (done) {
+        unauthorizedApiAdapter.deleteJobsById(publicProjectJob.id,
+          function (err, response) {
+            assert.strictEqual(err, 404,
+              util.format('User should not be able to delete job by job Id: %s ' +
+                'err : %s, %s', privateProjectJob.id, err, response)
+            );
+            return done();
+          }
+        );
+      }
+    );
+
+    it('24. Owner deletes the private project',
       function (done) {
         var project =  _.first(
           _.where(projects, {isOrg: true, isPrivateRepository: true}
@@ -439,7 +540,7 @@ describe(test,
       }
     );
 
-    it('18. Owner deletes the public project',
+    it('25. Owner deletes the public project',
       function (done) {
         var project =  _.first(
           _.where(projects, {isOrg: true, isPrivateRepository: false}

@@ -423,47 +423,79 @@ describe(test,
       }
     );
 
-    it('18. Collaborater can trigger manual build for the private project',
+    it('18. Collaborater triggers manual build for private project and build is successful',
       function (done) {
-        var project =  _.findWhere(projects, {isPrivateRepository: true});
-        assert.isNotEmpty(project,
-          'Projects cannot be empty.');
-        var json = {branchName: 'master'};
-        collaboraterApiAdapter.triggerNewBuildByProjectId(project.id, json,
-          function (err, response) {
-            if (err)
-              return done(
-                new Error(
-                  util.format('user cannot trigger manual build for ' +
-                    'project id: %s, err: %s, %s', project.id, err,
-                    util.inspect(response)
-                  )
-                )
-              );
-            return done();
+        var project =  _.first(
+          _.where(projects, {isOrg: true, isPrivateRepository: true}
+          )
+        );
+        var triggerBuild = new Promise(
+          function (resolve, reject) {
+            var json = {branchName: 'master'};
+            collaboraterApiAdapter.triggerNewBuildByProjectId(project.id, json,
+              function (err, response) {
+                if (err)
+                  return reject(
+                    new Error(
+                      util.format('user cannot trigger manual build for ' +
+                        'project id: %s, err: %s, %s', project.id, err,
+                        util.inspect(response)
+                      )
+                    )
+                  );
+                return resolve(response);
+              }
+            );
+          }
+        );
+
+        triggerBuild.then(
+          function (response) {
+            privateProjectRunId = response.runId;
+            global.getRunByIdStatusWithBackOff(collaboraterApiAdapter, privateProjectRunId,
+              successStatusCode, done);
+          },
+          function (err) {
+            return done(err);
           }
         );
       }
     );
 
-    it('19. Collaborater can trigger manual build for the public project',
+    it('19. Collaborater triggers manual build for public project and build is successful',
       function (done) {
-        var project =  _.findWhere(projects, {isPrivateRepository: false});
-        assert.isNotEmpty(project,
-          'Projects cannot be empty.');
-        var json = {branchName: 'master'};
-        collaboraterApiAdapter.triggerNewBuildByProjectId(project.id, json,
-          function (err, response) {
-            if (err)
-              return done(
-                new Error(
-                  util.format('user cannot trigger manual build for ' +
-                    'project id: %s, err: %s, %s', project.id, err,
-                    util.inspect(response)
-                  )
-                )
-              );
-            return done();
+        var project =  _.first(
+          _.where(projects, {isOrg: true, isPrivateRepository: false}
+          )
+        );
+        var triggerBuild = new Promise(
+          function (resolve, reject) {
+            var json = {branchName: 'master'};
+            collaboraterApiAdapter.triggerNewBuildByProjectId(project.id, json,
+              function (err, response) {
+                if (err)
+                  return reject(
+                    new Error(
+                      util.format('user cannot trigger manual build for ' +
+                        'project id: %s, err: %s, %s', project.id, err,
+                        util.inspect(response)
+                      )
+                    )
+                  );
+                return resolve(response);
+              }
+            );
+          }
+        );
+
+        triggerBuild.then(
+          function (response) {
+            publicProjectRunId = response.runId;
+            global.getRunByIdStatusWithBackOff(collaboraterApiAdapter, publicProjectRunId,
+              successStatusCode, done);
+          },
+          function (err) {
+            return done(err);
           }
         );
       }
