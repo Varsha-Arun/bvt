@@ -82,6 +82,22 @@ ShippableAdapter.prototype.getAccounts =
     );
   };
 
+ShippableAdapter.prototype.getAccountDependenciesById =
+  function (id, callback) {
+    this.get(
+      util.format('/accounts/%s/dependencies', id),
+      callback
+    );
+  };
+
+ShippableAdapter.prototype.getRunStatusByAccountId =
+  function (id, callback) {
+    this.get(
+      util.format('/accounts/%s/runStatus', id),
+      callback
+    );
+  };
+
 ShippableAdapter.prototype.getAccountIntegrationById =
   function (id, callback) {
     this.get(
@@ -784,6 +800,14 @@ ShippableAdapter.prototype.deleteJobConsolesByJobId =
     var url = util.format('/jobs/%s/consoles?%s',
       jobId, query);
     this.delete(url, callback);
+  };
+
+ShippableAdapter.prototype.deleteJobsById =
+  function (jobId, callback) {
+    this.delete(
+      util.format('/jobs/%s', jobId),
+      callback
+    );
   };
 
 ShippableAdapter.prototype.postOfflineAccount =
