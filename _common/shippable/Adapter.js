@@ -180,6 +180,14 @@ ShippableAdapter.prototype.getBuilds =
     );
   };
 
+ShippableAdapter.prototype.getBuildById =
+  function (id, callback) {
+    this.get(
+      util.format('/builds/%s', id),
+      callback
+    );
+  };
+
 ShippableAdapter.prototype.getBuildJobs =
   function (query, callback) {
     this.get(
