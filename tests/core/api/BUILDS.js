@@ -190,7 +190,7 @@ describe(test,
                     query, err)
                 )
               );
-            builds = builds;
+            builds = blds;
             assert.isNotEmpty(blds, 'User cannot find the builds');
             return done();
           }
@@ -318,7 +318,7 @@ describe(test,
       }
     );
 
-    it('14. Unauthorized user cannot get buildJob by Id',
+    it('14. Unauthorized user cannot get build by Id',
       function (done) {
         unauthorizedApiAdapter.getBuildById(buildId,
           function (err, response) {
