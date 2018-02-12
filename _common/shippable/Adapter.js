@@ -348,6 +348,14 @@ ShippableAdapter.prototype.getResourceById =
     );
   };
 
+ShippableAdapter.prototype.getResourceDependenciesById =
+ function (resourceId, callback) {
+   this.get(
+     util.format('/resources/%s/dependencies', resourceId),
+     callback
+   );
+ };
+
 ShippableAdapter.prototype.getRunById =
   function (runId, callback) {
     this.get(
