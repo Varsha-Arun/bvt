@@ -622,6 +622,22 @@ ShippableAdapter.prototype.deleteBuildJobConsolesByBuildJobId =
     this.delete(url, callback);
   };
 
+ShippableAdapter.prototype.deleteBuildJobById =
+  function (buildJobId, callback) {
+    this.delete(
+      util.format('/buildJobs/%s', buildJobId),
+      callback
+    );
+  };
+
+ShippableAdapter.prototype.deleteBuildById =
+  function (buildId, callback) {
+    this.delete(
+      util.format('/builds/%s', buildId),
+      callback
+    );
+  };
+
 ShippableAdapter.prototype.deleteClusterNodeById =
   function (clusterNodeId, callback) {
     this.delete(
