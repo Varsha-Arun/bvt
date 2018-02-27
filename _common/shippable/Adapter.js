@@ -678,6 +678,14 @@ ShippableAdapter.prototype.deleteResourceById =
     );
   };
 
+ShippableAdapter.prototype.deleteRunById =
+  function (runId, callback) {
+    this.delete(
+      util.format('/runs/%s', runId),
+      callback
+    );
+  };
+
 ShippableAdapter.prototype.deleteSubscriptionAccountById =
   function (id, callback) {
     this.delete(

@@ -485,6 +485,82 @@ describe(test,
       }
     );
 
+    it('17. Member cannot delete run by Id',
+      function (done) {
+        memberApiAdapter.deleteRunById(privateProjectRunId,
+          function (err, response) {
+            assert.strictEqual(err, 404,
+              util.format('User should not be able to delete run by Id: %s ' +
+                'err : %s, %s', privateProjectRunId, err, response)
+            );
+            return done();
+          }
+        );
+      }
+    );
+
+    it('17. Public user cannot delete run by Id',
+      function (done) {
+        global.pubAdapter.deleteRunById(privateProjectRunId,
+          function (err, response) {
+            assert.strictEqual(err, 401,
+              util.format('User should not be able to delete run by Id: %s ' +
+                'err : %s, %s', privateProjectRunId, err, response)
+            );
+            return done();
+          }
+        );
+      }
+    );
+
+    it('17. Unauthorized user cannot delete run by Id',
+      function (done) {
+        unauthorizedApiAdapter.deleteRunById(privateProjectRunId,
+          function (err, response) {
+            assert.strictEqual(err, 404,
+              util.format('User should not be able to get run by Id: %s ' +
+                'err : %s, %s', privateProjectRunId, err, response)
+            );
+            return done();
+          }
+        );
+      }
+    );
+
+    it('17. Owner can delete run by Id',
+      function (done) {
+        ownerApiAdapter.deleteRunById(privateProjectRunId,
+          function (err, response) {
+            if (err)
+              return done(
+                new Error(
+                  util.format('User can delete run by id: %s, err: %s, %s',
+                    privateProjectRunId, err, response)
+                )
+              );
+            return done();
+          }
+        );
+      }
+    );
+
+    it('17. Collaborater can delete run by Id',
+      function (done) {
+        collaboraterApiAdapter.deleteRunById(matrixRunId,
+          function (err, response) {
+            if (err)
+              return done(
+                new Error(
+                  util.format('User can delete run by id: %s, err: %s, %s',
+                    matrixRunId, err, response)
+                )
+              );
+            return done();
+          }
+        );
+      }
+    );
+
     it('22. Owner deletes the private project',
       function (done) {
         var project =  _.first(
@@ -513,7 +589,7 @@ describe(test,
       }
     );
 
-    it('23. Deleting matrixCI public Project',
+    it('23. Owner deletes the private project',
       function (done) {
         var json = {projectId: matrixCIProject.id};
         collaboraterApiAdapter.deleteProjectById(matrixCIProject.id, json,

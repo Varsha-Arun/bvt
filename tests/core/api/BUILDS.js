@@ -3,8 +3,8 @@
 var testSetup = require('../../../testSetup.js');
 var backoff = require('backoff');
 
-var testSuite = 'API_BUILDS';
-var testSuiteDesc = 'Github Organization build API tests';
+var testSuite = 'API_BUILDJOBS';
+var testSuiteDesc = 'Github Organization buildJob API tests';
 var test = util.format('%s - %s', testSuite, testSuiteDesc);
 
 describe(test,
@@ -19,8 +19,8 @@ describe(test,
     var subscriptionIntegration = {};
     var syncRepoResource = {};
     var rSyncJob = {};
-    var builds = [];
-    var buildId = {};
+    var buildJobs = [];
+    var buildJobId = null;
     var rSyncCode = null;
     var syncRepoCode = null;
 
@@ -151,78 +151,94 @@ describe(test,
       }
     );
 
-    it('4. SyncRepo build was successful',
+    it('4. Owner should be able to trigger build',
+      function (done) {
+        ownerApiAdapter.triggerNewBuildByResourceId(rSyncJob.id, {},
+          function (err, response) {
+            if (err)
+              return done(
+                new Error(
+                  util.format('user cannot trigger manual build for ' +
+                    'job id: %s, err: %s, %s', rSyncJob.id, err,
+                    util.inspect(response)
+                  )
+                )
+              );
+            assert.isNotEmpty(response, 'User cannot trigger a build');
+            return done();
+          }
+        );
+      }
+    );
+
+    it('5. SyncRepo build was successful',
       function (done) {
         global.getBuildStatusWithBackOff(ownerApiAdapter, rSyncJob,
           'rSyncJob', buildSuccessStatusCode, done);
       }
     );
 
-    it('5. Owner can get all their builds',
+    it('6. Owner can get all their buildJobs',
       function (done) {
-        ownerApiAdapter.getBuilds('',
-          function (err, blds) {
-            if (err || _.isEmpty(blds))
+        ownerApiAdapter.getBuildJobs('',
+          function (err, bldJobs) {
+            if (err || _.isEmpty(bldJobs))
               return done(
                 new Error(
-                  util.format('User cannot get builds',
+                  util.format('User cannot get buildJobs',
                     query, err)
                 )
               );
-            builds = blds;
-            var build = _.first(builds);
-            buildId = build.id;
-            assert.isNotEmpty(builds, 'User cannot find the builds');
+            buildJobs = bldJobs;
+            assert.isNotEmpty(buildJobs, 'User cannot find the buildJobs');
             return done();
           }
         );
       }
     );
 
-    it('6. Member can get all their builds',
+    it('7. Member can get all their buildJobs',
       function (done) {
-        memberApiAdapter.getBuilds('',
-          function (err, blds) {
-            if (err || _.isEmpty(blds))
+        memberApiAdapter.getBuildJobs('',
+          function (err, bldJobs) {
+            if (err || _.isEmpty(bldJobs))
               return done(
                 new Error(
-                  util.format('User cannot get builds',
+                  util.format('User cannot get buildJobs',
                     query, err)
                 )
               );
-            builds = blds;
-            assert.isNotEmpty(blds, 'User cannot find the builds');
+            assert.isNotEmpty(bldJobs, 'User cannot find the buildJobs');
             return done();
           }
         );
       }
     );
 
-    it('7. Collaborater can get all their builds',
+    it('8. Collaborater can get all their buildJobs',
       function (done) {
-        collaboraterApiAdapter.getBuilds('',
-          function (err, blds) {
-            if (err || _.isEmpty(blds))
+        collaboraterApiAdapter.getBuildJobs('',
+          function (err, bldJobs) {
+            if (err || _.isEmpty(bldJobs))
               return done(
                 new Error(
-                  util.format('User cannot get builds',
+                  util.format('User cannot get buildJobs',
                     query, err)
                 )
               );
-            builds = builds;
-            assert.isNotEmpty(blds, 'User cannot find the builds');
+            assert.isNotEmpty(bldJobs, 'User cannot find the buildJobs');
             return done();
           }
         );
       }
     );
 
-    it('8. Public user user cannot get builds',
+    it('9. Public user user cannot get all their buildJobs',
       function (done) {
-        global.pubAdapter.getBuilds('',
+        global.pubAdapter.getBuildJobs('',
           function (err, response) {
-            assert.strictEqual(err, 401,
-              util.format('User should not be able to get build: ' +
+            assert.strictEqual(err, 404,
+              util.format('User should not be able to get buildJob' +
                 'err : %s, %s', err, response)
             );
             return done();
@@ -231,86 +247,93 @@ describe(test,
       }
     );
 
-    it('9. Unauthorized user can get all their builds',
+    it('10. Unauthorized user can get all their buildJobs',
       function (done) {
-        unauthorizedApiAdapter.getBuilds('',
-          function (err, blds) {
-            if (err || _.isEmpty(blds))
+        unauthorizedApiAdapter.getBuildJobs('',
+          function (err, bldJobs) {
+            if (err || _.isEmpty(bldJobs))
               return done(
                 new Error(
-                  util.format('User cannot get builds',
+                  util.format('User cannot get buildJobs',
                     query, err)
                 )
               );
-            builds = builds;
-            assert.isNotEmpty(blds, 'User cannot find the builds');
+            assert.isNotEmpty(bldJobs, 'User cannot find the buildJobs');
             return done();
           }
         );
       }
     );
 
-    it('10. Owner can get build by Id',
+    it('11. Owner can get buildJob by Id',
       function (done) {
-        ownerApiAdapter.getBuildById(buildId,
-          function (err, bld) {
-            if (err || _.isEmpty(bld))
+        var buildJob = _.first(buildJobs);
+        buildJobId = buildJob.id;
+        ownerApiAdapter.getBuildJobById(buildJobId,
+          function (err, bldJob) {
+            if (err || _.isEmpty(bldJob))
               return done(
                 new Error(
-                  util.format('User cannot get build by Id',
+                  util.format('User cannot get buildJob by Id',
                     query, err)
                 )
               );
-            assert.isNotEmpty(bld, 'User cannot find the build by Id');
+            assert.isNotEmpty(bldJob, 'User cannot find the buildJob by Id');
             return done();
           }
         );
       }
     );
 
-    it('11. Member can get build by Id',
+    it('12. Member can get buildJob by Id',
       function (done) {
-        memberApiAdapter.getBuildById(buildId,
-          function (err, bld) {
-            if (err || _.isEmpty(bld))
+        var buildJob = _.first(buildJobs);
+        buildJobId = buildJob.id;
+        memberApiAdapter.getBuildJobById(buildJobId,
+          function (err, bldJob) {
+            if (err || _.isEmpty(bldJob))
               return done(
                 new Error(
-                  util.format('User cannot get build by Id',
+                  util.format('User cannot get buildJob by Id',
                     query, err)
                 )
               );
-            assert.isNotEmpty(bld, 'User cannot find the build by Id');
+            assert.isNotEmpty(bldJob, 'User cannot find the buildJob by Id');
             return done();
           }
         );
       }
     );
 
-    it('12. Collaborater can get build by Id',
+    it('13. Collaborater can get buildJob by Id',
       function (done) {
-        collaboraterApiAdapter.getBuildById(buildId,
-          function (err, bld) {
-            if (err || _.isEmpty(bld))
+        var buildJob = _.first(buildJobs);
+        buildJobId = buildJob.id;
+        collaboraterApiAdapter.getBuildJobById(buildJobId,
+          function (err, bldJob) {
+            if (err || _.isEmpty(bldJob))
               return done(
                 new Error(
-                  util.format('User cannot get build by Id',
+                  util.format('User cannot get buildJob by Id',
                     query, err)
                 )
               );
-            assert.isNotEmpty(bld, 'User cannot find the build by Id');
+            assert.isNotEmpty(bldJob, 'User cannot find the buildJob by Id');
             return done();
           }
         );
       }
     );
 
-    it('13. Public user cannot get build by Id',
+    it('14. Public user cannot get buildJob by Id',
       function (done) {
-        global.pubAdapter.getBuildById(buildId,
+        var buildJob = _.first(buildJobs);
+        buildJobId = buildJob.id;
+        global.pubAdapter.getBuildJobById(buildJobId,
           function (err, response) {
-            assert.strictEqual(err, 404,
-              util.format('User should not be able to get build by Id: %s ' +
-                'err : %s, %s', buildId, err, response)
+            assert.strictEqual(err, 401,
+              util.format('User should not be able to get buildJob by Id: %s ' +
+                'err : %s, %s', buildJobId, err, response)
             );
             return done();
           }
@@ -318,13 +341,15 @@ describe(test,
       }
     );
 
-    it('14. Unauthorized user cannot get build by Id',
+    it('15. Unauthorized user cannot get buildJob by Id',
       function (done) {
-        unauthorizedApiAdapter.getBuildById(buildId,
+        var buildJob = _.first(buildJobs);
+        buildJobId = buildJob.id;
+        unauthorizedApiAdapter.getBuildJobById(buildJobId,
           function (err, response) {
             assert.strictEqual(err, 404,
-              util.format('User should not be able to get build by Id: %s ' +
-                'err : %s, %s', buildId, err, response)
+              util.format('User should not be able to get buildJob by Id: %s ' +
+                'err : %s, %s', buildJobId, err, response)
             );
             return done();
           }
@@ -332,7 +357,103 @@ describe(test,
       }
     );
 
-    it('15. Owner can disable private syncrepo',
+    it('16. Member cannot delete buildJob by Id',
+      function (done) {
+        var buildJob = _.first(buildJobs);
+        buildJobId = buildJob.id;
+        memberApiAdapter.deleteBuildJobById(buildJobId,
+          function (err, response) {
+            assert.strictEqual(err, 404,
+              util.format('User should not be able to get buildJob by Id: %s ' +
+                'err : %s, %s', buildJobId, err, response)
+            );
+            return done();
+          }
+        );
+      }
+    );
+
+    it('17. Public user cannot delete buildJob by Id',
+      function (done) {
+        var buildJob = _.first(buildJobs);
+        buildJobId = buildJob.id;
+        global.pubAdapter.deleteBuildJobById(buildJobId,
+          function (err, response) {
+            assert.strictEqual(err, 401,
+              util.format('User should not be able to get buildJob by Id: %s ' +
+                'err : %s, %s', buildJobId, err, response)
+            );
+            return done();
+          }
+        );
+      }
+    );
+
+    it('18. Unauthorized user cannot delete buildJob by Id',
+      function (done) {
+        var buildJob = _.first(buildJobs);
+        buildJobId = buildJob.id;
+        unauthorizedApiAdapter.deleteBuildJobById(buildJobId,
+          function (err, response) {
+            assert.strictEqual(err, 404,
+              util.format('User should not be able to get buildJob by Id: %s ' +
+                'err : %s, %s', buildJobId, err, response)
+            );
+            return done();
+          }
+        );
+      }
+    );
+
+    it('19. Owner can delete buildJob by Id',
+      function (done) {
+        var buildJob = _.first(buildJobs);
+        buildJobId = buildJob.id;
+        ownerApiAdapter.deleteBuildJobById(buildJobId,
+          function (err) {
+            if (err)
+              return done(
+                new Error(
+                  util.format('User cannot delete buildJob by Id %s err %s',
+                    buildJobId, err)
+                )
+              );
+            buildJobs = _.reject(buildJobs,
+              function(buildJob) {
+                return buildJob.id === buildJobId;
+              }
+            );
+            return done();
+          }
+        );
+      }
+    );
+
+    it('20. Collaborater can delete buildJob by Id',
+      function (done) {
+        var buildJob = _.first(buildJobs);
+        buildJobId = buildJob.id;
+        collaboraterApiAdapter.deleteBuildJobById(buildJobId,
+          function (err) {
+            if (err)
+              return done(
+                new Error(
+                  util.format('User cannot delete buildJob by Id %s err %s',
+                    buildJobId, err)
+                )
+              );
+            buildJobs = _.reject(buildJobs,
+              function(buildJob) {
+                return buildJob.id === buildJobId;
+              }
+            );
+            return done();
+          }
+        );
+      }
+    );
+
+    it('21. Owner can disable syncrepo',
       function (done) {
         var query = '';
         ownerApiAdapter.deleteResourceById(syncRepoResource.id, query,
@@ -355,7 +476,7 @@ describe(test,
       }
     );
 
-    it('16. Owner can hard delete private syncrepo',
+    it('22. Owner can hard delete syncrepo',
       function (done) {
         var query = 'hard=true';
         ownerApiAdapter.deleteResourceById(syncRepoResource.id, query,
