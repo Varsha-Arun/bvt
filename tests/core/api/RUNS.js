@@ -326,36 +326,31 @@ describe(test,
       }
     );
 
-    it('13. Public user can get all public project runs',
+    it('13. Public user cannot get runs',
       function (done) {
-        memberApiAdapter.getRuns('',
-          function (err, runs) {
-            if (err || _.isEmpty(runs))
-              return done(
-                new Error(
-                  util.format('User cannot get runs',
-                    query, err)
-                )
-              );
-            assert.isNotEmpty(runs, 'User cannot find the runs');
+        global.pubAdapter.getRuns('',
+          function (err, response) {
+            assert.strictEqual(err, 404,
+              util.format('User should not be able to get run:' +
+                'err : %s, %s', err, response)
+            );
             return done();
           }
         );
       }
     );
 
-    it('14. Unauthorized user can get all their runs',
+    it('14. Unauthorized user cannot get runs',
       function (done) {
         unauthorizedApiAdapter.getRuns('',
           function (err, runs) {
-            if (err || _.isEmpty(runs))
+            if (err)
               return done(
                 new Error(
                   util.format('User cannot get runs',
                     query, err)
                 )
               );
-            assert.isNotEmpty(runs, 'User cannot find the runs');
             return done();
           }
         );
@@ -419,7 +414,7 @@ describe(test,
       }
     );
 
-    it('18. Public user can get private run by Id',
+    it('18. Public user cannot get private run by Id',
       function (done) {
         global.pubAdapter.getRunById(privateProjectRunId,
           function (err, response) {
@@ -452,7 +447,7 @@ describe(test,
       }
     );
 
-    it('20. Unauthorized user can get private run by Id',
+    it('20. Unauthorized user cannot get private run by Id',
       function (done) {
         global.pubAdapter.getRunById(privateProjectRunId,
           function (err, response) {
@@ -485,7 +480,7 @@ describe(test,
       }
     );
 
-    it('17. Member cannot delete run by Id',
+    it('22. Member cannot delete run by Id',
       function (done) {
         memberApiAdapter.deleteRunById(privateProjectRunId,
           function (err, response) {
@@ -499,7 +494,7 @@ describe(test,
       }
     );
 
-    it('17. Public user cannot delete run by Id',
+    it('23. Public user cannot delete run by Id',
       function (done) {
         global.pubAdapter.deleteRunById(privateProjectRunId,
           function (err, response) {
@@ -513,7 +508,7 @@ describe(test,
       }
     );
 
-    it('17. Unauthorized user cannot delete run by Id',
+    it('24. Unauthorized user cannot delete run by Id',
       function (done) {
         unauthorizedApiAdapter.deleteRunById(privateProjectRunId,
           function (err, response) {
@@ -527,7 +522,7 @@ describe(test,
       }
     );
 
-    it('17. Owner can delete run by Id',
+    it('25. Owner can delete run by Id',
       function (done) {
         ownerApiAdapter.deleteRunById(privateProjectRunId,
           function (err, response) {
@@ -544,7 +539,7 @@ describe(test,
       }
     );
 
-    it('17. Collaborater can delete run by Id',
+    it('26. Collaborater can delete run by Id',
       function (done) {
         collaboraterApiAdapter.deleteRunById(matrixRunId,
           function (err, response) {
@@ -561,7 +556,7 @@ describe(test,
       }
     );
 
-    it('22. Owner deletes the private project',
+    it('27. Owner deletes the private project',
       function (done) {
         var project =  _.first(
           _.where(projects, {isOrg: true, isPrivateRepository: true}
@@ -589,7 +584,7 @@ describe(test,
       }
     );
 
-    it('23. Owner deletes the private project',
+    it('28. Owner deletes the private project',
       function (done) {
         var json = {projectId: matrixCIProject.id};
         collaboraterApiAdapter.deleteProjectById(matrixCIProject.id, json,

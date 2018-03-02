@@ -258,16 +258,12 @@ describe(test,
 
     it('8. Public user can get all public project jobs',
       function (done) {
-        memberApiAdapter.getJobs('',
-          function (err, jobs) {
-            if (err || _.isEmpty(jobs))
-              return done(
-                new Error(
-                  util.format('User cannot get jobs',
-                    query, err)
-                )
-              );
-            assert.isNotEmpty(jobs, 'User cannot find the jobs');
+        global.pubAdapter.getJobs('',
+          function (err, response) {
+            assert.strictEqual(err, 404,
+              util.format('User should not be able to get job:' +
+                'err : %s, %s', err, response)
+            );
             return done();
           }
         );
@@ -278,14 +274,13 @@ describe(test,
       function (done) {
         unauthorizedApiAdapter.getJobs('',
           function (err, jobs) {
-            if (err || _.isEmpty(jobs))
+            if (err)
               return done(
                 new Error(
                   util.format('User cannot get jobs',
                     query, err)
                 )
               );
-            assert.isNotEmpty(jobs, 'User cannot find the jobs');
             return done();
           }
         );
