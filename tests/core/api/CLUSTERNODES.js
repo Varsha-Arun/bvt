@@ -3,8 +3,8 @@
 var testSetup = require('../../../testSetup.js');
 var backoff = require('backoff');
 
-var testSuite = 'API_ACCOUNTS';
-var testSuiteDesc = 'API tests for accounts';
+var testSuite = 'API_CLUSTERNODES';
+var testSuiteDesc = 'API tests for cluster nodes';
 var test = util.format('%s - %s', testSuite, testSuiteDesc);
 
 describe(test,

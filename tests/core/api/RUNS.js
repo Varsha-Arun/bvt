@@ -16,7 +16,6 @@ describe(test,
     var privateProjectRunId = null;
     var projects = [];
     var project = {};
-    var successStatusCode = null;
     var privateProjectRunId = null;
     var runId = null;
     var matrixCIProject = {};
@@ -42,9 +41,6 @@ describe(test,
               global.newApiAdapterByStateAccount('ghMemberAccount');
             unauthorizedApiAdapter =
               global.newApiAdapterByStateAccount('ghUnauthorizedAccount');
-
-            successStatusCode = _.findWhere(global.systemCodes,
-              {group: 'statusCodes', name: 'SUCCESS'}).code;
 
             ownerApiAdapter.getProjects('',
               function (err, prjs) {
@@ -584,7 +580,7 @@ describe(test,
       }
     );
 
-    it('28. Owner deletes the private project',
+    it('28. Owner deletes the public project',
       function (done) {
         var json = {projectId: matrixCIProject.id};
         collaboraterApiAdapter.deleteProjectById(matrixCIProject.id, json,

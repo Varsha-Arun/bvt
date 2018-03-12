@@ -312,7 +312,7 @@ describe(test,
       }
     );
 
-    it('14. Member can get account dependencies By Id',
+    it('14. Member cannot get account dependencies By Id',
       function (done) {
         memberApiAdapter.getAccountDependenciesById(project.ownerAccountId,
           function (err, act) {
@@ -326,7 +326,7 @@ describe(test,
       }
     );
 
-    it('15. Collaborater can get account dependencies By Id',
+    it('15. Collaborater cannot get account dependencies By Id',
       function (done) {
         collaboraterApiAdapter.getAccountDependenciesById(project.ownerAccountId,
           function (err, act) {
@@ -340,7 +340,7 @@ describe(test,
       }
     )
 
-    it('16. Public user can get account dependencies By Id',
+    it('16. Public user cannot get account dependencies By Id',
       function (done) {
         global.pubAdapter.getAccountDependenciesById(project.ownerAccountId,
           function (err, act) {
@@ -354,7 +354,7 @@ describe(test,
       }
     );
 
-    it('17. Unauthorized user can get account dependencies By Id',
+    it('17. Unauthorized user cannot get account dependencies By Id',
       function (done) {
         unauthorizedApiAdapter.getAccountDependenciesById(project.ownerAccountId,
           function (err, act) {
@@ -368,7 +368,7 @@ describe(test,
       }
     );
 
-    it('18. Owner can get Run Status by account ID',
+    it('18. Owner cannot get Run Status by account ID',
       function (done) {
         ownerApiAdapter.getRunStatusByAccountId(project.ownerAccountId,
           function (err, runStas) {
@@ -388,7 +388,7 @@ describe(test,
       }
     );
 
-    it('19. Member can get Run Status by account ID',
+    it('19. Member cannot get Run Status by account ID',
       function (done) {
         memberApiAdapter.getRunStatusByAccountId(project.ownerAccountId,
           function (err, runStas) {
@@ -402,7 +402,7 @@ describe(test,
       }
     );
 
-    it('20. Collaborator can get Run Status by account ID',
+    it('20. Collaborator cannot get Run Status by account ID',
       function (done) {
         collaboraterApiAdapter.getRunStatusByAccountId(project.ownerAccountId,
           function (err, runStas) {

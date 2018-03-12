@@ -66,34 +66,10 @@ ShippableAdapter.prototype.getAccountById =
     );
   };
 
-ShippableAdapter.prototype.deleteAccountById =
-  function (accountId, callback) {
-    this.delete(
-      util.format('/accounts/%s', accountId),
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.getAccounts =
-  function (query, callback) {
-    this.get(
-      util.format('/accounts?' + query),
-      callback
-    );
-  };
-
 ShippableAdapter.prototype.getAccountDependenciesById =
   function (id, callback) {
     this.get(
       util.format('/accounts/%s/dependencies', id),
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.getRunStatusByAccountId =
-  function (id, callback) {
-    this.get(
-      util.format('/accounts/%s/runStatus', id),
       callback
     );
   };
@@ -122,27 +98,18 @@ ShippableAdapter.prototype.getAccountProfiles =
     );
   };
 
+ShippableAdapter.prototype.getAccounts =
+  function (query, callback) {
+    this.get(
+      util.format('/accounts?' + query),
+      callback
+    );
+  };
+
 ShippableAdapter.prototype.getAccountTokens =
   function (query, callback) {
     this.get(
       util.format('/accountTokens?%s', query),
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.postAccountIntegration =
-  function (json, callback) {
-    this.post(
-      '/accountIntegrations',
-      json,
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.deleteAccountIntegrationById =
-  function (accountIntegrationId, callback) {
-    this.delete(
-      util.format('/accountIntegrations/%s', accountIntegrationId),
       callback
     );
   };
@@ -155,11 +122,26 @@ ShippableAdapter.prototype.getArtifactUrlByBuildJobId =
     );
   };
 
-ShippableAdapter.prototype.postAccountProfile =
-  function (json, callback) {
-    this.post(
-      util.format('/accountProfiles'),
-      json,
+ShippableAdapter.prototype.getArtifactUrlByJobId =
+  function (jobId, query, callback) {
+    this.get(
+      util.format('/jobs/%s/artifactUrl?%s', jobId, query),
+      callback
+    );
+  };
+
+ShippableAdapter.prototype.getBranchRunStatusByProjectId =
+function (id, callback) {
+  this.get(
+    util.format('/projects/%s/branchRunStatus', id),
+    callback
+  );
+};
+
+ShippableAdapter.prototype.getBuildById =
+  function (id, callback) {
+    this.get(
+      util.format('/builds/%s', id),
       callback
     );
   };
@@ -172,18 +154,10 @@ ShippableAdapter.prototype.getBuildJobById =
     );
   };
 
-ShippableAdapter.prototype.getBuilds =
-  function (query, callback) {
+ShippableAdapter.prototype.getBuildJobConsolesByBuildJobId =
+  function (buildJobId, query, callback) {
     this.get(
-      util.format('/builds?%s', query),
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.getBuildById =
-  function (id, callback) {
-    this.get(
-      util.format('/builds/%s', id),
+      util.format('/buildJobs/%s/consoles?%s', buildJobId, query),
       callback
     );
   };
@@ -196,26 +170,18 @@ ShippableAdapter.prototype.getBuildJobs =
     );
   };
 
-ShippableAdapter.prototype.getJobCoverageReportsByJobId =
-  function (jobId, callback) {
-    this.get(
-      util.format('/jobs/%s/jobCoverageReports', jobId),
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.getBuildJobConsolesByBuildJobId =
-  function (buildJobId, query, callback) {
-    this.get(
-      util.format('/buildJobs/%s/consoles?%s', buildJobId, query),
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.getClusterNodes =
+ShippableAdapter.prototype.getBuilds =
   function (query, callback) {
     this.get(
-      util.format('/clusterNodes?%s', query),
+      util.format('/builds?%s', query),
+      callback
+    );
+  };
+
+ShippableAdapter.prototype.getBuildStatusBySubscriptionId =
+  function (id, callback) {
+    this.get(
+      util.format('/subscriptions/%s/buildStatus', id),
       callback
     );
   };
@@ -228,35 +194,10 @@ ShippableAdapter.prototype.getClusterNodeById =
     );
   };
 
-ShippableAdapter.prototype.postClusterNodeStats =
-  function (json, callback) {
-    this.post(
-      util.format('/clusterNodeStats'),
-      json,
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.getFilesByResourceId =
-  function (resourceId, query, callback) {
-    this.get(
-      util.format('/resources/%s/files?%s', resourceId, query),
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.getJobs =
+ShippableAdapter.prototype.getClusterNodes =
   function (query, callback) {
     this.get(
-      util.format('/jobs?%s', query),
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.getJobById =
-  function (jobId, callback) {
-    this.get(
-      util.format('/jobs/%s', jobId),
+      util.format('/clusterNodes?%s', query),
       callback
     );
   };
@@ -269,18 +210,60 @@ ShippableAdapter.prototype.getCollaboratorByProjectId =
     );
   };
 
-ShippableAdapter.prototype.getMasterIntegrations =
-  function (query, callback) {
+ShippableAdapter.prototype.getFilesByResourceId =
+  function (resourceId, query, callback) {
     this.get(
-      util.format('/masterIntegrations?%s', query),
+      util.format('/resources/%s/files?%s', resourceId, query),
       callback
     );
   };
 
-ShippableAdapter.prototype.getOwnerByProjectId =
-  function (projectId, callback) {
+ShippableAdapter.prototype.getJenkinsJobsByJobname =
+  function (accountIntegrationId, jobName, callback) {
     this.get(
-      util.format('/projects/%s/validOwner', projectId),
+      util.format(
+        '/passthrough/accountIntegrations/%s/jenkins/%s/builds',
+        accountIntegrationId, jobName),
+      callback
+    );
+  };
+
+ShippableAdapter.prototype.getJobById =
+  function (jobId, callback) {
+    this.get(
+      util.format('/jobs/%s', jobId),
+      callback
+    );
+  };
+
+ShippableAdapter.prototype.getJobConsolesByJobId =
+  function (jobId, query, callback) {
+    this.get(
+      util.format('/jobs/%s/consoles?%s', jobId, query),
+      callback
+    );
+  };
+
+ShippableAdapter.prototype.getJobCoverageReportsByJobId =
+  function (jobId, callback) {
+    this.get(
+      util.format('/jobs/%s/jobCoverageReports', jobId),
+      callback
+    );
+  };
+
+ShippableAdapter.prototype.getJobs =
+  function (query, callback) {
+    this.get(
+      util.format('/jobs?%s', query),
+      callback
+    );
+  };
+
+ShippableAdapter.prototype.getMasterIntegrations =
+  function (query, callback) {
+    this.get(
+      util.format('/masterIntegrations?%s', query),
       callback
     );
   };
@@ -292,10 +275,10 @@ ShippableAdapter.prototype.getPlanById =
       callback);
   };
 
-ShippableAdapter.prototype.getProjects =
-  function (query, callback) {
+ShippableAdapter.prototype.getOwnerByProjectId =
+  function (projectId, callback) {
     this.get(
-      util.format('/projects?%s', query),
+      util.format('/projects/%s/validOwner', projectId),
       callback
     );
   };
@@ -316,10 +299,10 @@ ShippableAdapter.prototype.getProjectById =
     );
   };
 
-ShippableAdapter.prototype.getProviderById =
-  function (id, callback) {
+ShippableAdapter.prototype.getProjects =
+  function (query, callback) {
     this.get(
-      util.format('/providers/%s', id),
+      util.format('/projects?%s', query),
       callback
     );
   };
@@ -332,13 +315,21 @@ ShippableAdapter.prototype.getProviders =
     );
   };
 
-ShippableAdapter.prototype.getResources =
-  function (query, callback) {
+ShippableAdapter.prototype.getProviderById =
+  function (id, callback) {
     this.get(
-      util.format('/resources?%s', query),
+      util.format('/providers/%s', id),
       callback
     );
   };
+
+//ShippableAdapter.prototype.getProviderById =
+//  function (providerId, callback) {
+//    this.get(
+//      util.format('/providers/%s', providerId),
+//      callback
+//    );
+//  };
 
 ShippableAdapter.prototype.getResourceById =
   function (resourceId, callback) {
@@ -356,18 +347,19 @@ ShippableAdapter.prototype.getResourceDependenciesById =
    );
  };
 
+ShippableAdapter.prototype.getResources =
+  function (query, callback) {
+    this.get(
+      util.format('/resources?%s', query),
+      callback
+    );
+  };
+
 ShippableAdapter.prototype.getRunById =
   function (runId, callback) {
     this.get(
       util.format('/runs/%s', runId),
       callback
-    );
-  };
-
-ShippableAdapter.prototype.cancelRunById =
-  function (runId, callback) {
-    this.post(
-      util.format('/runs/%s/cancel', runId), {}, callback
     );
   };
 
@@ -379,18 +371,10 @@ ShippableAdapter.prototype.getRuns =
     );
   };
 
-ShippableAdapter.prototype.getSubscriptions =
-  function (query, callback) {
-    this.get(
-      util.format('/subscriptions?%s', query),
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.getSubscriptionById =
+ShippableAdapter.prototype.getRunStatusByAccountId =
   function (id, callback) {
     this.get(
-      util.format('/subscriptions/%s', id),
+      util.format('/accounts/%s/runStatus', id),
       callback
     );
   };
@@ -403,58 +387,12 @@ ShippableAdapter.prototype.getRunStatusBySubscriptionId =
     );
   };
 
-ShippableAdapter.prototype.getBuildStatusBySubscriptionId =
-  function (id, callback) {
+ShippableAdapter.prototype.getSHAByAccountIntegrationId =
+  function (accountIntegrationId, owner, repo, branch, callback) {
     this.get(
-      util.format('/subscriptions/%s/buildStatus', id),
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.getBranchRunStatusByProjectId =
-function (id, callback) {
-  this.get(
-    util.format('/projects/%s/branchRunStatus', id),
-    callback
-  );
-};
-
-ShippableAdapter.prototype.getSystemMachineImageById =
-  function (id, callback) {
-    this.get(
-      util.format('/systemMachineImages/%s', id),
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.getSystemMachineImages =
-  function (query, callback) {
-    this.get(
-      util.format('/systemMachineImages?%s', query),
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.getSystemNodeById =
-  function (id, callback) {
-    this.get(
-      util.format('/systemNodes/%s', id),
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.getSystemNodes =
-  function (query, callback) {
-    this.get(
-      util.format('/systemNodes?%s', query),
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.validateSystemNodeById =
-  function (systemNodeId, callback) {
-    this.get(
-      util.format('/systemNodes/%s/validate', systemNodeId),
+      util.format(
+        '/passthrough/accountIntegrations/%s/repos/%s/%s/%s',
+        accountIntegrationId, owner, repo, branch),
       callback
     );
   };
@@ -466,6 +404,16 @@ ShippableAdapter.prototype.getSubscriptionAccounts =
       callback
     );
   };
+
+ShippableAdapter.prototype.getSubscriptionById =
+  function (id, callback) {
+    this.get(
+      util.format('/subscriptions/%s', id),
+      callback
+    );
+  };
+
+
 
 ShippableAdapter.prototype.getSubscriptionIntegrations =
   function (query, callback) {
@@ -499,6 +447,14 @@ ShippableAdapter.prototype.getSubscriptionStateById =
     );
   };
 
+ShippableAdapter.prototype.getSubscriptions =
+  function (query, callback) {
+    this.get(
+      util.format('/subscriptions?%s', query),
+      callback
+    );
+  };
+
 ShippableAdapter.prototype.getSystemCodes =
   function (query, callback) {
     this.get(
@@ -511,6 +467,54 @@ ShippableAdapter.prototype.getSystemConfigs =
   function (query, callback) {
     this.get(
       '/systemConfigs?' + query,
+      callback
+    );
+  };
+
+ShippableAdapter.prototype.getSystemIntegrationById =
+  function (id, callback) {
+    this.get(
+      util.format('/systemIntegrations/%s', id),
+      callback
+    );
+  };
+
+ShippableAdapter.prototype.getSystemIntegrations =
+  function (query, callback) {
+    this.get(
+      util.format('/systemIntegrations?%s', query),
+      callback
+    );
+  };
+
+ShippableAdapter.prototype.getSystemMachineImageById =
+  function (id, callback) {
+    this.get(
+      util.format('/systemMachineImages/%s', id),
+      callback
+    );
+  };
+
+ShippableAdapter.prototype.getSystemMachineImages =
+  function (query, callback) {
+    this.get(
+      util.format('/systemMachineImages?%s', query),
+      callback
+    );
+  };
+
+ShippableAdapter.prototype.getSystemNodeById =
+  function (id, callback) {
+    this.get(
+      util.format('/systemNodes/%s', id),
+      callback
+    );
+  };
+
+ShippableAdapter.prototype.getSystemNodes =
+  function (query, callback) {
+    this.get(
+      util.format('/systemNodes?%s', query),
       callback
     );
   };
@@ -561,16 +565,27 @@ ShippableAdapter.prototype.getVersions =
     );
   };
 
-ShippableAdapter.prototype.postVersion =
-  function (json, callback) {
-    this.post('/versions', json, callback);
+ShippableAdapter.prototype.syncProjectById =
+  function (projectId, callback) {
+    this.get(
+      util.format('/projects/%s?forceSync=true', projectId),
+      callback
+    );
   };
 
-ShippableAdapter.prototype.putVersionById =
-  function (versionId, json, callback) {
-    this.put(
-      util.format('/versions/%s', versionId),
-      json, callback
+ShippableAdapter.prototype.validateClusterNodeById =
+  function (clusterNodeId, callback) {
+    this.get(
+      util.format('/clusterNodes/%s/validate', clusterNodeId),
+      callback
+    );
+  };
+
+ShippableAdapter.prototype.validateSystemNodeById =
+  function (systemNodeId, callback) {
+    this.get(
+      util.format('/systemNodes/%s/validate', systemNodeId),
+      callback
     );
   };
 
@@ -615,17 +630,19 @@ ShippableAdapter.prototype.putJobDependencyById =
   };
 
 // #######################  DELETE  by alphabetical order  ###################
-ShippableAdapter.prototype.deleteBuildJobConsolesByBuildJobId =
-  function (buildJobId, query, callback) {
-    var url = util.format('/buildJobs/%s/consoles?%s',
-      buildJobId, query);
-    this.delete(url, callback);
+
+ShippableAdapter.prototype.deleteAccountById =
+  function (accountId, callback) {
+    this.delete(
+      util.format('/accounts/%s', accountId),
+      callback
+    );
   };
 
-ShippableAdapter.prototype.deleteBuildJobById =
-  function (buildJobId, callback) {
+ShippableAdapter.prototype.deleteAccountIntegrationById =
+  function (accountIntegrationId, callback) {
     this.delete(
-      util.format('/buildJobs/%s', buildJobId),
+      util.format('/accountIntegrations/%s', accountIntegrationId),
       callback
     );
   };
@@ -636,6 +653,21 @@ ShippableAdapter.prototype.deleteBuildById =
       util.format('/builds/%s', buildId),
       callback
     );
+  };
+
+ShippableAdapter.prototype.deleteBuildJobById =
+  function (buildJobId, callback) {
+    this.delete(
+      util.format('/buildJobs/%s', buildJobId),
+      callback
+    );
+  };
+
+ShippableAdapter.prototype.deleteBuildJobConsolesByBuildJobId =
+  function (buildJobId, query, callback) {
+    var url = util.format('/buildJobs/%s/consoles?%s',
+      buildJobId, query);
+    this.delete(url, callback);
   };
 
 ShippableAdapter.prototype.deleteClusterNodeById =
@@ -662,10 +694,34 @@ ShippableAdapter.prototype.deleteClusterNodeStatsByClusterNodeId =
     );
   };
 
+ShippableAdapter.prototype.deleteJobConsolesByJobId =
+  function (jobId, query, callback) {
+    var url = util.format('/jobs/%s/consoles?%s',
+      jobId, query);
+    this.delete(url, callback);
+  };
+
+ShippableAdapter.prototype.deleteJobsById =
+  function (jobId, callback) {
+    this.delete(
+      util.format('/jobs/%s', jobId),
+      callback
+    );
+  };
+
 ShippableAdapter.prototype.deleteProjectAccountById =
   function (ProjAccId, callback) {
     this.delete(
       util.format('/projectAccounts/%s', ProjAccId),
+      callback
+    );
+  };
+
+ShippableAdapter.prototype.deleteProjectById =
+  function (projectId, json, callback) {
+    this.post(
+      util.format('/projects/%s/disable', projectId),
+      json,
       callback
     );
   };
@@ -694,6 +750,23 @@ ShippableAdapter.prototype.deleteSubscriptionAccountById =
     );
   };
 
+ShippableAdapter.prototype.deleteSubscriptionIntegrationById =
+  function (subscriptionIntegrationId, callback) {
+    this.delete(
+      util.format('/subscriptionIntegrations/%s', subscriptionIntegrationId),
+      callback
+    );
+  };
+
+ShippableAdapter.prototype.deleteSystemNodeConsolesBySystemNodeId =
+  function (systemNodeId, callback) {
+    this.delete(
+      util.format('/systemNodes/%s/systemNodeConsoles', systemNodeId),
+      callback
+    );
+  };
+
+
 ShippableAdapter.prototype.deleteSystemNodeStatsBySystemNodeId =
   function (systemNodeId, query, callback) {
     this.delete(
@@ -712,6 +785,13 @@ ShippableAdapter.prototype.deleteVersionById =
 
 // #######################  POST  by alphabetical order  ######################
 
+ShippableAdapter.prototype.cancelRunById =
+  function (runId, callback) {
+    this.post(
+      util.format('/runs/%s/cancel', runId), {}, callback
+    );
+  };
+
 ShippableAdapter.prototype.enableProjectById =
   function (projectId, json, callback) {
     this.post(
@@ -721,28 +801,20 @@ ShippableAdapter.prototype.enableProjectById =
     );
   };
 
-ShippableAdapter.prototype.deleteProjectById =
-  function (projectId, json, callback) {
+ShippableAdapter.prototype.postAccountIntegration =
+  function (json, callback) {
     this.post(
-      util.format('/projects/%s/disable', projectId),
+      '/accountIntegrations',
       json,
       callback
     );
   };
 
-ShippableAdapter.prototype.resetProjectById =
-  function (projectId, json, callback) {
+ShippableAdapter.prototype.postAccountProfile =
+  function (json, callback) {
     this.post(
-      util.format('/projects/%s/reset', projectId),
+      util.format('/accountProfiles'),
       json,
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.syncProjectById =
-  function (projectId, callback) {
-    this.get(
-      util.format('/projects/%s?forceSync=true', projectId),
       callback
     );
   };
@@ -774,6 +846,15 @@ ShippableAdapter.prototype.postBuildJob =
     );
   };
 
+ShippableAdapter.prototype.postClusterNodeStats =
+  function (json, callback) {
+    this.post(
+      util.format('/clusterNodeStats'),
+      json,
+      callback
+    );
+  };
+
 ShippableAdapter.prototype.postCubbyholeToken =
   function (json, callback) {
     this.post(
@@ -792,11 +873,11 @@ ShippableAdapter.prototype.postFilesByResourceId =
     );
   };
 
-ShippableAdapter.prototype.postSystemNodeStats =
-  function (json, callback) {
+ShippableAdapter.prototype.postJobConsoleByJobId =
+  function (jobId, body, callback) {
     this.post(
-      util.format('/systemNodeStats'),
-      json,
+      util.format('/jobs/%s/postConsoles', jobId),
+      body,
       callback
     );
   };
@@ -810,42 +891,11 @@ ShippableAdapter.prototype.postJob =
     );
   };
 
-ShippableAdapter.prototype.getArtifactUrlByJobId =
-  function (jobId, query, callback) {
-    this.get(
-      util.format('/jobs/%s/artifactUrl?%s', jobId, query),
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.getJobConsolesByJobId =
-  function (jobId, query, callback) {
-    this.get(
-      util.format('/jobs/%s/consoles?%s', jobId, query),
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.postJobConsoleByJobId =
-  function (jobId, body, callback) {
+ShippableAdapter.prototype.postNewSyncRepo =
+  function (json, callback) {
     this.post(
-      util.format('/jobs/%s/postConsoles', jobId),
-      body,
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.deleteJobConsolesByJobId =
-  function (jobId, query, callback) {
-    var url = util.format('/jobs/%s/consoles?%s',
-      jobId, query);
-    this.delete(url, callback);
-  };
-
-ShippableAdapter.prototype.deleteJobsById =
-  function (jobId, callback) {
-    this.delete(
-      util.format('/jobs/%s', jobId),
+      '/resources/syncRepo',
+      json,
       callback
     );
   };
@@ -913,18 +963,19 @@ ShippableAdapter.prototype.postSubscriptionIntegration =
     );
   };
 
-ShippableAdapter.prototype.deleteSubscriptionIntegrationById =
-  function (subscriptionIntegrationId, callback) {
-    this.delete(
-      util.format('/subscriptionIntegrations/%s', subscriptionIntegrationId),
+ShippableAdapter.prototype.postSystemNodeStats =
+  function (json, callback) {
+    this.post(
+      util.format('/systemNodeStats'),
+      json,
       callback
     );
   };
 
-ShippableAdapter.prototype.postNewSyncRepo =
+ShippableAdapter.prototype.postToClusterNodeConsoles =
   function (json, callback) {
     this.post(
-      '/resources/syncRepo',
+      '/clusterNodeConsoles',
       json,
       callback
     );
@@ -935,15 +986,6 @@ ShippableAdapter.prototype.postToClusterNode =
     this.post(
       '/clusterNodes',
       clusterNode,
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.postToClusterNodeConsoles =
-  function (json, callback) {
-    this.post(
-      '/clusterNodeConsoles',
-      json,
       callback
     );
   };
@@ -975,19 +1017,28 @@ ShippableAdapter.prototype.postToSubscriptionDailyAggs =
     );
   };
 
-ShippableAdapter.prototype.postToVortex =
+ShippableAdapter.prototype.postToSUVortex =
   function (message, callback) {
     this.post(
-      '/vortex',
+      '/vortexSU',
       message,
       callback
     );
   };
 
-ShippableAdapter.prototype.postToSUVortex =
+ShippableAdapter.prototype.postTransaction =
+  function (json, callback) {
+    this.post(
+      '/transactions',
+      json,
+      callback
+    );
+  };
+
+ShippableAdapter.prototype.postToVortex =
   function (message, callback) {
     this.post(
-      '/vortexSU',
+      '/vortex',
       message,
       callback
     );
@@ -1002,10 +1053,15 @@ ShippableAdapter.prototype.postToVortexUrl =
     );
   };
 
-ShippableAdapter.prototype.postTransaction =
+ShippableAdapter.prototype.postVersion =
   function (json, callback) {
+    this.post('/versions', json, callback);
+  };
+
+ShippableAdapter.prototype.resetProjectById =
+  function (projectId, json, callback) {
     this.post(
-      '/transactions',
+      util.format('/projects/%s/reset', projectId),
       json,
       callback
     );
@@ -1028,7 +1084,6 @@ ShippableAdapter.prototype.triggerNewBuildByResourceId =
       callback
     );
   };
-
 
 // #######################  PUT  by alphabetical order  ########################
 
@@ -1113,26 +1168,6 @@ ShippableAdapter.prototype.putRunById =
     );
   };
 
-ShippableAdapter.prototype.getSHAByAccountIntegrationId =
-  function (accountIntegrationId, owner, repo, branch, callback) {
-    this.get(
-      util.format(
-        '/passthrough/accountIntegrations/%s/repos/%s/%s/%s',
-        accountIntegrationId, owner, repo, branch),
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.getJenkinsJobsByJobname =
-  function (accountIntegrationId, jobName, callback) {
-    this.get(
-      util.format(
-        '/passthrough/accountIntegrations/%s/jenkins/%s/builds',
-        accountIntegrationId, jobName),
-      callback
-    );
-  };
-
 ShippableAdapter.prototype.putSubscriptionById =
   function (id, json, callback) {
     this.put(
@@ -1178,43 +1213,12 @@ ShippableAdapter.prototype.putTransaction =
     );
   };
 
-ShippableAdapter.prototype.getSystemIntegrationById =
-  function (id, callback) {
-    this.get(
-      util.format('/systemIntegrations/%s', id),
-      callback
-    );
-  };
 
-ShippableAdapter.prototype.getSystemIntegrations =
-  function (query, callback) {
-    this.get(
-      util.format('/systemIntegrations?%s', query),
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.validateClusterNodeById =
-  function (clusterNodeId, callback) {
-    this.get(
-      util.format('/clusterNodes/%s/validate', clusterNodeId),
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.deleteSystemNodeConsolesBySystemNodeId =
-  function (systemNodeId, callback) {
-    this.delete(
-      util.format('/systemNodes/%s/systemNodeConsoles', systemNodeId),
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.getProviderById =
-  function (providerId, callback) {
-    this.get(
-      util.format('/providers/%s', providerId),
-      callback
+ShippableAdapter.prototype.putVersionById =
+  function (versionId, json, callback) {
+    this.put(
+      util.format('/versions/%s', versionId),
+      json, callback
     );
   };
 
