@@ -161,9 +161,7 @@ describe(test,
                 );
               },
               function (err) {
-                setTimeout(function() {
                   return done(err);
-                }, 90000);
               }
             )
           }
