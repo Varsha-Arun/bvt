@@ -190,8 +190,8 @@ describe(test,
 
     it('4. u16 base image project build is successful',
       function (done) {
-        var run = _.findWhere(runs, {projectName: 'u16'});
-        global.getRunByIdStatusWithBackOff(amiApiAdapter, run.id,
+        var runId = _.findWhere(runs, {projectName: 'u16', subscriptionOrgName: 'ami-v5-6-1'}).id;
+        global.getRunByIdStatusWithBackOff(amiApiAdapter, runId,
           successStatusCode, done);
       },
       function(err) {
@@ -201,8 +201,8 @@ describe(test,
 
     it('5. u16 cpp image project build is successful',
       function (done) {
-        var run = _.findWhere(runs, {projectName: 'u16cppall'});
-        global.getRunByIdStatusWithBackOff(amiApiAdapter, run.id,
+        var runId = _.findWhere(runs, {projectName: 'u16cppall', subscriptionOrgName: 'ami-v5-6-1'}).id;
+        global.getRunByIdStatusWithBackOff(amiApiAdapter, runId,
           successStatusCode, done);
       },
       function(err) {
@@ -212,8 +212,8 @@ describe(test,
 
     it('6. u16 php image project build is successful',
       function (done) {
-        var run = _.findWhere(runs, {projectName: 'u16phpall'});
-        global.getRunByIdStatusWithBackOff(amiApiAdapter, run.id,
+        var runId = _.findWhere(runs, {projectName: 'u16phpall', subscriptionOrgName: 'ami-v5-6-1'}).id;
+        global.getRunByIdStatusWithBackOff(amiApiAdapter, runId,
           successStatusCode, done);
       },
       function(err) {
@@ -223,8 +223,8 @@ describe(test,
 
     it('7. u16 go image project build is successful',
       function (done) {
-        var run = _.findWhere(runs, {projectName: 'u16golall'});
-        global.getRunByIdStatusWithBackOff(amiApiAdapter, run.id,
+        var runId = _.findWhere(runs, {projectName: 'u16golall', subscriptionOrgName: 'ami-v5-6-1'}).id;
+        global.getRunByIdStatusWithBackOff(amiApiAdapter, runId,
           successStatusCode, done);
       },
       function(err) {
@@ -234,8 +234,8 @@ describe(test,
 
     it('8. u16 scala image project build is successful',
       function (done) {
-        var run = _.findWhere(runs, {projectName: 'u16scaall'});
-        global.getRunByIdStatusWithBackOff(amiApiAdapter, run.id,
+        var runId = _.findWhere(runs, {projectName: 'u16scaall', subscriptionOrgName: 'ami-v5-6-1'}).id;
+        global.getRunByIdStatusWithBackOff(amiApiAdapter, runId,
           successStatusCode, done);
       },
       function(err) {
@@ -245,8 +245,8 @@ describe(test,
 
     it('9. u16 java image project build is successful',
       function (done) {
-        var run = _.findWhere(runs, {projectName: 'u16javall'});
-        global.getRunByIdStatusWithBackOff(amiApiAdapter, run.id,
+        var runId = _.findWhere(runs, {projectName: 'u16javall', subscriptionOrgName: 'ami-v5-6-1'}).id;
+        global.getRunByIdStatusWithBackOff(amiApiAdapter, runId,
           successStatusCode, done);
       },
       function(err) {
@@ -256,8 +256,8 @@ describe(test,
 
     it('10. u16 clojure image project build is successful',
       function (done) {
-        var run = _.findWhere(runs, {projectName: 'u16cloall'});
-        global.getRunByIdStatusWithBackOff(amiApiAdapter, run.id,
+        var runId = _.findWhere(runs, {projectName: 'u16cloall', subscriptionOrgName: 'ami-v5-6-1'}).id;
+        global.getRunByIdStatusWithBackOff(amiApiAdapter, runId,
           successStatusCode, done);
       },
       function(err) {
@@ -267,8 +267,8 @@ describe(test,
 
     it('11. u16 nodejs image project build is successful',
       function (done) {
-        var run = _.findWhere(runs, {projectName: 'u16nodall'});
-        global.getRunByIdStatusWithBackOff(amiApiAdapter, run.id,
+        var runId = _.findWhere(runs, {projectName: 'u16nodall', subscriptionOrgName: 'ami-v5-6-1'}).id;
+        global.getRunByIdStatusWithBackOff(amiApiAdapter, runId,
           successStatusCode, done);
       },
       function(err) {
@@ -278,8 +278,8 @@ describe(test,
 
     it('12. u16 python image project build is successful',
       function (done) {
-        var run = _.findWhere(runs, {projectName: 'u16pytall'});
-        global.getRunByIdStatusWithBackOff(amiApiAdapter, run.id,
+        var runId = _.findWhere(runs, {projectName: 'u16pytall', subscriptionOrgName: 'ami-v5-6-1'}).id;
+        global.getRunByIdStatusWithBackOff(amiApiAdapter, runId,
           successStatusCode, done);
       },
       function(err) {
@@ -289,8 +289,8 @@ describe(test,
 
     it('13. u16all service image project build is successful',
       function (done) {
-        var run = _.findWhere(runs, {projectName: 'u16all'});
-        global.getRunByIdStatusWithBackOff(amiApiAdapter, run.id,
+        var runId = _.findWhere(runs, {projectName: 'u16all', subscriptionOrgName: 'ami-v5-6-1'}).id;
+        global.getRunByIdStatusWithBackOff(amiApiAdapter, runId,
           successStatusCode, done);
       },
       function(err) {
@@ -300,8 +300,8 @@ describe(test,
 
     it('14. u16 ruby image project build is successful',
       function (done) {
-        var run = _.findWhere(runs, {projectName: 'u16ruball'});
-        global.getRunByIdStatusWithBackOff(amiApiAdapter, run.id,
+        var runId = _.findWhere(runs, {projectName: 'u16ruball', subscriptionOrgName: 'ami-v5-6-1'}).id;
+        global.getRunByIdStatusWithBackOff(amiApiAdapter, runId,
           successStatusCode, done);
       },
       function(err) {
