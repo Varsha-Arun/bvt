@@ -47,14 +47,14 @@ function testRun(next) {
   var tests = [
     'tests/core/install/*.js',
     'tests/core/account/*.js',
-//    'tests/core/accountIntegration/*.js',
-//    'tests/core/api/*.js',
-    'tests/core/languageTests/*.js',
-//    'tests/core/project/*.js',
-//    'tests/core/subscriptionIntegration/*.js',
-//    'tests/core/resources/GH_ORG_PRI_OWN_RSYNC.js',
-//    'tests/core/resources/GH_ORG_PRI_OWN_RUNSH.js',
-//    'tests/core/resources/GH_IND_PUB_OWN_RUNCI.js'
+    'tests/core/accountIntegration/*.js',
+    'tests/core/api/*.js',
+//    'tests/core/languageTests/*.js',
+    'tests/core/project/*.js',
+    'tests/core/subscriptionIntegration/*.js',
+    'tests/core/resources/GH_ORG_PRI_OWN_RSYNC.js',
+    'tests/core/resources/GH_ORG_PRI_OWN_RUNSH.js',
+    'tests/core/resources/GH_IND_PUB_OWN_RUNCI.js'
   ];
 
   async.eachSeries(tests,
