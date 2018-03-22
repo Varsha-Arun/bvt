@@ -64,6 +64,7 @@ global.githubOwnerAccessToken = process.env.GITHUB_ACCESS_TOKEN_OWNER;
 global.githubCollabAccessToken = process.env.GITHUB_ACCESS_TOKEN_COLLAB;
 global.githubMemberAccessToken = process.env.GITHUB_ACCESS_TOKEN_MEMBER;
 global.githubUnauthorizedAccessToken = process.env.GITHUB_ACCESS_TOKEN_DRSHIP;
+global.githubAmiAccessToken = process.env.GITHUB_ACCESS_TOKEN_AMI;
 
 global.GH_ORG_SUB_INT_GH = process.env.GH_ORG_SUB_INT_GH;
 

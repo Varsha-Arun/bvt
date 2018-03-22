@@ -3,8 +3,8 @@
 var testSetup = require('../../../testSetup.js');
 var backoff = require('backoff');
 
-var testSuite = 'API_BUILDS';
-var testSuiteDesc = 'Github Organization build API tests';
+var testSuite = 'API_VERSIONS';
+var testSuiteDesc = 'Github Organization Version API tests';
 var test = util.format('%s - %s', testSuite, testSuiteDesc);
 
 describe(test,
@@ -18,9 +18,12 @@ describe(test,
     var syncRepo = {};
     var subscriptionIntegration = {};
     var syncRepoResource = {};
+    var reso = {};
     var rSyncJob = {};
-    var builds = [];
-    var buildId = null;
+    var versions = [];
+    var versionId = null;
+    var projectId = null;
+    var resourceId = null;
     var rSyncCode = null;
     var syncRepoCode = null;
 
@@ -67,6 +70,7 @@ describe(test,
                 return done();
               }
             );
+
           }
         );
       }
@@ -140,6 +144,7 @@ describe(test,
 
             syncRepoResource.test_resource_type = 'syncRepo';
             syncRepoResource.test_resource_name = 'ghOrgPrivateSyncRepo';
+
             global.saveTestResource(syncRepoResource.test_resource_name,
               syncRepoResource,
               function () {
@@ -151,94 +156,81 @@ describe(test,
       }
     );
 
-    it('4. Owner should be able to trigger build',
-      function (done) {
-        ownerApiAdapter.triggerNewBuildByResourceId(rSyncJob.id, {},
-          function (err, response) {
-            if (err)
-              return done(
-                new Error(
-                  util.format('user cannot trigger manual build for ' +
-                    'job id: %s, err: %s, %s', rSyncJob.id, err,
-                    util.inspect(response)
-                  )
-                )
-              );
-            assert.isNotEmpty(response, 'User cannot trigger a build');
-            return done();
-          }
-        );
-      }
-    );
-
-    it('5. SyncRepo build was successful',
+    it('4. rSyncJob was successful',
       function (done) {
         global.getBuildStatusWithBackOff(ownerApiAdapter, rSyncJob,
           'rSyncJob', buildSuccessStatusCode, done);
       }
     );
 
-    it('6. Owner can get all their builds',
+    it('5. Owner can get all their versions',
       function (done) {
-        ownerApiAdapter.getBuilds('',
-          function (err, blds) {
-            if (err || _.isEmpty(blds))
+        ownerApiAdapter.getVersions('',
+          function (err, vers) {
+            if (err || _.isEmpty(vers))
               return done(
                 new Error(
-                  util.format('User cannot get builds',
+                  util.format('User cannot get versions',
                     query, err)
                 )
               );
-            builds = blds;
-            assert.isNotEmpty(builds, 'User cannot find the builds');
+            versions = vers;
+            var version = _.first(versions);
+            versionId = version.id;
+            projectId = version.projectId;
+            resourceId = version.resourceId;
+            assert.isNotEmpty(versions, 'User cannot find the versions');
+
             return done();
           }
         );
       }
     );
 
-    it('7. Member can get all their builds',
+    it('6. Member can get all their versions',
       function (done) {
-        memberApiAdapter.getBuilds('',
-          function (err, blds) {
-            if (err || _.isEmpty(blds))
+        memberApiAdapter.getVersions('',
+          function (err, ver) {
+            if (err || _.isEmpty(ver))
               return done(
                 new Error(
-                  util.format('User cannot get builds',
+                  util.format('User cannot get versions',
                     query, err)
                 )
               );
-            assert.isNotEmpty(blds, 'User cannot find the builds');
+            assert.isNotEmpty(ver, 'User cannot find the versions');
+
             return done();
           }
         );
       }
     );
 
-    it('8. Collaborater can get all their builds',
+    it('7. Collaborater can get all their versions',
       function (done) {
-        collaboraterApiAdapter.getBuilds('',
-          function (err, blds) {
-            if (err || _.isEmpty(blds))
+        collaboraterApiAdapter.getVersions('',
+          function (err, ver) {
+            if (err || _.isEmpty(ver))
               return done(
                 new Error(
-                  util.format('User cannot get builds',
+                  util.format('User cannot get versions',
                     query, err)
                 )
               );
-            assert.isNotEmpty(blds, 'User cannot find the builds');
+            assert.isNotEmpty(ver, 'User cannot find the versions');
+
             return done();
           }
         );
       }
     );
 
-    it('9. Public user user cannot get all their builds',
+    it('8. Public User cannot get versions',
       function (done) {
-        global.pubAdapter.getBuilds('',
+        global.pubAdapter.getVersions('',
           function (err, response) {
             assert.strictEqual(err, 401,
-              util.format('User should not be able to get build' +
+              util.format('User should not be able to get version pf the resource: ' +
                 'err : %s, %s', err, response)
             );
             return done();
@@ -247,141 +239,86 @@ describe(test,
       }
     );
 
-    it('10. Unauthorized user can get all their builds',
+    it('9. Unauthorized User can get all their versions',
       function (done) {
-        unauthorizedApiAdapter.getBuilds('',
-          function (err, blds) {
-            if (err || _.isEmpty(blds))
+        unauthorizedApiAdapter.getVersions('',
+          function (err, ver) {
+            if (err || _.isEmpty(ver))
               return done(
                 new Error(
-                  util.format('User cannot get builds',
+                  util.format('User cannot get versions',
                     query, err)
                 )
               );
-            assert.isNotEmpty(blds, 'User cannot find the builds');
+            assert.isNotEmpty(ver, 'User cannot find the versions');
+
             return done();
           }
         );
       }
     );
 
-    it('11. Owner can get build by Id',
+    it('10. Owner can get version by Id',
       function (done) {
-        var build = _.first(builds);
-        buildId = build.id;
-        ownerApiAdapter.getBuildById(buildId,
-          function (err, bld) {
-            if (err || _.isEmpty(bld))
+        ownerApiAdapter.getVersionById(versionId,
+          function (err, ver) {
+            if (err || _.isEmpty(ver))
               return done(
                 new Error(
-                  util.format('User cannot get build by Id',
+                  util.format('User cannot get version by Id',
                     query, err)
                 )
               );
-            assert.isNotEmpty(bld, 'User cannot find the build by Id');
+            assert.isNotEmpty(ver, 'User cannot find the version by Id');
             return done();
           }
         );
       }
     );
 
-    it('12. Member can get build by Id',
+    it('11. Member can get version by Id',
       function (done) {
-        var build = _.first(builds);
-        buildId = build.id;
-        memberApiAdapter.getBuildById(buildId,
-          function (err, bld) {
-            if (err || _.isEmpty(bld))
+        memberApiAdapter.getVersionById(versionId,
+          function (err, ver) {
+            if (err || _.isEmpty(ver))
               return done(
                 new Error(
-                  util.format('User cannot get build by Id',
+                  util.format('User cannot get version by Id',
                     query, err)
                 )
               );
-            assert.isNotEmpty(bld, 'User cannot find the build by Id');
+            assert.isNotEmpty(ver, 'User cannot find the version by Id');
             return done();
           }
         );
       }
     );
 
-    it('13. Collaborater can get build by Id',
+    it('12. Collaborater can get version by Id',
       function (done) {
-        var build = _.first(builds);
-        buildId = build.id;
-        collaboraterApiAdapter.getBuildById(buildId,
-          function (err, bld) {
-            if (err || _.isEmpty(bld))
+        collaboraterApiAdapter.getVersionById(versionId,
+          function (err, ver) {
+            if (err || _.isEmpty(ver))
               return done(
                 new Error(
-                  util.format('User cannot get build by Id',
+                  util.format('User cannot get version by Id',
                     query, err)
                 )
               );
-            assert.isNotEmpty(bld, 'User cannot find the build by Id');
+            assert.isNotEmpty(ver, 'User cannot find the version by Id');
             return done();
           }
         );
       }
     );
 
-    it('14. Public user cannot get build by Id',
+    it('13. Public user cannot get version by Id',
       function (done) {
-        var build = _.first(builds);
-        buildId = build.id;
-        global.pubAdapter.getBuildById(buildId,
-          function (err, response) {
-            assert.strictEqual(err, 404,
-              util.format('User should not be able to get build by Id: %s ' +
-                'err : %s, %s', buildId, err, response)
-            );
-            return done();
-          }
-        );
-      }
-    );
-
-    it('15. Unauthorized user cannot get build by Id',
-      function (done) {
-        var build = _.first(builds);
-        buildId = build.id;
-        unauthorizedApiAdapter.getBuildById(buildId,
-          function (err, response) {
-            assert.strictEqual(err, 404,
-              util.format('User should not be able to get build by Id: %s ' +
-                'err : %s, %s', buildId, err, response)
-            );
-            return done();
-          }
-        );
-      }
-    );
-
-    it('16. Member cannot delete build by Id',
-      function (done) {
-        var build = _.first(builds);
-        buildId = build.id;
-        memberApiAdapter.deleteBuildById(buildId,
-          function (err, response) {
-            assert.strictEqual(err, 404,
-              util.format('User should not be able to get build by Id: %s ' +
-                'err : %s, %s', buildId, err, response)
-            );
-            return done();
-          }
-        );
-      }
-    );
-
-    it('17. Public user cannot delete build by Id',
-      function (done) {
-        var build = _.first(builds);
-        buildId = build.id;
-        global.pubAdapter.deleteBuildById(buildId,
+        global.pubAdapter.getVersionById(versionId,
           function (err, response) {
             assert.strictEqual(err, 401,
-              util.format('User should not be able to get build by Id: %s ' +
-                'err : %s, %s', buildId, err, response)
+              util.format('User should not be able to get version by Id: %s ' +
+                'err : %s, %s', versionId, err, response)
             );
             return done();
           }
@@ -389,15 +326,13 @@ describe(test,
       }
     );
 
-    it('18. Unauthorized user cannot delete build by Id',
+    it('14. Unauthorized user cannot get version by Id',
       function (done) {
-        var build = _.first(builds);
-        buildId = build.id;
-        unauthorizedApiAdapter.deleteBuildById(buildId,
+        unauthorizedApiAdapter.getVersionById(versionId,
           function (err, response) {
             assert.strictEqual(err, 404,
-              util.format('User should not be able to get build by Id: %s ' +
-                'err : %s, %s', buildId, err, response)
+              util.format('User should not be able to get version by Id: %s ' +
+                'err : %s, %s', versionId, err, response)
             );
             return done();
           }
@@ -405,47 +340,111 @@ describe(test,
       }
     );
 
-    it('19. Owner can delete build by Id',
+    it('15. Owner can add a version to resource',
       function (done) {
-        var build = _.first(builds);
-        buildId = build.id;
-        ownerApiAdapter.deleteBuildById(buildId,
-          function (err) {
+        var body = {
+          propertyBag: {
+          branch: 'master'
+          },
+          resourceId: resourceId,
+          projectId: projectId
+        };
+
+        ownerApiAdapter.postVersion(body,
+          function (err, response) {
             if (err)
               return done(
                 new Error(
-                  util.format('User cannot delete build by Id %s err %s',
-                    buildId, err)
+                  util.format('unable to post a version with body: %s ' +
+                    'err:%s', util.inspect(body), util.inspect(err))
                 )
               );
-            builds = _.reject(builds,
-              function(build) {
-                return build.id === buildId;
-              }
-            );
+            versionId = response.id;
             return done();
           }
         );
       }
     );
 
-    it('20. Collaborater can delete build by Id',
+    it('16. Owner can delete version by Id',
       function (done) {
-        var build = _.first(builds);
-        buildId = build.id;
-        collaboraterApiAdapter.deleteBuildById(buildId,
-          function (err) {
+        var version = _.first(versions);
+        ownerApiAdapter.deleteVersionById(versionId,
+          function (err, response) {
             if (err)
               return done(
                 new Error(
-                  util.format('User cannot delete build by Id %s err %s',
-                    buildId, err)
+                  util.format('User cannot delete version by Id versionId: %s err: %s',
+                    versionId, err)
                 )
               );
-            builds = _.reject(builds,
-              function(build) {
-                return build.id === buildId;
-              }
+          
+            assert.isNotEmpty(response, 'User cannot find the version by Id');
+            return done();
+          }
+        );
+      }
+    );
+  
+    it('17. Collaborater can add a version to resource',
+      function (done) {
+        var body = {
+            propertyBag: {
+            branch: 'master'
+            },
+          resourceId: resourceId,
+          projectId: projectId
+        };
+
+        collaboraterApiAdapter.postVersion(body,
+          function (err, response) {
+            if (err)
+              return done(
+                new Error(
+                  util.format('unable to post a version with body: %s ' +
+                    'err:%s', util.inspect(body), util.inspect(err))
+                )
+              );
+            versionId = response.id;
+            return done();
+          }
+        );
+      }
+    );
+
+    it('18. Collaborater can delete version by Id',
+      function (done) {
+        collaboraterApiAdapter.deleteVersionById(versionId,
+          function (err, ver) {
+            if (err || _.isEmpty(ver))
+              return done(
+                new Error(
+                  util.format('User cannot delete version by Id',
+                    versionId, err)
+                )
+              );
+            assert.isNotEmpty(ver, 'User cannot find the version by Id');
+            return done();
+          }
+        );
+      }
+    );
+  
+    it('19. Member cannot add a version to resource',
+      function (done) {
+        var body = {
+          propertyBag: {
+          branch: 'master'
+          },
+          resourceId: resourceId,
+          projectId: projectId
+        };
+
+        memberApiAdapter.postVersion(body,
+          function (err, response) {
+            assert.strictEqual(err, 404,
+              util.format('User should not be able to add version by Id: %s ' +
+                'err : %s, %s', resourceId, err, response)
             );
             return done();
           }
@@ -453,7 +452,96 @@ describe(test,
       }
     );
 
-    it('21. Owner can disable syncrepo',
+    it('20. Member cannot delete version by Id',
+      function (done) {
+        var version = _.first(versions);
+        memberApiAdapter.deleteVersionById(version.id,
+          function (err, response) {
+            assert.strictEqual(err, 404,
+              util.format('User should not be able to delete version by Id: %s ' +
+                'err : %s, %s', version.id, err, response)
+            );
+            return done();
+          }
+        );
+      }
+    );
+  
+    it('21. Public user cannot add a version to resource',
+      function (done) {
+        var body = {
+          propertyBag: {
+          branch: 'master'
+          },
+          resourceId: resourceId,
+          projectId: projectId
+        };
+
+        global.pubAdapter.postVersion(body,
+          function (err, response) {
+            assert.strictEqual(err, 401,
+              util.format('User should not be able to add version by Id: %s ' +
+                'err : %s, %s', resourceId, err, response)
+            );
+            return done();
+          }
+        );
+      }
+    );
+
+    it('22. Public user cannot delete version by Id',
+      function (done) {
+        var version = _.first(versions);
+        global.pubAdapter.deleteVersionById(version.id,
+          function (err, response) {
+            assert.strictEqual(err, 401,
+              util.format('User should not be able to delete version by Id: %s ' +
+                'err : %s, %s', versionId, err, response)
+            );
+            return done();
+          }
+        );
+      }
+    );
+  
+    it('23. Unauthorized user cannot add a version to resource',
+      function (done) {
+        var body = {
+          propertyBag: {
+          branch: 'master'
+          },
+          resourceId: resourceId,
+          projectId: projectId
+        };
+
+        unauthorizedApiAdapter.postVersion(body,
+          function (err, response) {
+            assert.strictEqual(err, 404,
+              util.format('User should not be able to add version by Id: %s ' +
+                'err : %s, %s', resourceId, err, response)
+            );
+            return done();
+          }
+        );
+      }
+    );
+  
+    it('24. Unauthorized user cannot delete version by Id',
+      function (done) {
+        var version = _.first(versions);
+        unauthorizedApiAdapter.deleteVersionById(version.id,
+          function (err, response) {
+            assert.strictEqual(err, 404,
+              util.format('User should not be able to delete version by Id: %s ' +
+                'err : %s, %s', versionId, err, response)
+            );
+            return done();
+          }
+        );
+      }
+    );
+  
+    it('25. Owner disables private syncrepo',
       function (done) {
         var query = '';
         ownerApiAdapter.deleteResourceById(syncRepoResource.id, query,
@@ -461,22 +549,17 @@ describe(test,
             if (err)
               return done(
                 new Error(
-                  util.format('User cannot delete sync repo id: %s, err: %s, %s',
+                  util.format('User cannot delete a resource: %s, err: %s, %s',
                     syncRepoResource.id, err, response)
                 )
               );
-
-            global.removeTestResource(syncRepoResource.test_resource_name,
-              function () {
-                return done();
-              }
-            );
+            return done();
           }
         );
       }
     );
 
-    it('22. Owner can hard delete syncrepo',
+    it('26. Owner hard deletes private syncrepo',
       function (done) {
         var query = 'hard=true';
         ownerApiAdapter.deleteResourceById(syncRepoResource.id, query,
