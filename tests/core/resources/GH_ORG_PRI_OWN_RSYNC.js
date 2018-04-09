@@ -83,7 +83,6 @@ describe(test,
 
     it('2. Owner can add a sync repo',
       function (done) {
-
         var body = {
           resourceName: syncRepo.name + '_master',
           projectId: syncRepo.id,

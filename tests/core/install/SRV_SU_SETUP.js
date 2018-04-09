@@ -54,28 +54,28 @@ describe(test,
       }
     );
 
-    it('2. Get Bitbucket Auth System Integration',
-      function (done) {
-        var query = 'masterName=bitbucketKeys&name=auth';
-        global.suAdapter.getSystemIntegrations(query,
-          function (err, systemIntegrations) {
-            if (err) {
-              assert.isNotOk(err, 'get sysInt failed with err');
-              return done(true);
-            }
-
-            var si = _.first(systemIntegrations);
-            assert.isOk(si, 'No System Integration found');
-            assert.isOk(si.id, 'System Integration should be valid');
-            global.saveTestResource('bbSystemIntegration', si,
-              function () {
-                return done();
-              }
-            );
-          }
-        );
-      }
-    );
+//    it('2. Get Bitbucket Auth System Integration',
+//      function (done) {
+//        var query = 'masterName=bitbucketKeys&name=auth';
+//        global.suAdapter.getSystemIntegrations(query,
+//          function (err, systemIntegrations) {
+//            if (err) {
+//              assert.isNotOk(err, 'get sysInt failed with err');
+//              return done(true);
+//            }
+//
+//            var si = _.first(systemIntegrations);
+//            assert.isOk(si, 'No System Integration found');
+//            assert.isOk(si.id, 'System Integration should be valid');
+//            global.saveTestResource('bbSystemIntegration', si,
+//              function () {
+//                return done();
+//              }
+//            );
+//          }
+//        );
+//      }
+//    );
 
     after(
       function (done) {

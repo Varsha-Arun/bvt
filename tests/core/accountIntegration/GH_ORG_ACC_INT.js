@@ -167,78 +167,78 @@ describe(test,
       }
     );
 
-    it('6. Owner can create AWS IAM Account Integration',
-      function (done) {
-        var masterInt = _.findWhere(masterIntegrations, {name:"amazonIamRole"}) || {};
-        assert.isNotEmpty(masterInt,
-          'Master integration cannot be empty.');
-        var body = {
-          "name": "ghOrgAccIntAwsIam",
-          "masterDisplayName": "AWS IAM",
-          "masterIntegrationId": masterInt.id,
-          "masterName": "amazonIamRole",
-          "masterType": "generic",
-          "formJSONValues": [
-             {
-                "label": "assumeRoleARN",
-                "value": "assumeRoleArnValue"
-             },
-             {
-                "label": "output",
-                "value": "text"
-             },
-             {
-                "label": "url",
-                "value": "https://api.example.com"
-             }
-          ]
-        };
-        ownerApiAdapter.postAccountIntegration(body,
-          function (err, acctInt) {
-            if (err)
-              return done(
-                new Error(
-                  util.format('User cannot create Account Integration',
-                    util.inspect(err))
-                )
-              );
-
-            acctInt.test_resource_type = 'accountIntegration';
-            acctInt.test_resource_name = acctInt.name;
-
-            accountIntegration = acctInt;
-            global.saveTestResource(acctInt.test_resource_name, acctInt,
-              function () {
-                return done();
-              }
-            );
-          }
-        );
-      }
-    );
-
-    it('7. Owner can delete AWS IAM Account Integration',
-      function (done) {
-        ownerApiAdapter.deleteAccountIntegrationById(
-          accountIntegration.id,
-          function (err, response) {
-            if (err)
-              return done(
-                new Error(
-                  util.format('User can delete accountIntegration ' +
-                    'id: %s, err: %s, %s', accountIntegration.id, err,
-                    response)
-                )
-              );
-            global.removeTestResource(accountIntegration.test_resource_name,
-              function () {
-                return done();
-              }
-            );
-          }
-        );
-      }
-    );
+//    it('6. Owner can create AWS IAM Account Integration',
+//      function (done) {
+//        var masterInt = _.findWhere(masterIntegrations, {name:"amazonIamRole"}) || {};
+//        assert.isNotEmpty(masterInt,
+//          'Master integration cannot be empty.');
+//        var body = {
+//          "name": "ghOrgAccIntAwsIam",
+//          "masterDisplayName": "AWS IAM",
+//          "masterIntegrationId": masterInt.id,
+//          "masterName": "amazonIamRole",
+//          "masterType": "generic",
+//          "formJSONValues": [
+//             {
+//                "label": "assumeRoleARN",
+//                "value": "assumeRoleArnValue"
+//             },
+//             {
+//                "label": "output",
+//                "value": "text"
+//             },
+//             {
+//                "label": "url",
+//                "value": "https://api.example.com"
+//             }
+//          ]
+//        };
+//        ownerApiAdapter.postAccountIntegration(body,
+//          function (err, acctInt) {
+//            if (err)
+//              return done(
+//                new Error(
+//                  util.format('User cannot create Account Integration',
+//                    util.inspect(err))
+//                )
+//              );
+//
+//            acctInt.test_resource_type = 'accountIntegration';
+//            acctInt.test_resource_name = acctInt.name;
+//
+//            accountIntegration = acctInt;
+//            global.saveTestResource(acctInt.test_resource_name, acctInt,
+//              function () {
+//                return done();
+//              }
+//            );
+//          }
+//        );
+//      }
+//    );
+//
+//    it('7. Owner can delete AWS IAM Account Integration',
+//      function (done) {
+//        ownerApiAdapter.deleteAccountIntegrationById(
+//          accountIntegration.id,
+//          function (err, response) {
+//            if (err)
+//              return done(
+//                new Error(
+//                  util.format('User can delete accountIntegration ' +
+//                    'id: %s, err: %s, %s', accountIntegration.id, err,
+//                    response)
+//                )
+//              );
+//            global.removeTestResource(accountIntegration.test_resource_name,
+//              function () {
+//                return done();
+//              }
+//            );
+//          }
+//        );
+//      }
+//    );
 
     it('8. Owner can create AWS Keys Account Integration',
       function (done) {
@@ -451,74 +451,74 @@ describe(test,
       }
     );
 
-    it('14. Owner can create Bitbucket Account Integration',
-      function (done) {
-        var masterInt = _.findWhere(masterIntegrations, {name:"bitbucket", type:"scm"}) || {};
-        assert.isNotEmpty(masterInt,
-          'Master integration cannot be empty.');
-        var body = {
-          "name": "ghOrgAccIntBitbucket",
-          "masterDisplayName": "BitBucket",
-          "masterIntegrationId": masterInt.id,
-          "masterName": "bitbucket",
-          "masterType": "scm",
-          "formJSONValues": [
-            {
-                "label": "token",
-                "value": "tokenValue"
-            },
-            {
-                "label": "url",
-                "value": "https://example.org"
-            }
-          ]
-        };
-        ownerApiAdapter.postAccountIntegration(body,
-          function (err, acctInt) {
-            if (err)
-              return done(
-                new Error(
-                  util.format('User cannot create Account Integration',
-                    util.inspect(err))
-                )
-              );
-
-            acctInt.test_resource_type = 'accountIntegration';
-            acctInt.test_resource_name = acctInt.name;
-
-            accountIntegration = acctInt;
-            global.saveTestResource(acctInt.test_resource_name, acctInt,
-              function () {
-                return done();
-              }
-            );
-          }
-        );
-      }
-    );
-
-    it('15. Owner can delete Bitbucket Account Integration',
-      function (done) {
-        ownerApiAdapter.deleteAccountIntegrationById(
-          accountIntegration.id,
-          function (err, response) {
-            if (err)
-              return done(
-                new Error(
-                  util.format('User can delete accountIntegration ' +
-                    'id: %s, err: %s, %s', accountIntegration.id, err,
-                    response)
-                )
-              );
-            global.removeTestResource(accountIntegration.test_resource_name,
-              function () {
-                return done();
-              }
-            );
-          }
-        );
-      }
-    );
+//    it('14. Owner can create Bitbucket Account Integration',
+//      function (done) {
+//        var masterInt = _.findWhere(masterIntegrations, {name:"bitbucket", type:"scm"}) || {};
+//        assert.isNotEmpty(masterInt,
+//          'Master integration cannot be empty.');
+//        var body = {
+//          "name": "ghOrgAccIntBitbucket",
+//          "masterDisplayName": "BitBucket",
+//          "masterIntegrationId": masterInt.id,
+//          "masterName": "bitbucket",
+//          "masterType": "scm",
+//          "formJSONValues": [
+//            {
+//                "label": "token",
+//                "value": "tokenValue"
+//            },
+//            {
+//                "label": "url",
+//                "value": "https://example.org"
+//            }
+//          ]
+//        };
+//        ownerApiAdapter.postAccountIntegration(body,
+//          function (err, acctInt) {
+//            if (err)
+//              return done(
+//                new Error(
+//                  util.format('User cannot create Account Integration',
+//                    util.inspect(err))
+//                )
+//              );
+//
+//            acctInt.test_resource_type = 'accountIntegration';
+//            acctInt.test_resource_name = acctInt.name;
+//
+//            accountIntegration = acctInt;
+//            global.saveTestResource(acctInt.test_resource_name, acctInt,
+//              function () {
+//                return done();
+//              }
+//            );
+//          }
+//        );
+//      }
+//    );
+//
+//    it('15. Owner can delete Bitbucket Account Integration',
+//      function (done) {
+//        ownerApiAdapter.deleteAccountIntegrationById(
+//          accountIntegration.id,
+//          function (err, response) {
+//            if (err)
+//              return done(
+//                new Error(
+//                  util.format('User can delete accountIntegration ' +
+//                    'id: %s, err: %s, %s', accountIntegration.id, err,
+//                    response)
+//                )
+//              );
+//            global.removeTestResource(accountIntegration.test_resource_name,
+//              function () {
+//                return done();
+//              }
+//            );
+//          }
+//        );
+//      }
+//    );
 
     it('16. Owner can create Digital Ocean Account Integration',
       function (done) {
@@ -950,143 +950,143 @@ describe(test,
       }
     );
 
-    it('28. Owner can create Gitlab Account Integration',
-      function (done) {
-        var masterInt = _.findWhere(masterIntegrations, {name:"gitlab"}) || {};
-        assert.isNotEmpty(masterInt,
-          'Master integration cannot be empty.');
-        var body = {
-        "name": "ghOrgAccIntGitlab",
-        "masterDisplayName": "GitLab",
-        "masterIntegrationId": masterInt.id,
-        "masterName": "gitlab",
-        "masterType": "scm",
-        "formJSONValues": [
-            {
-                "label": "token",
-                "value": "tokenValue"
-            },
-            {
-                "label": "url",
-                "value": "https://example.com"
-            }
-          ]
-        };
-        ownerApiAdapter.postAccountIntegration(body,
-          function (err, acctInt) {
-            if (err)
-              return done(
-                new Error(
-                  util.format('User cannot create Account Integration',
-                    util.inspect(err))
-                )
-              );
-
-            acctInt.test_resource_type = 'accountIntegration';
-            acctInt.test_resource_name = acctInt.name;
-
-            accountIntegration = acctInt;
-            global.saveTestResource(acctInt.test_resource_name, acctInt,
-              function () {
-                return done();
-              }
-            );
-          }
-        );
-      }
-    );
-
-    it('29. Owner can delete Gitlab Account Integration',
-      function (done) {
-        ownerApiAdapter.deleteAccountIntegrationById(
-          accountIntegration.id,
-          function (err, response) {
-            if (err)
-              return done(
-                new Error(
-                  util.format('User can delete accountIntegration ' +
-                    'id: %s, err: %s, %s', accountIntegration.id, err,
-                    response)
-                )
-              );
-            global.removeTestResource(accountIntegration.test_resource_name,
-              function () {
-                return done();
-              }
-            );
-          }
-        );
-      }
-    );
-
-    it('30. Owner can create Github Enterprise Account Integration',
-      function (done) {
-        var masterInt = _.findWhere(masterIntegrations, {name:"githubEnterprise"}) || {};
-        assert.isNotEmpty(masterInt,
-          'Master integration cannot be empty.');
-        var body = {
-          "name": "ghOrgAccIntGithubEnterprise",
-          "masterDisplayName": "Github Enterprise",
-          "masterIntegrationId": masterInt.id,
-          "masterName": "githubEnterprise",
-          "masterType": "scm",
-          "formJSONValues": [
-            {
-                "label": "token",
-                "value": "tokenValue"
-            },
-            {
-                "label": "url",
-                "value": "https://example.com/api/v4"
-            }
-          ]
-        };
-        ownerApiAdapter.postAccountIntegration(body,
-          function (err, acctInt) {
-            if (err)
-              return done(
-                new Error(
-                  util.format('User cannot create Account Integration',
-                    util.inspect(err))
-                )
-              );
-
-            acctInt.test_resource_type = 'accountIntegration';
-            acctInt.test_resource_name = acctInt.name;
-
-            accountIntegration = acctInt;
-            global.saveTestResource(acctInt.test_resource_name, acctInt,
-              function () {
-                return done();
-              }
-            );
-          }
-        );
-      }
-    );
-
-    it('31. Owner can delete Github Enterprise Account Integration',
-      function (done) {
-        ownerApiAdapter.deleteAccountIntegrationById(
-          accountIntegration.id,
-          function (err, response) {
-            if (err)
-              return done(
-                new Error(
-                  util.format('User can delete accountIntegration ' +
-                    'id: %s, err: %s, %s', accountIntegration.id, err,
-                    response)
-                )
-              );
-            global.removeTestResource(accountIntegration.test_resource_name,
-              function () {
-                return done();
-              }
-            );
-          }
-        );
-      }
-    );
+//    it('28. Owner can create Gitlab Account Integration',
+//      function (done) {
+//        var masterInt = _.findWhere(masterIntegrations, {name:"gitlab"}) || {};
+//        assert.isNotEmpty(masterInt,
+//          'Master integration cannot be empty.');
+//        var body = {
+//        "name": "ghOrgAccIntGitlab",
+//        "masterDisplayName": "GitLab",
+//        "masterIntegrationId": masterInt.id,
+//        "masterName": "gitlab",
+//        "masterType": "scm",
+//        "formJSONValues": [
+//            {
+//                "label": "token",
+//                "value": "tokenValue"
+//            },
+//            {
+//                "label": "url",
+//                "value": "https://example.com"
+//            }
+//          ]
+//        };
+//        ownerApiAdapter.postAccountIntegration(body,
+//          function (err, acctInt) {
+//            if (err)
+//              return done(
+//                new Error(
+//                  util.format('User cannot create Account Integration',
+//                    util.inspect(err))
+//                )
+//              );
+//
+//            acctInt.test_resource_type = 'accountIntegration';
+//            acctInt.test_resource_name = acctInt.name;
+//
+//            accountIntegration = acctInt;
+//            global.saveTestResource(acctInt.test_resource_name, acctInt,
+//              function () {
+//                return done();
+//              }
+//            );
+//          }
+//        );
+//      }
+//    );
+//
+//    it('29. Owner can delete Gitlab Account Integration',
+//      function (done) {
+//        ownerApiAdapter.deleteAccountIntegrationById(
+//          accountIntegration.id,
+//          function (err, response) {
+//            if (err)
+//              return done(
+//                new Error(
+//                  util.format('User can delete accountIntegration ' +
+//                    'id: %s, err: %s, %s', accountIntegration.id, err,
+//                    response)
+//                )
+//              );
+//            global.removeTestResource(accountIntegration.test_resource_name,
+//              function () {
+//                return done();
+//              }
+//            );
+//          }
+//        );
+//      }
+//    );
+//
+//    it('30. Owner can create Github Enterprise Account Integration',
+//      function (done) {
+//        var masterInt = _.findWhere(masterIntegrations, {name:"githubEnterprise"}) || {};
+//        assert.isNotEmpty(masterInt,
+//          'Master integration cannot be empty.');
+//        var body = {
+//          "name": "ghOrgAccIntGithubEnterprise",
+//          "masterDisplayName": "Github Enterprise",
+//          "masterIntegrationId": masterInt.id,
+//          "masterName": "githubEnterprise",
+//          "masterType": "scm",
+//          "formJSONValues": [
+//            {
+//                "label": "token",
+//                "value": "tokenValue"
+//            },
+//            {
+//                "label": "url",
+//                "value": "https://example.com/api/v4"
+//            }
+//          ]
+//        };
+//        ownerApiAdapter.postAccountIntegration(body,
+//          function (err, acctInt) {
+//            if (err)
+//              return done(
+//                new Error(
+//                  util.format('User cannot create Account Integration',
+//                    util.inspect(err))
+//                )
+//              );
+//
+//            acctInt.test_resource_type = 'accountIntegration';
+//            acctInt.test_resource_name = acctInt.name;
+//
+//            accountIntegration = acctInt;
+//            global.saveTestResource(acctInt.test_resource_name, acctInt,
+//              function () {
+//                return done();
+//              }
+//            );
+//          }
+//        );
+//      }
+//    );
+//
+//    it('31. Owner can delete Github Enterprise Account Integration',
+//      function (done) {
+//        ownerApiAdapter.deleteAccountIntegrationById(
+//          accountIntegration.id,
+//          function (err, response) {
+//            if (err)
+//              return done(
+//                new Error(
+//                  util.format('User can delete accountIntegration ' +
+//                    'id: %s, err: %s, %s', accountIntegration.id, err,
+//                    response)
+//                )
+//              );
+//            global.removeTestResource(accountIntegration.test_resource_name,
+//              function () {
+//                return done();
+//              }
+//            );
+//          }
+//        );
+//      }
+//    );
 
     it('32. Owner can create Google Cloud Account Integration',
       function (done) {
