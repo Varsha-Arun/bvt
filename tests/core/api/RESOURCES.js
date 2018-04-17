@@ -227,19 +227,17 @@ describe(test,
       }
     );
 
-    it('8. Unauthorized user can get all their resources',
+    it('8. Unauthorized user can get their resources',
       function (done) {
         unauthorizedApiAdapter.getResources('',
           function (err, res) {
-            if (err || _.isEmpty(res))
+            if (err)
               return done(
                 new Error(
                   util.format('User cannot get resources',
-                    query, err)
+                    res, err)
                 )
               );
-            resources = res;
-            assert.isNotEmpty(res, 'User cannot find the resources');
             return done();
           }
         );

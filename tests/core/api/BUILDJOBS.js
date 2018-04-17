@@ -247,18 +247,17 @@ describe(test,
       }
     );
 
-    it('10. Unauthorized user can get all their buildJobs',
+    it('10. Unauthorized user can get their buildJobs',
       function (done) {
         unauthorizedApiAdapter.getBuildJobs('',
           function (err, bldJobs) {
-            if (err || _.isEmpty(bldJobs))
+            if (err)
               return done(
                 new Error(
-                  util.format('User cannot get buildJobs',
-                    query, err)
+                  util.format('User cannot get build jobs',
+                    bldJobs, err)
                 )
               );
-            assert.isNotEmpty(bldJobs, 'User cannot find the buildJobs');
             return done();
           }
         );

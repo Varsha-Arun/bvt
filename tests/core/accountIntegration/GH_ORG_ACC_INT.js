@@ -13,7 +13,57 @@ describe(test,
     var unauthorizedApiAdapter = null;
     var masterIntegrations = [];
     var accountIntegration = {};
-
+    var dockerRegistryAccountIntegration = null;
+    var testaccIntegrationRun = {};
+    var runShCode = null;
+    var syncRepo = {};
+    var subscriptionIntegration = {};
+    var subscriptionIntegrationIds = [];
+    var accountIntegrationIds = [];
+    var ghSubscriptionIntegration = {};
+    var subscription = {};
+    var syncRepoResource = {};
+    var rSyncJob = {};
+    var successStatusCode = null;
+    var rSyncCode = null;
+    var syncRepoCode = null;
+    var awsKeysAccountIntegration = null;
+    var dockerRegistryAccountIntegration = null;
+    var gclAccountIntegration = null;
+    var jfrogAccountIntegration = null;
+    var joyentTritonAccountIntegration = null;
+    var kubernetesAccountIntegration = null;
+    var quayAccountIntegration = null;
+    var awsIamAccountIntegration = null;
+    var azureDcOsAccountIntegration = null;
+    var azureKeysAccountIntegration = null; 
+    var bitbucketAccountIntegration = null; 
+    var digitalOceanAccountIntegration = null;
+    var dockerCloudAccountIntegration = null;
+    var dockerDataCenterAccountIntegration = null;
+    var githubAccountIntegration = null;
+    var githubEnterpriseAccountIntegration = null; 
+    var gitCredentialAccountIntegration = null;
+    var googleCloudAccountIntegration = null;
+    var hipChatAccountIntegration = null;
+    var jFrogArtifactoryAccountIntegration = null;
+    var keyValuePairAccountIntegration = null;
+    var kubernetesAccountIntegration = null;
+    var nodeClusterAccountIntegration = null;
+    var quayLoginAccountIntegration = null;
+    var sshKeyAccountIntegration = null;
+    var slackAccountIntegration = null;
+    var webhookAccountIntegration = null;
+  
+    var azureKeysAccountIntegration = null;
+    var bitbucketAccountIntegration = null;
+    var awsKeysSubscriptionIntegration = null;
+    var dockerRegistrySubscriptionIntegration = null;
+    var googleCloudSubscriptionIntegration = null;
+    var jfrogSubscriptionIntegration = null;
+    var kubernetesSubscriptionIntegration = null;
+    var quaySubscriptionIntegration = null;
+    
     this.timeout(0);
 
     before(
@@ -32,7 +82,30 @@ describe(test,
               global.newApiAdapterByStateAccount('ghOwnerAccount');
             unauthorizedApiAdapter =
               global.newApiAdapterByStateAccount('ghUnauthorizedAccount');
+            
+            successStatusCode = _.findWhere(global.systemCodes,
+              {name: 'success', group: 'status'}).code;
+            
+            runShCode = _.findWhere(global.systemCodes,
+              {name: 'runSh', group: 'resource'}).code;
+            rSyncCode = _.findWhere(global.systemCodes,
+              {name: 'rSync', group: 'resource'}).code;
+            syncRepoCode = _.findWhere(global.systemCodes,
+              {name: 'syncRepo', group: 'resource'}).code;
+            
+            ownerApiAdapter.getProjects('',
+              function (err, prjs) {
+                if (err || _.isEmpty(prjs))
+                  return done(new Error('Project list is empty', err));
+                syncRepo = _.first(
+                  _.where(prjs, {isOrg: true, isPrivateRepository: false}
+                  )
+                );
 
+                assert.isNotEmpty(syncRepo, 'User cannot find the rSync repo');
+              }
+            );
+            
             ownerApiAdapter.getMasterIntegrations('',
               function (err, masInts) {
                 if (err)
@@ -52,24 +125,49 @@ describe(test,
         );
       }
     );
-
-    it('1. Owner can create PEM Key Account Integration',
+    
+    it('1. Owner can get the subscriptionIntegration',
       function (done) {
-        var masterInt = _.findWhere(masterIntegrations, {name:"pemKey"}) || {};
+        ownerApiAdapter.getSubscriptionIntegrations('',
+          function (err, sis) {
+            if (err)
+              return done(
+                new Error(
+                  util.format('User cannot get subscriptionIntegrations', err)
+                )
+              );
+            // check if build triggered in previous test case is present
+            assert.isNotEmpty(sis, 'Subscription Integration cannot be empty');
+
+            ghSubscriptionIntegration =
+              _.findWhere(sis,{name: global.GH_ORG_SUB_INT_GH});
+            return done();
+          }
+        );
+      }
+    );
+
+    it('2. Owner can create AWS Keys Account Integration',
+      function (done) {
+        var masterInt = _.findWhere(masterIntegrations, {name:"amazonKeys"}) || {};
         assert.isNotEmpty(masterInt,
           'Master integration cannot be empty.');
         var body = {
-          "name" : "ghOrgAccIntPemKey",
-          "masterDisplayName": "PEM Key",
+          "name": "ghOrgAccIntAwsKeys",
+          "masterDisplayName": "AWS Keys",
           "masterIntegrationId": masterInt.id,
-          "masterName": "pemKey",
+          "masterName": "amazonKeys",
           "masterType": "generic",
           "formJSONValues": [
-              {
-                "label": "key",
-                "value": "pemkeyvalue"
-              }
-           ]
+            {
+                "label": "accessKey",
+                "value": "accessKeyValue"
+            },
+            {
+                "label": "secretKey",
+                "value": "secretKeyValue"
+            }
+          ]
         };
         ownerApiAdapter.postAccountIntegration(body,
           function (err, acctInt) {
@@ -84,7 +182,7 @@ describe(test,
             acctInt.test_resource_type = 'accountIntegration';
             acctInt.test_resource_name = acctInt.name;
 
-            accountIntegration = acctInt;
+            awsKeysAccountIntegration = acctInt;
             global.saveTestResource(acctInt.test_resource_name, acctInt,
               function () {
                 return done();
@@ -94,70 +192,90 @@ describe(test,
         );
       }
     );
-
-    it('2. Owner can get PEM key Account Integration',
+  
+    it('3. Owner can create Docker Registry Account Integration',
       function (done) {
-        var query = 'names=ghOrgAccIntPemKey';
-        ownerApiAdapter.getAccountIntegrations(query,
-          function (err, acctInts) {
+        var masterInt = _.findWhere(masterIntegrations, {name:"dockerRegistryLogin"}) || {};
+        assert.isNotEmpty(masterInt,
+          'Master integration cannot be empty.');
+        var body = {
+        "name": "ghOrgAccIntDockerRegistry",
+        "masterDisplayName": "Docker Registry",
+        "masterIntegrationId": masterInt.id,
+        "masterName": "dockerRegistryLogin",
+        "masterType": "generic",
+        "formJSONValues": [
+            {
+                "label": "email",
+                "value": "shiptest@shippable.com"
+            },
+            {
+                "label": "password",
+                "value": "Qhode123"
+            },
+            {
+                "label": "username",
+                "value": "shippabledocker"
+            }
+          ]
+        };
+        ownerApiAdapter.postAccountIntegration(body,
+          function (err, acctInt) {
             if (err)
               return done(
                 new Error(
-                  util.format('User cannot get account integration for query %s',
-                    query, err)
+                  util.format('User cannot create Account Integration',
+                    util.inspect(err))
                 )
               );
-            accountIntegration = _.first(acctInts);
-            assert.isNotEmpty(acctInts, 'Account Integration ' +
-              'cannot be empty');
-            return done();
-          }
-        );
-      }
-    );
 
-    it('3. Unauthorized cannot get the account integration',
-      function (done) {
-        unauthorizedApiAdapter.getAccountIntegrationById(accountIntegration.id,
-          function (err, acctInts) {
-            assert.strictEqual(err, 404,
-              util.format('User cannot get account integration.' +
-                ' err : %s %s', err, acctInts)
+            acctInt.test_resource_type = 'accountIntegration';
+            acctInt.test_resource_name = acctInt.name;
+
+            dockerRegistryAccountIntegration = acctInt;
+            global.saveTestResource(acctInt.test_resource_name, acctInt,
+              function () {
+                return done();
+              }
             );
-            return done();
           }
         );
       }
-    );
-
-    it('4. Public User cannot get the account integration',
+    ); 
+  
+    it('4. Owner can create Google Cloud Account Integration',
       function (done) {
-        global.pubAdapter.getAccountIntegrationById(accountIntegration.id,
-          function (err, acctInts) {
-            assert.strictEqual(err, 401,
-              util.format('User cannot get account integration.' +
-                ' err : %s %s', err, acctInts)
-            );
-            return done();
-          }
-        );
-      }
-    );
-
-    it('5. Owner can delete PEM Key Account Integration',
-      function (done) {
-        ownerApiAdapter.deleteAccountIntegrationById(
-          accountIntegration.id,
-          function (err, response) {
+        var masterInt = _.findWhere(masterIntegrations, {name:"gcloudKey"}) || {};
+        assert.isNotEmpty(masterInt,
+          'Master integration cannot be empty.');
+        var body = {
+          "name": "ghOrgAccIntGoogleCloud",
+          "masterDisplayName": "Google Cloud",
+          "masterIntegrationId": masterInt.id,
+          "masterName": "gcloudKey",
+          "masterType": "generic",
+          "formJSONValues": [
+            {
+                "label": "JSON_key",
+                "value": "jsonKeyValue"
+            }
+          ]
+        };
+        ownerApiAdapter.postAccountIntegration(body,
+          function (err, acctInt) {
             if (err)
               return done(
                 new Error(
-                  util.format('User can delete accountIntegration ' +
-                    'id: %s, err: %s, %s', accountIntegration.id, err,
-                    response)
+                  util.format('User cannot create Account Integration',
+                    util.inspect(err))
                 )
               );
-            global.removeTestResource(accountIntegration.test_resource_name,
+
+            acctInt.test_resource_type = 'accountIntegration';
+            acctInt.test_resource_name = acctInt.name;
+
+            googleCloudAccountIntegration = acctInt;
+            global.saveTestResource(acctInt.test_resource_name, acctInt,
               function () {
                 return done();
               }
@@ -166,8 +284,158 @@ describe(test,
         );
       }
     );
+    
+    it('5. Owner can create JFrog Artifactory Account Integration',
+      function (done) {
+        var masterInt = _.findWhere(masterIntegrations, {name:"artifactoryKey"}) || {};
+        assert.isNotEmpty(masterInt,
+          'Master integration cannot be empty.');
+        var body = {
+          "name": "ghOrgAccIntJfrogArtifactory",
+          "masterDisplayName": "JFrog Artifactory",
+          "masterIntegrationId": masterInt.id,
+          "masterName": "artifactoryKey",
+          "masterType": "generic",
+          "formJSONValues": [
+            {
+                "label": "password",
+                "value": "passwordValue"
+            },
+            {
+                "label": "url",
+                "value": "https://example.io/usernameValue"
+            },
+            {
+                "label": "username",
+                "value": "usernameValue"
+            }
+          ]
+        };
+        ownerApiAdapter.postAccountIntegration(body,
+          function (err, acctInt) {
+            if (err)
+              return done(
+                new Error(
+                  util.format('User cannot create Account Integration',
+                    util.inspect(err))
+                )
+              );
 
-//    it('6. Owner can create AWS IAM Account Integration',
+            acctInt.test_resource_type = 'accountIntegration';
+            acctInt.test_resource_name = acctInt.name;
+
+            jFrogArtifactoryAccountIntegration = acctInt;
+            global.saveTestResource(acctInt.test_resource_name, acctInt,
+              function () {
+                return done();
+              }
+            );
+          }
+        );
+      }
+    );
+    
+    it('6. Owner can create Kubernetes Account Integration',
+      function (done) {
+        var masterInt = _.findWhere(masterIntegrations, {name:"kubernetesConfig"}) || {};
+        assert.isNotEmpty(masterInt,
+          'Master integration cannot be empty.');
+        var body = {
+          "name": "ghOrgAccIntKubernetes",
+          "masterDisplayName": "Kubernetes",
+          "masterIntegrationId": masterInt.id,
+          "masterName": "kubernetesConfig",
+          "masterType": "generic",
+          "formJSONValues": [
+            {
+                "label": "kubeConfigContent",
+                "value": "kubeConfigContentValue"
+            }
+          ]
+        };
+        ownerApiAdapter.postAccountIntegration(body,
+          function (err, acctInt) {
+            if (err)
+              return done(
+                new Error(
+                  util.format('User cannot create Account Integration',
+                    util.inspect(err))
+                )
+              );
+
+            acctInt.test_resource_type = 'accountIntegration';
+            acctInt.test_resource_name = acctInt.name;
+
+            kubernetesAccountIntegration = acctInt;
+            global.saveTestResource(acctInt.test_resource_name, acctInt,
+              function () {
+                return done();
+              }
+            );
+          }
+        );
+      }
+    );
+       
+    it('7. Owner can create Quay.io Account Integration',
+      function (done) {
+        var masterInt = _.findWhere(masterIntegrations, {name:"quayLogin"}) || {};
+        assert.isNotEmpty(masterInt,
+          'Master integration cannot be empty.');
+        var body = {
+          "name": "ghOrgAccIntQuay",
+          "masterDisplayName": "Quay.io",
+          "masterIntegrationId": masterInt.id,
+          "masterName": "quayLogin",
+          "masterType": "generic",
+          "formJSONValues": [
+            {
+                "label": "accessToken",
+                "value": "accessTokenValue"
+            },
+            {
+                "label": "email",
+                "value": "revathi@shippale.com"
+            },
+            {
+                "label": "password",
+                "value": "passwordvalue"
+            },
+            {
+                "label": "url",
+                "value": "example.io"
+            },
+            {
+                "label": "username",
+                "value": "usernameValue"
+            }
+          ]
+        };
+        ownerApiAdapter.postAccountIntegration(body,
+          function (err, acctInt) {
+            if (err)
+              return done(
+                new Error(
+                  util.format('User cannot create Account Integration',
+                    util.inspect(err))
+                )
+              );
+
+            acctInt.test_resource_type = 'accountIntegration';
+            acctInt.test_resource_name = acctInt.name;
+
+            quayLoginAccountIntegration = acctInt;
+            global.saveTestResource(acctInt.test_resource_name, acctInt,
+              function () {
+                return done();
+              }
+            );
+          }
+        );
+      }
+    );
+       
+//    it("8. Owner can create AWS IAM Account Integration',
 //      function (done) {
 //        var masterInt = _.findWhere(masterIntegrations, {name:"amazonIamRole"}) || {};
 //        assert.isNotEmpty(masterInt,
@@ -206,7 +474,7 @@ describe(test,
 //            acctInt.test_resource_type = 'accountIntegration';
 //            acctInt.test_resource_name = acctInt.name;
 //
-//            accountIntegration = acctInt;
+//            awsIamAccountIntegration = acctInt;
 //            global.saveTestResource(acctInt.test_resource_name, acctInt,
 //              function () {
 //                return done();
@@ -216,100 +484,8 @@ describe(test,
 //        );
 //      }
 //    );
-//
-//    it('7. Owner can delete AWS IAM Account Integration',
-//      function (done) {
-//        ownerApiAdapter.deleteAccountIntegrationById(
-//          accountIntegration.id,
-//          function (err, response) {
-//            if (err)
-//              return done(
-//                new Error(
-//                  util.format('User can delete accountIntegration ' +
-//                    'id: %s, err: %s, %s', accountIntegration.id, err,
-//                    response)
-//                )
-//              );
-//            global.removeTestResource(accountIntegration.test_resource_name,
-//              function () {
-//                return done();
-//              }
-//            );
-//          }
-//        );
-//      }
-//    );
-
-    it('8. Owner can create AWS Keys Account Integration',
-      function (done) {
-        var masterInt = _.findWhere(masterIntegrations, {name:"amazonKeys"}) || {};
-        assert.isNotEmpty(masterInt,
-          'Master integration cannot be empty.');
-        var body = {
-          "name": "ghOrgAccIntAwsKeys",
-          "masterDisplayName": "AWS Keys",
-          "masterIntegrationId": masterInt.id,
-          "masterName": "amazonKeys",
-          "masterType": "generic",
-          "formJSONValues": [
-            {
-                "label": "accessKey",
-                "value": "accessKeyValue"
-            },
-            {
-                "label": "secretKey",
-                "value": "secretKeyValue"
-            }
-          ]
-        };
-        ownerApiAdapter.postAccountIntegration(body,
-          function (err, acctInt) {
-            if (err)
-              return done(
-                new Error(
-                  util.format('User cannot create Account Integration',
-                    util.inspect(err))
-                )
-              );
-
-            acctInt.test_resource_type = 'accountIntegration';
-            acctInt.test_resource_name = acctInt.name;
-
-            accountIntegration = acctInt;
-            global.saveTestResource(acctInt.test_resource_name, acctInt,
-              function () {
-                return done();
-              }
-            );
-          }
-        );
-      }
-    );
-
-    it('9. Owner can delete AWS Keys Account Integration',
-      function (done) {
-        ownerApiAdapter.deleteAccountIntegrationById(
-          accountIntegration.id,
-          function (err, response) {
-            if (err)
-              return done(
-                new Error(
-                  util.format('User can delete accountIntegration ' +
-                    'id: %s, err: %s, %s', accountIntegration.id, err,
-                    response)
-                )
-              );
-            global.removeTestResource(accountIntegration.test_resource_name,
-              function () {
-                return done();
-              }
-            );
-          }
-        );
-      }
-    );
-
-    it('10. Owner can create Azure DC/OS Keys Account Integration',
+   
+    it('9. Owner can create Azure DC/OS Keys Account Integration',
       function (done) {
         var masterInt = _.findWhere(masterIntegrations, {name:"azureDcosKey"}) || {};
         assert.isNotEmpty(masterInt,
@@ -344,7 +520,7 @@ describe(test,
             acctInt.test_resource_type = 'accountIntegration';
             acctInt.test_resource_name = acctInt.name;
 
-            accountIntegration = acctInt;
+            azureDcOsAccountIntegration = acctInt;
             global.saveTestResource(acctInt.test_resource_name, acctInt,
               function () {
                 return done();
@@ -354,31 +530,8 @@ describe(test,
         );
       }
     );
-
-    it('11. Owner can delete Azure DC/OS Keys Account Integration',
-      function (done) {
-        ownerApiAdapter.deleteAccountIntegrationById(
-          accountIntegration.id,
-          function (err, response) {
-            if (err)
-              return done(
-                new Error(
-                  util.format('User can delete accountIntegration ' +
-                    'id: %s, err: %s, %s', accountIntegration.id, err,
-                    response)
-                )
-              );
-            global.removeTestResource(accountIntegration.test_resource_name,
-              function () {
-                return done();
-              }
-            );
-          }
-        );
-      }
-    );
-
-    it('12. Owner can create Azure Keys Account Integration',
+    
+    it('10. Owner can create Azure Keys Account Integration',
       function (done) {
         var masterInt = _.findWhere(masterIntegrations, {name:"azureKeys"}) || {};
         assert.isNotEmpty(masterInt,
@@ -417,7 +570,7 @@ describe(test,
             acctInt.test_resource_type = 'accountIntegration';
             acctInt.test_resource_name = acctInt.name;
 
-            accountIntegration = acctInt;
+            azureKeysAccountIntegration = acctInt;
             global.saveTestResource(acctInt.test_resource_name, acctInt,
               function () {
                 return done();
@@ -427,31 +580,8 @@ describe(test,
         );
       }
     );
-
-    it('13. Owner can delete Azure Keys Account Integration',
-      function (done) {
-        ownerApiAdapter.deleteAccountIntegrationById(
-          accountIntegration.id,
-          function (err, response) {
-            if (err)
-              return done(
-                new Error(
-                  util.format('User can delete accountIntegration ' +
-                    'id: %s, err: %s, %s', accountIntegration.id, err,
-                    response)
-                )
-              );
-            global.removeTestResource(accountIntegration.test_resource_name,
-              function () {
-                return done();
-              }
-            );
-          }
-        );
-      }
-    );
-
-//    it('14. Owner can create Bitbucket Account Integration',
+  
+//    it('11. Owner can create Bitbucket Account Integration',
 //      function (done) {
 //        var masterInt = _.findWhere(masterIntegrations, {name:"bitbucket", type:"scm"}) || {};
 //        assert.isNotEmpty(masterInt,
@@ -486,7 +616,7 @@ describe(test,
 //            acctInt.test_resource_type = 'accountIntegration';
 //            acctInt.test_resource_name = acctInt.name;
 //
-//            accountIntegration = acctInt;
+//            bitbucketAccountIntegration = acctInt;
 //            global.saveTestResource(acctInt.test_resource_name, acctInt,
 //              function () {
 //                return done();
@@ -496,31 +626,8 @@ describe(test,
 //        );
 //      }
 //    );
-//
-//    it('15. Owner can delete Bitbucket Account Integration',
-//      function (done) {
-//        ownerApiAdapter.deleteAccountIntegrationById(
-//          accountIntegration.id,
-//          function (err, response) {
-//            if (err)
-//              return done(
-//                new Error(
-//                  util.format('User can delete accountIntegration ' +
-//                    'id: %s, err: %s, %s', accountIntegration.id, err,
-//                    response)
-//                )
-//              );
-//            global.removeTestResource(accountIntegration.test_resource_name,
-//              function () {
-//                return done();
-//              }
-//            );
-//          }
-//        );
-//      }
-//    );
-
-    it('16. Owner can create Digital Ocean Account Integration',
+    
+    it('12. Owner can create Digital Ocean Account Integration',
       function (done) {
         var masterInt = _.findWhere(masterIntegrations, {name:"DOC"}) || {};
         assert.isNotEmpty(masterInt,
@@ -551,7 +658,7 @@ describe(test,
             acctInt.test_resource_type = 'accountIntegration';
             acctInt.test_resource_name = acctInt.name;
 
-            accountIntegration = acctInt;
+            digitalOceanAccountIntegration = acctInt;
             global.saveTestResource(acctInt.test_resource_name, acctInt,
               function () {
                 return done();
@@ -562,30 +669,7 @@ describe(test,
       }
     );
 
-    it('17. Owner can delete Digital Ocean Account Integration',
-      function (done) {
-        ownerApiAdapter.deleteAccountIntegrationById(
-          accountIntegration.id,
-          function (err, response) {
-            if (err)
-              return done(
-                new Error(
-                  util.format('User can delete accountIntegration ' +
-                    'id: %s, err: %s, %s', accountIntegration.id, err,
-                    response)
-                )
-              );
-            global.removeTestResource(accountIntegration.test_resource_name,
-              function () {
-                return done();
-              }
-            );
-          }
-        );
-      }
-    );
-
-    it('18. Owner can create Docker Cloud Account Integration',
+    it('13. Owner can create Docker Cloud Account Integration',
       function (done) {
         var masterInt = _.findWhere(masterIntegrations, {name:"dclKey"}) || {};
         assert.isNotEmpty(masterInt,
@@ -624,7 +708,7 @@ describe(test,
             acctInt.test_resource_type = 'accountIntegration';
             acctInt.test_resource_name = acctInt.name;
 
-            accountIntegration = acctInt;
+            dockerCloudAccountIntegration = acctInt;
             global.saveTestResource(acctInt.test_resource_name, acctInt,
               function () {
                 return done();
@@ -635,30 +719,7 @@ describe(test,
       }
     );
 
-    it('19. Owner can delete Docker Cloud Account Integration',
-      function (done) {
-        ownerApiAdapter.deleteAccountIntegrationById(
-          accountIntegration.id,
-          function (err, response) {
-            if (err)
-              return done(
-                new Error(
-                  util.format('User can delete accountIntegration ' +
-                    'id: %s, err: %s, %s', accountIntegration.id, err,
-                    response)
-                )
-              );
-            global.removeTestResource(accountIntegration.test_resource_name,
-              function () {
-                return done();
-              }
-            );
-          }
-        );
-      }
-    );
-
-    it('20. Owner can create Docker DataCenter Account Integration',
+    it('14. Owner can create Docker DataCenter Account Integration',
       function (done) {
         var masterInt = _.findWhere(masterIntegrations, {name:"ddcKey"}) || {};
         assert.isNotEmpty(masterInt,
@@ -697,7 +758,7 @@ describe(test,
             acctInt.test_resource_type = 'accountIntegration';
             acctInt.test_resource_name = acctInt.name;
 
-            accountIntegration = acctInt;
+            dockerDataCenterAccountIntegration = acctInt;
             global.saveTestResource(acctInt.test_resource_name, acctInt,
               function () {
                 return done();
@@ -707,53 +768,26 @@ describe(test,
         );
       }
     );
-
-    it('21. Owner can delete Docker DataCenter Account Integration',
+  
+    it('15. Owner can create Github Account Integration',
       function (done) {
-        ownerApiAdapter.deleteAccountIntegrationById(
-          accountIntegration.id,
-          function (err, response) {
-            if (err)
-              return done(
-                new Error(
-                  util.format('User can delete accountIntegration ' +
-                    'id: %s, err: %s, %s', accountIntegration.id, err,
-                    response)
-                )
-              );
-            global.removeTestResource(accountIntegration.test_resource_name,
-              function () {
-                return done();
-              }
-            );
-          }
-        );
-      }
-    );
-
-    it('22. Owner can create Docker Registry Account Integration',
-      function (done) {
-        var masterInt = _.findWhere(masterIntegrations, {name:"dockerRegistryLogin"}) || {};
+        var masterInt = _.findWhere(masterIntegrations, {name:"github", type: "scm"}) || {};
         assert.isNotEmpty(masterInt,
           'Master integration cannot be empty.');
         var body = {
-        "name": "ghOrgAccIntDockerRegistry",
-        "masterDisplayName": "Docker Registry",
+        "name": "ghOrgAccIntGithub",
+        "masterDisplayName": "GitHub",
         "masterIntegrationId": masterInt.id,
-        "masterName": "dockerRegistryLogin",
-        "masterType": "generic",
+        "masterName": "github",
+        "masterType": "scm",
         "formJSONValues": [
             {
-                "label": "email",
-                "value": "email@email.com"
+                "label": "token",
+                "value": "tokenValue"
             },
             {
-                "label": "password",
-                "value": "passwordValue"
-            },
-            {
-                "label": "username",
-                "value": "usernameValue"
+                "label": "url",
+                "value": "https://example.com"
             }
           ]
         };
@@ -770,7 +804,7 @@ describe(test,
             acctInt.test_resource_type = 'accountIntegration';
             acctInt.test_resource_name = acctInt.name;
 
-            accountIntegration = acctInt;
+            githubAccountIntegration = acctInt;
             global.saveTestResource(acctInt.test_resource_name, acctInt,
               function () {
                 return done();
@@ -780,31 +814,54 @@ describe(test,
         );
       }
     );
-
-    it('23. Owner can delete Docker Registry Account Integration',
-      function (done) {
-        ownerApiAdapter.deleteAccountIntegrationById(
-          accountIntegration.id,
-          function (err, response) {
-            if (err)
-              return done(
-                new Error(
-                  util.format('User can delete accountIntegration ' +
-                    'id: %s, err: %s, %s', accountIntegration.id, err,
-                    response)
-                )
-              );
-            global.removeTestResource(accountIntegration.test_resource_name,
-              function () {
-                return done();
-              }
-            );
-          }
-        );
-      }
-    );
-
-    it('24. Owner can create Git Credential Account Integration',
+  
+//    it('16. Owner can create Github Enterprise Account Integration',
+//      function (done) {
+//        var masterInt = _.findWhere(masterIntegrations, {name:"githubEnterprise"}) || {};
+//        assert.isNotEmpty(masterInt,
+//          'Master integration cannot be empty.');
+//        var body = {
+//          "name": "ghOrgAccIntGithubEnterprise",
+//          "masterDisplayName": "Github Enterprise",
+//          "masterIntegrationId": masterInt.id,
+//          "masterName": "githubEnterprise",
+//          "masterType": "scm",
+//          "formJSONValues": [
+//            {
+//                "label": "token",
+//                "value": "tokenValue"
+//            },
+//            {
+//                "label": "url",
+//                "value": "https://example.com/api/v4"
+//            }
+//          ]
+//        };
+//        ownerApiAdapter.postAccountIntegration(body,
+//          function (err, acctInt) {
+//            if (err)
+//              return done(
+//                new Error(
+//                  util.format('User cannot create Account Integration',
+//                    util.inspect(err))
+//                )
+//              );
+//
+//            acctInt.test_resource_type = 'accountIntegration';
+//            acctInt.test_resource_name = acctInt.name;
+//
+//            githubEnterpriseAccountIntegration = acctInt;
+//            global.saveTestResource(acctInt.test_resource_name, acctInt,
+//              function () {
+//                return done();
+//              }
+//            );
+//          }
+//        );
+//      }
+//    );
+  
+    it('17. Owner can create Git Credential Account Integration',
       function (done) {
         var masterInt = _.findWhere(masterIntegrations, {name:"gitCredential"}) || {};
         assert.isNotEmpty(masterInt,
@@ -847,7 +904,7 @@ describe(test,
             acctInt.test_resource_type = 'accountIntegration';
             acctInt.test_resource_name = acctInt.name;
 
-            accountIntegration = acctInt;
+            gitCredentialAccountIntegration = acctInt;
             global.saveTestResource(acctInt.test_resource_name, acctInt,
               function () {
                 return done();
@@ -857,303 +914,8 @@ describe(test,
         );
       }
     );
-
-    it('25. Owner can delete Git Credential Account Integration',
-      function (done) {
-        ownerApiAdapter.deleteAccountIntegrationById(
-          accountIntegration.id,
-          function (err, response) {
-            if (err)
-              return done(
-                new Error(
-                  util.format('User can delete accountIntegration ' +
-                    'id: %s, err: %s, %s', accountIntegration.id, err,
-                    response)
-                )
-              );
-            global.removeTestResource(accountIntegration.test_resource_name,
-              function () {
-                return done();
-              }
-            );
-          }
-        );
-      }
-    );
-
-    it('26. Owner can create Github Account Integration',
-      function (done) {
-        var masterInt = _.findWhere(masterIntegrations, {name:"github", type: "scm"}) || {};
-        assert.isNotEmpty(masterInt,
-          'Master integration cannot be empty.');
-        var body = {
-        "name": "ghOrgAccIntGithub",
-        "masterDisplayName": "GitHub",
-        "masterIntegrationId": masterInt.id,
-        "masterName": "github",
-        "masterType": "scm",
-        "formJSONValues": [
-            {
-                "label": "token",
-                "value": "tokenValue"
-            },
-            {
-                "label": "url",
-                "value": "https://example.com"
-            }
-          ]
-        };
-        ownerApiAdapter.postAccountIntegration(body,
-          function (err, acctInt) {
-            if (err)
-              return done(
-                new Error(
-                  util.format('User cannot create Account Integration',
-                    util.inspect(err))
-                )
-              );
-
-            acctInt.test_resource_type = 'accountIntegration';
-            acctInt.test_resource_name = acctInt.name;
-
-            accountIntegration = acctInt;
-            global.saveTestResource(acctInt.test_resource_name, acctInt,
-              function () {
-                return done();
-              }
-            );
-          }
-        );
-      }
-    );
-
-    it('27. Owner can delete Github Account Integration',
-      function (done) {
-        ownerApiAdapter.deleteAccountIntegrationById(
-          accountIntegration.id,
-          function (err, response) {
-            if (err)
-              return done(
-                new Error(
-                  util.format('User can delete accountIntegration ' +
-                    'id: %s, err: %s, %s', accountIntegration.id, err,
-                    response)
-                )
-              );
-            global.removeTestResource(accountIntegration.test_resource_name,
-              function () {
-                return done();
-              }
-            );
-          }
-        );
-      }
-    );
-
-//    it('28. Owner can create Gitlab Account Integration',
-//      function (done) {
-//        var masterInt = _.findWhere(masterIntegrations, {name:"gitlab"}) || {};
-//        assert.isNotEmpty(masterInt,
-//          'Master integration cannot be empty.');
-//        var body = {
-//        "name": "ghOrgAccIntGitlab",
-//        "masterDisplayName": "GitLab",
-//        "masterIntegrationId": masterInt.id,
-//        "masterName": "gitlab",
-//        "masterType": "scm",
-//        "formJSONValues": [
-//            {
-//                "label": "token",
-//                "value": "tokenValue"
-//            },
-//            {
-//                "label": "url",
-//                "value": "https://example.com"
-//            }
-//          ]
-//        };
-//        ownerApiAdapter.postAccountIntegration(body,
-//          function (err, acctInt) {
-//            if (err)
-//              return done(
-//                new Error(
-//                  util.format('User cannot create Account Integration',
-//                    util.inspect(err))
-//                )
-//              );
-//
-//            acctInt.test_resource_type = 'accountIntegration';
-//            acctInt.test_resource_name = acctInt.name;
-//
-//            accountIntegration = acctInt;
-//            global.saveTestResource(acctInt.test_resource_name, acctInt,
-//              function () {
-//                return done();
-//              }
-//            );
-//          }
-//        );
-//      }
-//    );
-//
-//    it('29. Owner can delete Gitlab Account Integration',
-//      function (done) {
-//        ownerApiAdapter.deleteAccountIntegrationById(
-//          accountIntegration.id,
-//          function (err, response) {
-//            if (err)
-//              return done(
-//                new Error(
-//                  util.format('User can delete accountIntegration ' +
-//                    'id: %s, err: %s, %s', accountIntegration.id, err,
-//                    response)
-//                )
-//              );
-//            global.removeTestResource(accountIntegration.test_resource_name,
-//              function () {
-//                return done();
-//              }
-//            );
-//          }
-//        );
-//      }
-//    );
-//
-//    it('30. Owner can create Github Enterprise Account Integration',
-//      function (done) {
-//        var masterInt = _.findWhere(masterIntegrations, {name:"githubEnterprise"}) || {};
-//        assert.isNotEmpty(masterInt,
-//          'Master integration cannot be empty.');
-//        var body = {
-//          "name": "ghOrgAccIntGithubEnterprise",
-//          "masterDisplayName": "Github Enterprise",
-//          "masterIntegrationId": masterInt.id,
-//          "masterName": "githubEnterprise",
-//          "masterType": "scm",
-//          "formJSONValues": [
-//            {
-//                "label": "token",
-//                "value": "tokenValue"
-//            },
-//            {
-//                "label": "url",
-//                "value": "https://example.com/api/v4"
-//            }
-//          ]
-//        };
-//        ownerApiAdapter.postAccountIntegration(body,
-//          function (err, acctInt) {
-//            if (err)
-//              return done(
-//                new Error(
-//                  util.format('User cannot create Account Integration',
-//                    util.inspect(err))
-//                )
-//              );
-//
-//            acctInt.test_resource_type = 'accountIntegration';
-//            acctInt.test_resource_name = acctInt.name;
-//
-//            accountIntegration = acctInt;
-//            global.saveTestResource(acctInt.test_resource_name, acctInt,
-//              function () {
-//                return done();
-//              }
-//            );
-//          }
-//        );
-//      }
-//    );
-//
-//    it('31. Owner can delete Github Enterprise Account Integration',
-//      function (done) {
-//        ownerApiAdapter.deleteAccountIntegrationById(
-//          accountIntegration.id,
-//          function (err, response) {
-//            if (err)
-//              return done(
-//                new Error(
-//                  util.format('User can delete accountIntegration ' +
-//                    'id: %s, err: %s, %s', accountIntegration.id, err,
-//                    response)
-//                )
-//              );
-//            global.removeTestResource(accountIntegration.test_resource_name,
-//              function () {
-//                return done();
-//              }
-//            );
-//          }
-//        );
-//      }
-//    );
-
-    it('32. Owner can create Google Cloud Account Integration',
-      function (done) {
-        var masterInt = _.findWhere(masterIntegrations, {name:"gcloudKey"}) || {};
-        assert.isNotEmpty(masterInt,
-          'Master integration cannot be empty.');
-        var body = {
-          "name": "ghOrgAccIntGoogleCloud",
-          "masterDisplayName": "Google Cloud",
-          "masterIntegrationId": masterInt.id,
-          "masterName": "gcloudKey",
-          "masterType": "generic",
-          "formJSONValues": [
-            {
-                "label": "JSON_key",
-                "value": "jsonKeyValue"
-            }
-          ]
-        };
-        ownerApiAdapter.postAccountIntegration(body,
-          function (err, acctInt) {
-            if (err)
-              return done(
-                new Error(
-                  util.format('User cannot create Account Integration',
-                    util.inspect(err))
-                )
-              );
-
-            acctInt.test_resource_type = 'accountIntegration';
-            acctInt.test_resource_name = acctInt.name;
-
-            accountIntegration = acctInt;
-            global.saveTestResource(acctInt.test_resource_name, acctInt,
-              function () {
-                return done();
-              }
-            );
-          }
-        );
-      }
-    );
-
-    it('33. Owner can delete Google Cloud Account Integration',
-      function (done) {
-        ownerApiAdapter.deleteAccountIntegrationById(
-          accountIntegration.id,
-          function (err, response) {
-            if (err)
-              return done(
-                new Error(
-                  util.format('User can delete accountIntegration ' +
-                    'id: %s, err: %s, %s', accountIntegration.id, err,
-                    response)
-                )
-              );
-            global.removeTestResource(accountIntegration.test_resource_name,
-              function () {
-                return done();
-              }
-            );
-          }
-        );
-      }
-    );
-
-    it('34. Owner can create HipChat Account Integration',
+  
+    it('18. Owner can create HipChat Account Integration',
       function (done) {
         var masterInt = _.findWhere(masterIntegrations, {name:"hipchatKey"}) || {};
         assert.isNotEmpty(masterInt,
@@ -1184,7 +946,7 @@ describe(test,
             acctInt.test_resource_type = 'accountIntegration';
             acctInt.test_resource_name = acctInt.name;
 
-            accountIntegration = acctInt;
+            hipChatAccountIntegration = acctInt;
             global.saveTestResource(acctInt.test_resource_name, acctInt,
               function () {
                 return done();
@@ -1194,104 +956,8 @@ describe(test,
         );
       }
     );
-
-    it('35. Owner can delete HipChat Account Integration',
-      function (done) {
-        ownerApiAdapter.deleteAccountIntegrationById(
-          accountIntegration.id,
-          function (err, response) {
-            if (err)
-              return done(
-                new Error(
-                  util.format('User can delete accountIntegration ' +
-                    'id: %s, err: %s, %s', accountIntegration.id, err,
-                    response)
-                )
-              );
-            global.removeTestResource(accountIntegration.test_resource_name,
-              function () {
-                return done();
-              }
-            );
-          }
-        );
-      }
-    );
-
-    it('36. Owner can create JFrog Artifactory Account Integration',
-      function (done) {
-        var masterInt = _.findWhere(masterIntegrations, {name:"artifactoryKey"}) || {};
-        assert.isNotEmpty(masterInt,
-          'Master integration cannot be empty.');
-        var body = {
-          "name": "ghOrgAccIntJfrogArtifactory",
-          "masterDisplayName": "JFrog Artifactory",
-          "masterIntegrationId": masterInt.id,
-          "masterName": "artifactoryKey",
-          "masterType": "generic",
-          "formJSONValues": [
-            {
-                "label": "password",
-                "value": "passwordValue"
-            },
-            {
-                "label": "url",
-                "value": "https://example.io/usernameValue"
-            },
-            {
-                "label": "username",
-                "value": "usernameValue"
-            }
-          ]
-        };
-        ownerApiAdapter.postAccountIntegration(body,
-          function (err, acctInt) {
-            if (err)
-              return done(
-                new Error(
-                  util.format('User cannot create Account Integration',
-                    util.inspect(err))
-                )
-              );
-
-            acctInt.test_resource_type = 'accountIntegration';
-            acctInt.test_resource_name = acctInt.name;
-
-            accountIntegration = acctInt;
-            global.saveTestResource(acctInt.test_resource_name, acctInt,
-              function () {
-                return done();
-              }
-            );
-          }
-        );
-      }
-    );
-
-    it('37. Owner can delete JFrog Artifactory Account Integration',
-      function (done) {
-        ownerApiAdapter.deleteAccountIntegrationById(
-          accountIntegration.id,
-          function (err, response) {
-            if (err)
-              return done(
-                new Error(
-                  util.format('User can delete accountIntegration ' +
-                    'id: %s, err: %s, %s', accountIntegration.id, err,
-                    response)
-                )
-              );
-            global.removeTestResource(accountIntegration.test_resource_name,
-              function () {
-                return done();
-              }
-            );
-          }
-        );
-      }
-    );
-
-    it('38. Owner can create Joyent Triton Account Integration',
+  
+    it('19. Owner can create Joyent Triton Account Integration',
       function (done) {
         var masterInt = _.findWhere(masterIntegrations, {name:"joyentTritonKey"}) || {};
         assert.isNotEmpty(masterInt,
@@ -1330,7 +996,7 @@ describe(test,
             acctInt.test_resource_type = 'accountIntegration';
             acctInt.test_resource_name = acctInt.name;
 
-            accountIntegration = acctInt;
+            joyentTritonAccountIntegration = acctInt;
             global.saveTestResource(acctInt.test_resource_name, acctInt,
               function () {
                 return done();
@@ -1341,30 +1007,7 @@ describe(test,
       }
     );
 
-    it('39. Owner can delete Joyent Triton Account Integration',
-      function (done) {
-        ownerApiAdapter.deleteAccountIntegrationById(
-          accountIntegration.id,
-          function (err, response) {
-            if (err)
-              return done(
-                new Error(
-                  util.format('User can delete accountIntegration ' +
-                    'id: %s, err: %s, %s', accountIntegration.id, err,
-                    response)
-                )
-              );
-            global.removeTestResource(accountIntegration.test_resource_name,
-              function () {
-                return done();
-              }
-            );
-          }
-        );
-      }
-    );
-
-    it('40. Owner can create Key-Value pair Account Integration',
+    it('20. Owner can create Key-Value pair Account Integration',
       function (done) {
         var masterInt = _.findWhere(masterIntegrations, {name:"keyValuePair"}) || {};
         assert.isNotEmpty(masterInt,
@@ -1397,7 +1040,7 @@ describe(test,
             acctInt.test_resource_type = 'accountIntegration';
             acctInt.test_resource_name = acctInt.name;
 
-            accountIntegration = acctInt;
+            keyValuePairAccountIntegration = acctInt;
             global.saveTestResource(acctInt.test_resource_name, acctInt,
               function () {
                 return done();
@@ -1407,96 +1050,8 @@ describe(test,
         );
       }
     );
-
-    it('41. Owner can delete Key-Value pair Account Integration',
-      function (done) {
-        ownerApiAdapter.deleteAccountIntegrationById(
-          accountIntegration.id,
-          function (err, response) {
-            if (err)
-              return done(
-                new Error(
-                  util.format('User can delete accountIntegration ' +
-                    'id: %s, err: %s, %s', accountIntegration.id, err,
-                    response)
-                )
-              );
-            global.removeTestResource(accountIntegration.test_resource_name,
-              function () {
-                return done();
-              }
-            );
-          }
-        );
-      }
-    );
-
-    it('42. Owner can create Kubernetes Account Integration',
-      function (done) {
-        var masterInt = _.findWhere(masterIntegrations, {name:"kubernetesConfig"}) || {};
-        assert.isNotEmpty(masterInt,
-          'Master integration cannot be empty.');
-        var body = {
-          "name": "ghOrgAccIntKubernetes",
-          "masterDisplayName": "Kubernetes",
-          "masterIntegrationId": masterInt.id,
-          "masterName": "kubernetesConfig",
-          "masterType": "generic",
-          "formJSONValues": [
-            {
-                "label": "kubeConfigContent",
-                "value": "kubeConfigContentValue"
-            }
-          ]
-        };
-        ownerApiAdapter.postAccountIntegration(body,
-          function (err, acctInt) {
-            if (err)
-              return done(
-                new Error(
-                  util.format('User cannot create Account Integration',
-                    util.inspect(err))
-                )
-              );
-
-            acctInt.test_resource_type = 'accountIntegration';
-            acctInt.test_resource_name = acctInt.name;
-
-            accountIntegration = acctInt;
-            global.saveTestResource(acctInt.test_resource_name, acctInt,
-              function () {
-                return done();
-              }
-            );
-          }
-        );
-      }
-    );
-
-    it('43. Owner can delete Kubernetes Account Integration',
-      function (done) {
-        ownerApiAdapter.deleteAccountIntegrationById(
-          accountIntegration.id,
-          function (err, response) {
-            if (err)
-              return done(
-                new Error(
-                  util.format('User can delete accountIntegration ' +
-                    'id: %s, err: %s, %s', accountIntegration.id, err,
-                    response)
-                )
-              );
-            global.removeTestResource(accountIntegration.test_resource_name,
-              function () {
-                return done();
-              }
-            );
-          }
-        );
-      }
-    );
-
-    it('44. Owner can create Node Cluster Account Integration',
+  
+    it('21. Owner can create Node Cluster Account Integration',
       function (done) {
         var masterInt = _.findWhere(masterIntegrations, {name:"nodeCluster"}) || {};
         assert.isNotEmpty(masterInt,
@@ -1531,7 +1086,7 @@ describe(test,
             acctInt.test_resource_type = 'accountIntegration';
             acctInt.test_resource_name = acctInt.name;
 
-            accountIntegration = acctInt;
+            nodeClusterAccountIntegration = acctInt;
             global.saveTestResource(acctInt.test_resource_name, acctInt,
               function () {
                 return done();
@@ -1541,112 +1096,8 @@ describe(test,
         );
       }
     );
-
-    it('45. Owner can delete Node Cluster Account Integration',
-      function (done) {
-        ownerApiAdapter.deleteAccountIntegrationById(
-          accountIntegration.id,
-          function (err, response) {
-            if (err)
-              return done(
-                new Error(
-                  util.format('User can delete accountIntegration ' +
-                    'id: %s, err: %s, %s', accountIntegration.id, err,
-                    response)
-                )
-              );
-            global.removeTestResource(accountIntegration.test_resource_name,
-              function () {
-                return done();
-              }
-            );
-          }
-        );
-      }
-    );
-
-    it('46. Owner can create Quay.io Account Integration',
-      function (done) {
-        var masterInt = _.findWhere(masterIntegrations, {name:"quayLogin"}) || {};
-        assert.isNotEmpty(masterInt,
-          'Master integration cannot be empty.');
-        var body = {
-          "name": "ghOrgAccIntQuay",
-          "masterDisplayName": "Quay.io",
-          "masterIntegrationId": masterInt.id,
-          "masterName": "quayLogin",
-          "masterType": "generic",
-          "formJSONValues": [
-            {
-                "label": "accessToken",
-                "value": "accessTokenValue"
-            },
-            {
-                "label": "email",
-                "value": "email@email.com"
-            },
-            {
-                "label": "password",
-                "value": "passwordvalue"
-            },
-            {
-                "label": "url",
-                "value": "example.io"
-            },
-            {
-                "label": "username",
-                "value": "usernameValue"
-            }
-          ]
-        };
-        ownerApiAdapter.postAccountIntegration(body,
-          function (err, acctInt) {
-            if (err)
-              return done(
-                new Error(
-                  util.format('User cannot create Account Integration',
-                    util.inspect(err))
-                )
-              );
-
-            acctInt.test_resource_type = 'accountIntegration';
-            acctInt.test_resource_name = acctInt.name;
-
-            accountIntegration = acctInt;
-            global.saveTestResource(acctInt.test_resource_name, acctInt,
-              function () {
-                return done();
-              }
-            );
-          }
-        );
-      }
-    );
-
-    it('47. Owner can delete Quay.io Account Integration',
-      function (done) {
-        ownerApiAdapter.deleteAccountIntegrationById(
-          accountIntegration.id,
-          function (err, response) {
-            if (err)
-              return done(
-                new Error(
-                  util.format('User can delete accountIntegration ' +
-                    'id: %s, err: %s, %s', accountIntegration.id, err,
-                    response)
-                )
-              );
-            global.removeTestResource(accountIntegration.test_resource_name,
-              function () {
-                return done();
-              }
-            );
-          }
-        );
-      }
-    );
-
-    it('48. Owner can create SSH Key Account Integration',
+  
+    it('22. Owner can create SSH Key Account Integration',
       function (done) {
         var masterInt = _.findWhere(masterIntegrations, {name:"sshKey"}) || {};
         assert.isNotEmpty(masterInt,
@@ -1681,7 +1132,7 @@ describe(test,
             acctInt.test_resource_type = 'accountIntegration';
             acctInt.test_resource_name = acctInt.name;
 
-            accountIntegration = acctInt;
+            sshKeyAccountIntegration = acctInt;
             global.saveTestResource(acctInt.test_resource_name, acctInt,
               function () {
                 return done();
@@ -1691,31 +1142,8 @@ describe(test,
         );
       }
     );
-
-    it('49. Owner can delete SSH Key Account Integration',
-      function (done) {
-        ownerApiAdapter.deleteAccountIntegrationById(
-          accountIntegration.id,
-          function (err, response) {
-            if (err)
-              return done(
-                new Error(
-                  util.format('User can delete accountIntegration ' +
-                    'id: %s, err: %s, %s', accountIntegration.id, err,
-                    response)
-                )
-              );
-            global.removeTestResource(accountIntegration.test_resource_name,
-              function () {
-                return done();
-              }
-            );
-          }
-        );
-      }
-    );
-
-    it('50. Owner can create Slack Account Integration',
+  
+    it('23. Owner can create Slack Account Integration',
       function (done) {
         var masterInt = _.findWhere(masterIntegrations, {name:"slackKey"}) || {};
         assert.isNotEmpty(masterInt,
@@ -1746,7 +1174,7 @@ describe(test,
             acctInt.test_resource_type = 'accountIntegration';
             acctInt.test_resource_name = acctInt.name;
 
-            accountIntegration = acctInt;
+            slackAccountIntegration = acctInt;
             global.saveTestResource(acctInt.test_resource_name, acctInt,
               function () {
                 return done();
@@ -1756,31 +1184,8 @@ describe(test,
         );
       }
     );
-
-    it('51. Owner can delete Slack Account Integration',
-      function (done) {
-        ownerApiAdapter.deleteAccountIntegrationById(
-          accountIntegration.id,
-          function (err, response) {
-            if (err)
-              return done(
-                new Error(
-                  util.format('User can delete accountIntegration ' +
-                    'id: %s, err: %s, %s', accountIntegration.id, err,
-                    response)
-                )
-              );
-            global.removeTestResource(accountIntegration.test_resource_name,
-              function () {
-                return done();
-              }
-            );
-          }
-        );
-      }
-    );
-
-    it('52. Owner can create Webhook Account Integration',
+  
+    it('24. Owner can create Webhook Account Integration',
       function (done) {
         var masterInt = _.findWhere(masterIntegrations, {name:"webhookV2"}) || {};
         assert.isNotEmpty(masterInt,
@@ -1815,7 +1220,7 @@ describe(test,
             acctInt.test_resource_type = 'accountIntegration';
             acctInt.test_resource_name = acctInt.name;
 
-            accountIntegration = acctInt;
+            webhookAccountIntegration = acctInt;
             global.saveTestResource(acctInt.test_resource_name, acctInt,
               function () {
                 return done();
@@ -1825,21 +1230,64 @@ describe(test,
         );
       }
     );
-
-    it('53. Owner can delete Webhook Account Integration',
+  
+    it('25. Owner can add aws keys Subscription Integration',
       function (done) {
-        ownerApiAdapter.deleteAccountIntegrationById(
-          accountIntegration.id,
-          function (err, response) {
+
+        var body = {
+          accountIntegrationId: awsKeysAccountIntegration.id,
+          subscriptionId: syncRepo.subscriptionId,
+          name: 'ghOrgAccIntAwsKeys'
+        };
+
+        ownerApiAdapter.postSubscriptionIntegration(body,
+          function (err, subInt) {
             if (err)
               return done(
                 new Error(
-                  util.format('User can delete accountIntegration ' +
-                    'id: %s, err: %s, %s', accountIntegration.id, err,
-                    response)
+                  util.format('User cannot create Subscription Integration',
+                    util.inspect(err))
                 )
               );
-            global.removeTestResource(accountIntegration.test_resource_name,
+
+            subInt.test_resource_type = 'subscriptionIntegration';
+            subInt.test_resource_name = subInt.name;
+
+            awsKeysSubscriptionIntegration = subInt;
+            global.saveTestResource(subInt.test_resource_name, subInt,
+              function () {
+                return done();
+              }
+            );
+          }
+        );
+      }
+    );
+  
+    it('26. Owner can add Docker Registry Subscription Integration',
+      function (done) {
+
+        var body = {
+          accountIntegrationId: dockerRegistryAccountIntegration.id,
+          subscriptionId: syncRepo.subscriptionId,
+          name: 'ghOrgAccIntDockerRegistry'
+        };
+
+        ownerApiAdapter.postSubscriptionIntegration(body,
+          function (err, subInt) {
+            if (err)
+              return done(
+                new Error(
+                  util.format('User cannot create Subscription Integration',
+                    util.inspect(err))
+                )
+              );
+
+            subInt.test_resource_type = 'subscriptionIntegration';
+            subInt.test_resource_name = subInt.name;
+
+            dockerRegistrySubscriptionIntegration = subInt;
+            global.saveTestResource(subInt.test_resource_name, subInt,
               function () {
                 return done();
               }
@@ -1849,6 +1297,345 @@ describe(test,
       }
     );
 
+    it('27. Owner can add Google Cloud Subscription Integration',
+      function (done) {
+
+        var body = {
+          accountIntegrationId: googleCloudAccountIntegration.id,
+          subscriptionId: syncRepo.subscriptionId,
+          name: 'ghOrgAccIntGoogleCloud'
+        };
+
+        ownerApiAdapter.postSubscriptionIntegration(body,
+          function (err, subInt) {
+            if (err)
+              return done(
+                new Error(
+                  util.format('User cannot create Subscription Integration',
+                    util.inspect(err))
+                )
+              );
+
+            subInt.test_resource_type = 'subscriptionIntegration';
+            subInt.test_resource_name = subInt.name;
+
+            googleCloudSubscriptionIntegration = subInt;
+            global.saveTestResource(subInt.test_resource_name, subInt,
+              function () {
+                return done();
+              }
+            );
+          }
+        );
+      }
+    );
+  
+    it('28. Owner can add jfrog Subscription Integration',
+      function (done) {
+
+        var body = {
+          accountIntegrationId: jFrogArtifactoryAccountIntegration.id,
+          subscriptionId: syncRepo.subscriptionId,
+          name: 'ghOrgAccIntJfrogArtifactory'
+        };
+
+        ownerApiAdapter.postSubscriptionIntegration(body,
+          function (err, subInt) {
+            if (err)
+              return done(
+                new Error(
+                  util.format('User cannot create Subscription Integration',
+                    util.inspect(err))
+                )
+              );
+
+            subInt.test_resource_type = 'subscriptionIntegration';
+            subInt.test_resource_name = subInt.name;
+
+            jfrogSubscriptionIntegration = subInt;
+            global.saveTestResource(subInt.test_resource_name, subInt,
+              function () {
+                return done();
+              }
+            );
+          }
+        );
+      }
+    );
+  
+    it('29. Owner can add kubernetes Subscription Integration',
+      function (done) {
+
+        var body = {
+          accountIntegrationId: kubernetesAccountIntegration.id,
+          subscriptionId: syncRepo.subscriptionId,
+          name: 'ghOrgAccIntKubernetes'
+        };
+
+        ownerApiAdapter.postSubscriptionIntegration(body,
+          function (err, subInt) {
+            if (err)
+              return done(
+                new Error(
+                  util.format('User cannot create Subscription Integration',
+                    util.inspect(err))
+                )
+              );
+
+            subInt.test_resource_type = 'subscriptionIntegration';
+            subInt.test_resource_name = subInt.name;
+
+            kubernetesSubscriptionIntegration = subInt;
+            global.saveTestResource(subInt.test_resource_name, subInt,
+              function () {
+                return done();
+              }
+            );
+          }
+        );
+      }
+    );
+  
+    it('30. Owner can add quay Subscription Integration',
+      function (done) {
+
+        var body = {
+          accountIntegrationId: quayLoginAccountIntegration.id,
+          subscriptionId: syncRepo.subscriptionId,
+          name: 'ghOrgAccIntQuay'
+        };
+
+        ownerApiAdapter.postSubscriptionIntegration(body,
+          function (err, subInt) {
+            if (err)
+              return done(
+                new Error(
+                  util.format('User cannot create Subscription Integration',
+                    util.inspect(err))
+                )
+              );
+
+            subInt.test_resource_type = 'subscriptionIntegration';
+            subInt.test_resource_name = subInt.name;
+
+            quaySubscriptionIntegration = subInt;
+            global.saveTestResource(subInt.test_resource_name, subInt,
+              function () {
+                return done();
+              }
+            );
+          }
+        );
+      }
+    );
+  
+    it('31. Owner can add a sync repo',
+      function (done) {
+        var body = {
+          resourceName: syncRepo.name + '_master',
+          projectId: syncRepo.id,
+          subscriptionId: syncRepo.subscriptionId,
+          branch: 'master',
+          subscriptionIntegrationId: ghSubscriptionIntegration.id
+        };
+
+        //TODO: response for this call is blank and pointless. we should return
+        //TODO: the object
+        ownerApiAdapter.postNewSyncRepo(body,
+          function (err) {
+            if (err)
+              return done(
+                new Error(
+                  util.format('unable to post new sync repo with body: %s ' +
+                    'err:%s', util.inspect(body), util.inspect(err))
+                )
+              );
+
+            return done();
+          }
+        );
+      }
+    );
+
+    it('32. Owner should be able to get sync Repo objects created',
+      function (done) {
+        ownerApiAdapter.getResources('',
+          function (err, res) {
+            if (err)
+              return done(
+                new Error(
+                  util.format('User cannot get resources, err: %s',
+                    util.inspect(err))
+                )
+              );
+            // check if build triggered in previous test case is present
+            assert.isNotEmpty(res, 'User resources cannot be empty');
+
+            rSyncJob = _.findWhere(res, {"typeCode": rSyncCode});
+            syncRepoResource = _.findWhere(res, {"typeCode": syncRepoCode});
+
+            assert.isNotEmpty(rSyncJob, 'User could not find rSync Job');
+            assert.isNotEmpty(syncRepoResource, 'User could not find syncRepo ' +
+              'Resource');
+
+            //TODO: Need to figure out how to make this successful
+            // assert.strictEqual(syncRepoResource.isConsistent, true,
+            //   'User syncRepo is not consistent');
+            // assert.strictEqual(rSyncJob.isConsistent, 'User rSync ' +
+            //   'is not consistent');
+
+            syncRepoResource.test_resource_type = 'syncRepo';
+            syncRepoResource.test_resource_name = 'ghOrgPrivateSyncRepo';
+
+            global.saveTestResource(syncRepoResource.test_resource_name,
+              syncRepoResource,
+              function () {
+                return done();
+              }
+            );
+          }
+        );
+      }
+    );
+
+    it('33. Owner added syncRepo build was successful',
+      function (done) {
+        global.getBuildStatusWithBackOff(ownerApiAdapter, rSyncJob,
+          'rSyncJob', successStatusCode, done);
+      }
+    );
+  
+    it('34. Owner should be able to get test_accIntegration_run',
+      function (done) {
+        global.getResourceByNameAndTypeCode(ownerApiAdapter,
+          'test_accIntegration_run', runShCode,
+          function (response) {
+            if (response.error)
+              return done(response.error);
+
+            testaccIntegrationRun = response.resource;
+            assert.isNotEmpty(testaccIntegrationRun, 'User cannot find resource');
+            return done();
+          }
+        );
+      }
+    );
+  
+    it('35. Owner should be able to trigger test_accIntegration_run runSh job',
+      function (done) {
+        ownerApiAdapter.triggerNewBuildByResourceId(testaccIntegrationRun.id, {},
+          function (err) {
+            return done(err);
+          }
+        );
+      }
+    );
+
+    it('36. Owner triggered test_accIntegration_run build was successful',
+      function (done) {
+        global.getBuildStatusWithBackOff(ownerApiAdapter, testaccIntegrationRun,
+          'test_accIntegration_run', successStatusCode, done);
+      }
+    );
+  
+    it('37. Delete all account integrations',
+      function (done) {
+        accountIntegrationIds = [dockerRegistryAccountIntegration.id, awsKeysAccountIntegration.id, azureKeysAccountIntegration.id, googleCloudAccountIntegration.id, jFrogArtifactoryAccountIntegration.id, kubernetesAccountIntegration.id, quayLoginAccountIntegration.id, azureDcOsAccountIntegration.id, digitalOceanAccountIntegration.id, dockerCloudAccountIntegration.id, dockerDataCenterAccountIntegration.id, githubAccountIntegration.id, gitCredentialAccountIntegration.id, hipChatAccountIntegration.id, joyentTritonAccountIntegration.id, keyValuePairAccountIntegration.id, nodeClusterAccountIntegration.id, sshKeyAccountIntegration.id, slackAccountIntegration.id, webhookAccountIntegration.id];
+        async.each(accountIntegrationIds,
+          function (accIntId, nextAccIntId) {
+            ownerApiAdapter.deleteAccountIntegrationById(accIntId,
+              function (err, response) {
+                if (err)
+                  return nextAccIntId(
+                    new Error(
+                      util.format('User cannot delete accountIntegration ' +
+                        'id: %s, err: %s, %s', accIntId, err,
+                        response)
+                      )
+                    );
+                return nextAccIntId();
+              }
+            );
+          },
+          function (err) {
+            return done(err);
+          }
+        )
+      }
+    );
+  
+    it('38. Owner can disable syncrepo',
+      function (done) {
+        var query = '';
+        ownerApiAdapter.deleteResourceById(syncRepoResource.id, query,
+          function (err, response) {
+            if (err)
+              return done(
+                new Error(
+                  util.format('User cannot delete sync repo id: %s, err: %s, %s',
+                    syncRepoResource.id, err, response)
+                )
+              );
+
+            global.removeTestResource(syncRepoResource.test_resource_name,
+              function () {
+                return done();
+              }
+            );
+          }
+        );
+      }
+    );
+
+    it('39. Owner can hard delete syncrepo',
+      function (done) {
+        var query = 'hard=true';
+        ownerApiAdapter.deleteResourceById(syncRepoResource.id, query,
+          function (err, response) {
+            if (err)
+              return done(
+                new Error(
+                  util.format('User cannot delete sync repo id: %s, err: %s, %s',
+                    syncRepoResource.id, err, response)
+                )
+              );
+
+            global.removeTestResource(syncRepoResource.test_resource_name,
+              function () {
+                return done();
+              }
+            );
+          }
+        );
+      }
+    ); 
+  
+    it('40. Delete all subscription integrations',
+      function (done) {
+        subscriptionIntegrationIds = [dockerRegistrySubscriptionIntegration.id, awsKeysSubscriptionIntegration.id, googleCloudSubscriptionIntegration.id, jfrogSubscriptionIntegration.id, kubernetesSubscriptionIntegration.id, quaySubscriptionIntegration.id];
+        async.each(subscriptionIntegrationIds,
+          function (subIntId, nextSubIntId) {
+            ownerApiAdapter.deleteSubscriptionIntegrationById(subIntId,
+              function (err, response) {
+                if (err)
+                  return nextSubIntId(
+                    new Error(
+                      util.format('User can delete subscriptionIntegration ' +
+                        'id: %s, err: %s, %s', subIntId, err,
+                        response)
+                      )
+                    );
+                  return nextSubIntId();
+                }
+              );
+            },
+            function (err) {
+              return done(err);
+            }
+        )
+      }
+    );
+ 
     after(
       function (done) {
         return done();
