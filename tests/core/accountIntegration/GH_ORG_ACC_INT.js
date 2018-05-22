@@ -30,6 +30,7 @@ describe(test,
     var awsKeysAccountIntegration = null;
     var dockerRegistryAccountIntegration = null;
     var gclAccountIntegration = null;
+    var gitlabAccountIntegration = null;
     var jfrogAccountIntegration = null;
     var joyentTritonAccountIntegration = null;
     var kubernetesAccountIntegration = null;
@@ -435,55 +436,55 @@ describe(test,
       }
     );
        
-//    it("8. Owner can create AWS IAM Account Integration',
-//      function (done) {
-//        var masterInt = _.findWhere(masterIntegrations, {name:"amazonIamRole"}) || {};
-//        assert.isNotEmpty(masterInt,
-//          'Master integration cannot be empty.');
-//        var body = {
-//          "name": "ghOrgAccIntAwsIam",
-//          "masterDisplayName": "AWS IAM",
-//          "masterIntegrationId": masterInt.id,
-//          "masterName": "amazonIamRole",
-//          "masterType": "generic",
-//          "formJSONValues": [
-//             {
-//                "label": "assumeRoleARN",
-//                "value": "assumeRoleArnValue"
-//             },
-//             {
-//                "label": "output",
-//                "value": "text"
-//             },
-//             {
-//                "label": "url",
-//                "value": "https://api.example.com"
-//             }
-//          ]
-//        };
-//        ownerApiAdapter.postAccountIntegration(body,
-//          function (err, acctInt) {
-//            if (err)
-//              return done(
-//                new Error(
-//                  util.format('User cannot create Account Integration',
-//                    util.inspect(err))
-//                )
-//              );
-//
-//            acctInt.test_resource_type = 'accountIntegration';
-//            acctInt.test_resource_name = acctInt.name;
-//
-//            awsIamAccountIntegration = acctInt;
-//            global.saveTestResource(acctInt.test_resource_name, acctInt,
-//              function () {
-//                return done();
-//              }
-//            );
-//          }
-//        );
-//      }
-//    );
+    it('8. Owner can create AWS IAM Account Integration',
+      function (done) {
+        var masterInt = _.findWhere(masterIntegrations, {name:"amazonIamRole"}) || {};
+        assert.isNotEmpty(masterInt,
+          'Master integration cannot be empty.');
+        var body = {
+          "name": "ghOrgAccIntAwsIam",
+          "masterDisplayName": "AWS IAM",
+          "masterIntegrationId": masterInt.id,
+          "masterName": "amazonIamRole",
+          "masterType": "generic",
+          "formJSONValues": [
+             {
+                "label": "assumeRoleARN",
+                "value": "assumeRoleArnValue"
+             },
+             {
+                "label": "output",
+                "value": "text"
+             },
+             {
+                "label": "url",
+                "value": "https://api.example.com"
+             }
+          ]
+        };
+        ownerApiAdapter.postAccountIntegration(body,
+          function (err, acctInt) {
+            if (err)
+              return done(
+                new Error(
+                  util.format('User cannot create Account Integration',
+                    util.inspect(err))
+                )
+              );
+
+            acctInt.test_resource_type = 'accountIntegration';
+            acctInt.test_resource_name = acctInt.name;
+
+            awsIamAccountIntegration = acctInt;
+            global.saveTestResource(acctInt.test_resource_name, acctInt,
+              function () {
+                return done();
+              }
+            );
+          }
+        );
+      }
+    );
    
     it('9. Owner can create Azure DC/OS Keys Account Integration',
       function (done) {
@@ -581,51 +582,54 @@ describe(test,
       }
     );
   
-//    it('11. Owner can create Bitbucket Account Integration',
-//      function (done) {
-//        var masterInt = _.findWhere(masterIntegrations, {name:"bitbucket", type:"scm"}) || {};
-//        assert.isNotEmpty(masterInt,
-//          'Master integration cannot be empty.');
-//        var body = {
-//          "name": "ghOrgAccIntBitbucket",
-//          "masterDisplayName": "BitBucket",
-//          "masterIntegrationId": masterInt.id,
-//          "masterName": "bitbucket",
-//          "masterType": "scm",
-//          "formJSONValues": [
-//            {
-//                "label": "token",
-//                "value": "tokenValue"
-//            },
-//            {
-//                "label": "url",
-//                "value": "https://example.org"
-//            }
-//          ]
-//        };
-//        ownerApiAdapter.postAccountIntegration(body,
-//          function (err, acctInt) {
-//            if (err)
-//              return done(
-//                new Error(
-//                  util.format('User cannot create Account Integration',
-//                    util.inspect(err))
-//                )
-//              );
-//
-//            acctInt.test_resource_type = 'accountIntegration';
-//            acctInt.test_resource_name = acctInt.name;
-//
-//            bitbucketAccountIntegration = acctInt;
-//            global.saveTestResource(acctInt.test_resource_name, acctInt,
-//              function () {
-//                return done();
-//              }
-//            );
-//          }
-//        );
-//      }
-//    );
+    it('11. Owner can create Bitbucket Account Integration',
+      function (done) {
+        var masterInt = _.findWhere(masterIntegrations, {name:"bitbucket", type:"scm"}) || {};
+        assert.isNotEmpty(masterInt,
+          'Master integration cannot be empty.');
+        var body = {
+          "name": "ghOrgAccIntBitbucket",
+          "masterDisplayName": "BitBucket",
+          "masterIntegrationId": masterInt.id,
+          "masterName": "bitbucket",
+          "masterType": "scm",
+          "formJSONValues": [
+            {
+                "label": "token",
+                "value": "tokenValue"
+            },
+            {
+                "label": "url",
+                "value": "https://example.org"
+            }
+          ]
+        };
+        ownerApiAdapter.postAccountIntegration(body,
+          function (err, acctInt) {
+            if (err)
+              return done(
+                new Error(
+                  util.format('User cannot create Account Integration',
+                    util.inspect(err))
+                )
+              );
+
+            acctInt.test_resource_type = 'accountIntegration';
+            acctInt.test_resource_name = acctInt.name;
+
+            bitbucketAccountIntegration = acctInt;
+            console.log('bitbucketAccountIntegration', bitbucketAccountIntegration);
+            console.log('bitbucketAccountIntegration Id', bitbucketAccountIntegration.id);
+
+            global.saveTestResource(acctInt.test_resource_name, acctInt,
+              function () {
+                return done();
+              }
+            );
+          }
+        );
+      }
+    );
     
     it('12. Owner can create Digital Ocean Account Integration',
       function (done) {
@@ -915,7 +919,53 @@ describe(test,
       }
     );
   
-    it('18. Owner can create HipChat Account Integration',
+    it('18. Owner can create Gitlab Account Integration',
+      function (done) {
+        var masterInt = _.findWhere(masterIntegrations, {name:"gitlab"}) || {};
+        assert.isNotEmpty(masterInt,
+          'Master integration cannot be empty.');
+        var body = {
+        "name": "ghOrgAccIntGitlab",
+        "masterDisplayName": "GitLab",
+        "masterIntegrationId": masterInt.id,
+        "masterName": "gitlab",
+        "masterType": "scm",
+        "formJSONValues": [
+            {
+                "label": "token",
+                "value": "tokenValue"
+            },
+            {
+                "label": "url",
+                "value": "https://example.com"
+            }
+          ]
+        };
+        ownerApiAdapter.postAccountIntegration(body,
+          function (err, acctInt) {
+            if (err)
+              return done(
+                new Error(
+                  util.format('User cannot create Account Integration',
+                    util.inspect(err))
+                )
+              );
+
+            acctInt.test_resource_type = 'accountIntegration';
+            acctInt.test_resource_name = acctInt.name;
+
+            gitlabAccountIntegration = acctInt;
+            global.saveTestResource(acctInt.test_resource_name, acctInt,
+              function () {
+                return done();
+              }
+            );
+          }
+        );
+      }
+    );
+
+    it('19. Owner can create HipChat Account Integration',
       function (done) {
         var masterInt = _.findWhere(masterIntegrations, {name:"hipchatKey"}) || {};
         assert.isNotEmpty(masterInt,
@@ -957,7 +1007,7 @@ describe(test,
       }
     );
   
-    it('19. Owner can create Joyent Triton Account Integration',
+    it('20. Owner can create Joyent Triton Account Integration',
       function (done) {
         var masterInt = _.findWhere(masterIntegrations, {name:"joyentTritonKey"}) || {};
         assert.isNotEmpty(masterInt,
@@ -1007,7 +1057,7 @@ describe(test,
       }
     );
 
-    it('20. Owner can create Key-Value pair Account Integration',
+    it('21. Owner can create Key-Value pair Account Integration',
       function (done) {
         var masterInt = _.findWhere(masterIntegrations, {name:"keyValuePair"}) || {};
         assert.isNotEmpty(masterInt,
@@ -1051,7 +1101,7 @@ describe(test,
       }
     );
   
-    it('21. Owner can create Node Cluster Account Integration',
+    it('22. Owner can create Node Cluster Account Integration',
       function (done) {
         var masterInt = _.findWhere(masterIntegrations, {name:"nodeCluster"}) || {};
         assert.isNotEmpty(masterInt,
@@ -1097,7 +1147,7 @@ describe(test,
       }
     );
   
-    it('22. Owner can create SSH Key Account Integration',
+    it('23. Owner can create SSH Key Account Integration',
       function (done) {
         var masterInt = _.findWhere(masterIntegrations, {name:"sshKey"}) || {};
         assert.isNotEmpty(masterInt,
@@ -1143,7 +1193,7 @@ describe(test,
       }
     );
   
-    it('23. Owner can create Slack Account Integration',
+    it('24. Owner can create Slack Account Integration',
       function (done) {
         var masterInt = _.findWhere(masterIntegrations, {name:"slackKey"}) || {};
         assert.isNotEmpty(masterInt,
@@ -1185,7 +1235,7 @@ describe(test,
       }
     );
   
-    it('24. Owner can create Webhook Account Integration',
+    it('25. Owner can create Webhook Account Integration',
       function (done) {
         var masterInt = _.findWhere(masterIntegrations, {name:"webhookV2"}) || {};
         assert.isNotEmpty(masterInt,
@@ -1231,7 +1281,7 @@ describe(test,
       }
     );
   
-    it('25. Owner can add aws keys Subscription Integration',
+    it('26. Owner can add aws keys Subscription Integration',
       function (done) {
 
         var body = {
@@ -1264,7 +1314,7 @@ describe(test,
       }
     );
   
-    it('26. Owner can add Docker Registry Subscription Integration',
+    it('27. Owner can add Docker Registry Subscription Integration',
       function (done) {
 
         var body = {
@@ -1297,7 +1347,7 @@ describe(test,
       }
     );
 
-    it('27. Owner can add Google Cloud Subscription Integration',
+    it('28. Owner can add Google Cloud Subscription Integration',
       function (done) {
 
         var body = {
@@ -1330,7 +1380,7 @@ describe(test,
       }
     );
   
-    it('28. Owner can add jfrog Subscription Integration',
+    it('29. Owner can add jfrog Subscription Integration',
       function (done) {
 
         var body = {
@@ -1363,7 +1413,7 @@ describe(test,
       }
     );
   
-    it('29. Owner can add kubernetes Subscription Integration',
+    it('30. Owner can add kubernetes Subscription Integration',
       function (done) {
 
         var body = {
@@ -1396,7 +1446,7 @@ describe(test,
       }
     );
   
-    it('30. Owner can add quay Subscription Integration',
+    it('31. Owner can add quay Subscription Integration',
       function (done) {
 
         var body = {
@@ -1429,7 +1479,7 @@ describe(test,
       }
     );
   
-    it('31. Owner can add a sync repo',
+    it('32. Owner can add a sync repo',
       function (done) {
         var body = {
           resourceName: syncRepo.name + '_master',
@@ -1457,7 +1507,7 @@ describe(test,
       }
     );
 
-    it('32. Owner should be able to get sync Repo objects created',
+    it('33. Owner should be able to get sync Repo objects created',
       function (done) {
         ownerApiAdapter.getResources('',
           function (err, res) {
@@ -1468,7 +1518,7 @@ describe(test,
                     util.inspect(err))
                 )
               );
-            // check if build triggered in previous test case is present
+
             assert.isNotEmpty(res, 'User resources cannot be empty');
 
             rSyncJob = _.findWhere(res, {"typeCode": rSyncCode});
@@ -1477,12 +1527,6 @@ describe(test,
             assert.isNotEmpty(rSyncJob, 'User could not find rSync Job');
             assert.isNotEmpty(syncRepoResource, 'User could not find syncRepo ' +
               'Resource');
-
-            //TODO: Need to figure out how to make this successful
-            // assert.strictEqual(syncRepoResource.isConsistent, true,
-            //   'User syncRepo is not consistent');
-            // assert.strictEqual(rSyncJob.isConsistent, 'User rSync ' +
-            //   'is not consistent');
 
             syncRepoResource.test_resource_type = 'syncRepo';
             syncRepoResource.test_resource_name = 'ghOrgPrivateSyncRepo';
@@ -1498,14 +1542,14 @@ describe(test,
       }
     );
 
-    it('33. Owner added syncRepo build was successful',
+    it('34. Owner added syncRepo build was successful',
       function (done) {
         global.getBuildStatusWithBackOff(ownerApiAdapter, rSyncJob,
           'rSyncJob', successStatusCode, done);
       }
     );
   
-    it('34. Owner should be able to get test_accIntegration_run',
+    it('35. Owner should be able to get test_accIntegration_run',
       function (done) {
         global.getResourceByNameAndTypeCode(ownerApiAdapter,
           'test_accIntegration_run', runShCode,
@@ -1521,7 +1565,7 @@ describe(test,
       }
     );
   
-    it('35. Owner should be able to trigger test_accIntegration_run runSh job',
+    it('36. Owner should be able to trigger test_accIntegration_run runSh job',
       function (done) {
         ownerApiAdapter.triggerNewBuildByResourceId(testaccIntegrationRun.id, {},
           function (err) {
@@ -1531,16 +1575,16 @@ describe(test,
       }
     );
 
-    it('36. Owner triggered test_accIntegration_run build was successful',
+    it('37. Owner triggered test_accIntegration_run build was successful',
       function (done) {
         global.getBuildStatusWithBackOff(ownerApiAdapter, testaccIntegrationRun,
           'test_accIntegration_run', successStatusCode, done);
       }
     );
   
-    it('37. Delete all account integrations',
+    it('38. Delete all account integrations',
       function (done) {
-        accountIntegrationIds = [dockerRegistryAccountIntegration.id, awsKeysAccountIntegration.id, azureKeysAccountIntegration.id, googleCloudAccountIntegration.id, jFrogArtifactoryAccountIntegration.id, kubernetesAccountIntegration.id, quayLoginAccountIntegration.id, azureDcOsAccountIntegration.id, digitalOceanAccountIntegration.id, dockerCloudAccountIntegration.id, dockerDataCenterAccountIntegration.id, githubAccountIntegration.id, gitCredentialAccountIntegration.id, hipChatAccountIntegration.id, joyentTritonAccountIntegration.id, keyValuePairAccountIntegration.id, nodeClusterAccountIntegration.id, sshKeyAccountIntegration.id, slackAccountIntegration.id, webhookAccountIntegration.id];
+        accountIntegrationIds = [dockerRegistryAccountIntegration.id, awsKeysAccountIntegration.id, azureKeysAccountIntegration.id, bitbucketAccountIntegration.id, googleCloudAccountIntegration.id, awsIamAccountIntegration.id, jFrogArtifactoryAccountIntegration.id, kubernetesAccountIntegration.id, quayLoginAccountIntegration.id, azureDcOsAccountIntegration.id, digitalOceanAccountIntegration.id, dockerCloudAccountIntegration.id, dockerDataCenterAccountIntegration.id, githubAccountIntegration.id, gitCredentialAccountIntegration.id, gitlabAccountIntegration.id, hipChatAccountIntegration.id, joyentTritonAccountIntegration.id, keyValuePairAccountIntegration.id, nodeClusterAccountIntegration.id, sshKeyAccountIntegration.id, slackAccountIntegration.id, webhookAccountIntegration.id];
         async.each(accountIntegrationIds,
           function (accIntId, nextAccIntId) {
             ownerApiAdapter.deleteAccountIntegrationById(accIntId,
@@ -1564,7 +1608,7 @@ describe(test,
       }
     );
   
-    it('38. Owner can disable syncrepo',
+    it('39. Owner can disable syncrepo',
       function (done) {
         var query = '';
         ownerApiAdapter.deleteResourceById(syncRepoResource.id, query,
@@ -1587,7 +1631,7 @@ describe(test,
       }
     );
 
-    it('39. Owner can hard delete syncrepo',
+    it('40. Owner can hard delete syncrepo',
       function (done) {
         var query = 'hard=true';
         ownerApiAdapter.deleteResourceById(syncRepoResource.id, query,
@@ -1610,7 +1654,7 @@ describe(test,
       }
     ); 
   
-    it('40. Delete all subscription integrations',
+    it('41. Delete all subscription integrations',
       function (done) {
         subscriptionIntegrationIds = [dockerRegistrySubscriptionIntegration.id, awsKeysSubscriptionIntegration.id, googleCloudSubscriptionIntegration.id, jfrogSubscriptionIntegration.id, kubernetesSubscriptionIntegration.id, quaySubscriptionIntegration.id];
         async.each(subscriptionIntegrationIds,
