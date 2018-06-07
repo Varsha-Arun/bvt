@@ -247,18 +247,17 @@ describe(test,
       }
     );
 
-    it('10. Unauthorized user can get all their builds',
+    it('10. Unauthorized user can get their builds',
       function (done) {
         unauthorizedApiAdapter.getBuilds('',
           function (err, blds) {
-            if (err || _.isEmpty(blds))
+            if (err)
               return done(
                 new Error(
                   util.format('User cannot get builds',
-                    query, err)
+                    blds, err)
                 )
               );
-            assert.isNotEmpty(blds, 'User cannot find the builds');
             return done();
           }
         );

@@ -95,7 +95,7 @@ function deleteSubscriptionIntegrations(bag, next) {
 
   async.each(subInts,
     function (si, callback) {
-      global.suAdapter.deleteSubscriptionIntegrationById(si.id, {},
+      global.suAdapter.deleteSubscriptionIntegrationById(si.id,
         function (err) {
           if (err) {
             deleteFailedSubInts.push(si.name);

@@ -344,7 +344,7 @@ describe(test,
               return done(
                 new Error(
                   util.format('User cannot get runs',
-                    query, err)
+                    runs, err)
                 )
               );
             return done();
@@ -542,7 +542,7 @@ describe(test,
             if (err)
               return done(
                 new Error(
-                  util.format('User can delete run by id: %s, err: %s, %s',
+                  util.format('User cannot delete run by id: %s, err: %s, %s',
                     matrixRunId, err, response)
                 )
               );

@@ -243,15 +243,13 @@ describe(test,
       function (done) {
         unauthorizedApiAdapter.getVersions('',
           function (err, ver) {
-            if (err || _.isEmpty(ver))
+            if (err)
               return done(
                 new Error(
                   util.format('User cannot get versions',
-                    query, err)
+                    ver, err)
                 )
               );
-            assert.isNotEmpty(ver, 'User cannot find the versions');
-
             return done();
           }
         );
