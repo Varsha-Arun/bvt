@@ -618,8 +618,6 @@ describe(test,
             acctInt.test_resource_name = acctInt.name;
 
             bitbucketAccountIntegration = acctInt;
-            console.log('bitbucketAccountIntegration', bitbucketAccountIntegration);
-            console.log('bitbucketAccountIntegration Id', bitbucketAccountIntegration.id);
 
             global.saveTestResource(acctInt.test_resource_name, acctInt,
               function () {

@@ -218,6 +218,14 @@ ShippableAdapter.prototype.getFilesByResourceId =
     );
   };
 
+ShippableAdapter.prototype.getInitScriptByClusterNodeId =
+  function (clusterNodeId, callback) {
+    this.get(
+      util.format('/clusterNodes/%s/initScript', clusterNodeId),
+      callback
+    );
+  };
+
 ShippableAdapter.prototype.getJenkinsJobsByJobname =
   function (accountIntegrationId, jobName, callback) {
     this.get(
@@ -266,6 +274,13 @@ ShippableAdapter.prototype.getMasterIntegrations =
       util.format('/masterIntegrations?%s', query),
       callback
     );
+  };
+
+ShippableAdapter.prototype.getPassthroughNodesScripts =
+  function (query, callback) {
+    this.get(
+      util.format('/passthrough/nodes/scripts?%', query),
+      callback);
   };
 
 ShippableAdapter.prototype.getPlanById =
@@ -850,6 +865,15 @@ ShippableAdapter.prototype.postClusterNodeStats =
   function (json, callback) {
     this.post(
       util.format('/clusterNodeStats'),
+      json,
+      callback
+    );
+  };
+
+ShippableAdapter.prototype.postClusterNodes =
+  function (json, callback) {
+    this.post(
+      util.format('/clusterNodes'),
       json,
       callback
     );

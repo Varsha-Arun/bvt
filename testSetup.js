@@ -65,6 +65,8 @@ global.githubCollabAccessToken = process.env.GITHUB_ACCESS_TOKEN_COLLAB;
 global.githubMemberAccessToken = process.env.GITHUB_ACCESS_TOKEN_MEMBER;
 global.githubUnauthorizedAccessToken = process.env.GITHUB_ACCESS_TOKEN_DRSHIP;
 global.githubAmiAccessToken = process.env.GITHUB_ACCESS_TOKEN_AMI;
+global.clusterNodeIpAddressU16 = process.env.CLUSTER_NODE_IP_ADDRESS_U16;
+global.testManual = process.env.TEST_MANUAL;
 
 global.GH_ORG_SUB_INT_GH = process.env.GH_ORG_SUB_INT_GH;
 
