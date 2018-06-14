@@ -91,6 +91,54 @@ describe(test,
                   _.where(projects, {isOrg: true, fullName: 'ami-v6-4-4/u16'}
                   )
                 );
+                var aarch64u16Project = _.first(
+                  _.where(projects, {isOrg: true, fullName: 'ami-v6-4-4/aarch64_u16'}
+                  )
+                );
+                var aarch64u16allProject = _.first(
+                  _.where(projects, {isOrg: true, fullName: 'ami-v6-4-4/aarch64_u16all'}
+                  )
+                );
+                var aarch64u16cppallProject = _.first(
+                  _.where(projects, {isOrg: true, fullName: 'ami-v6-4-4/aarch64_u16cppall'}
+                  )
+                );
+                var aarch64u16javallProject = _.first(
+                  _.where(projects, {isOrg: true, fullName: 'ami-v6-4-4/aarch64_u16javall'}
+                  )
+                );
+                var aarch64u16nodallProject = _.first(
+                  _.where(projects, {isOrg: true, fullName: 'ami-v6-4-4/aarch64_u16nodall'}
+                  )
+                );
+                var aarch64u16pytallProject = _.first(
+                  _.where(projects, {isOrg: true, fullName: 'ami-v6-4-4/aarch64_u16pytall'}
+                  )
+                );
+                var c7Project = _.first(
+                  _.where(projects, {isOrg: true, fullName: 'ami-v6-4-4/c7'}
+                  )
+                );
+                var c7allProject = _.first(
+                  _.where(projects, {isOrg: true, fullName: 'ami-v6-4-4/c7all'}
+                  )
+                );
+                var c7cppallProject = _.first(
+                  _.where(projects, {isOrg: true, fullName: 'ami-v6-4-4/c7cppall'}
+                  )
+                );
+                var c7javallProject = _.first(
+                  _.where(projects, {isOrg: true, fullName: 'ami-v6-4-4/c7javall'}
+                  )
+                );
+                var c7nodallProject = _.first(
+                  _.where(projects, {isOrg: true, fullName: 'ami-v6-4-4/c7nodall'}
+                  )
+                );
+                var c7pytallProject = _.first(
+                  _.where(projects, {isOrg: true, fullName: 'ami-v6-4-4/c7pytall'}
+                  )
+                );
                 var u16allProjectId = u16allProject.id;
                 var u16cloallProjectId = u16cloallProject.id;
                 var u16cppallProjectId = u16cppallProject.id;
@@ -102,7 +150,19 @@ describe(test,
                 var u16ruballProjectId = u16ruballProject.id;
                 var u16scaallProjectId = u16scaallProject.id;
                 var u16ProjectId = u16Project.id;
-                projectIds = [u16ProjectId, u16cppallProjectId, u16phpallProjectId, u16golallProjectId, u16scaallProjectId, u16javallProjectId, u16cloallProjectId, u16nodallProjectId, u16pytallProjectId, u16allProjectId, u16ruballProjectId];
+                var aarch64u16ProjectId = aarch64u16Project.id;
+                var aarch64u16allProjectId = aarch64u16allProject.id;
+                var aarch64u16cppallProjectId = aarch64u16cppallProject.id;
+                var aarch64u16javallProjectId = aarch64u16javallProject.id;
+                var aarch64u16nodallProjectId = aarch64u16nodallProject.id;
+                var aarch64u16pytallProjectId = aarch64u16pytallProject.id;
+                var c7ProjectId = c7Project.id;
+                var c7allProjectId = c7allProject.id;
+                var c7cppallProjectId = c7cppallProject.id;
+                var c7javallProjectId = c7javallProject.id;
+                var c7nodallProjectId = c7nodallProject.id;
+                var c7pytallProjectId = c7pytallProject.id;
+                projectIds = [u16ProjectId, u16cppallProjectId, u16phpallProjectId, u16golallProjectId, u16scaallProjectId, u16javallProjectId, u16cloallProjectId, u16nodallProjectId, u16pytallProjectId, u16allProjectId, u16ruballProjectId, aarch64u16ProjectId, aarch64u16allProjectId, aarch64u16cppallProjectId, aarch64u16javallProjectId, aarch64u16nodallProjectId, aarch64u16pytallProjectId, c7ProjectId, c7allProjectId, c7cppallProjectId, c7javallProjectId, c7nodallProjectId, c7pytallProjectId];
                 return done();
               }
             );
@@ -309,7 +369,169 @@ describe(test,
       }
     );
 
-    it('15. Disable all projects',
+    it('15. aarch64u16 service image project build is successful',
+      function (done) {
+        var runId = _.findWhere(runs, {projectName: 'aarch64_u16', subscriptionOrgName: 'ami-v6-4-4'}).id;
+        if(global.testManual === 'true') {
+          console.log('Skipping as this test case cannot be run as part of automation');
+          return done();
+        }
+        else
+        global.getRunByIdStatusWithBackOff(amiApiAdapter, runId,
+          successStatusCode, done);
+      },
+      function(err) {
+        return(err);
+      }
+    );
+
+    it('16. aarch64u16all service image project build is successful',
+      function (done) {
+        var runId = _.findWhere(runs, {projectName: 'aarch64_u16all', subscriptionOrgName: 'ami-v6-4-4'}).id;
+        if(global.testManual === 'true') {
+          console.log('Skipping as this test case cannot be run as part of automation');
+          return done();
+        }
+        else
+        global.getRunByIdStatusWithBackOff(amiApiAdapter, runId,
+          successStatusCode, done);
+      },
+      function(err) {
+        return(err);
+      }
+    );
+
+    it('17. aarch64u16cppall service image project build is successful',
+      function (done) {
+        var runId = _.findWhere(runs, {projectName: 'aarch64_u16cppall', subscriptionOrgName: 'ami-v6-4-4'}).id;
+        if(global.testManual === 'true') {
+          console.log('Skipping as this test case cannot be run as part of automation');
+          return done();
+        }
+        else
+        global.getRunByIdStatusWithBackOff(amiApiAdapter, runId,
+          successStatusCode, done);
+      },
+      function(err) {
+        return(err);
+      }
+    );
+
+    it('18. aarch64u16javall service image project build is successful',
+      function (done) {
+        var runId = _.findWhere(runs, {projectName: 'aarch64_u16javall', subscriptionOrgName: 'ami-v6-4-4'}).id;
+        if(global.testManual === 'true') {
+          console.log('Skipping as this test case cannot be run as part of automation');
+          return done();
+        }
+        else
+        global.getRunByIdStatusWithBackOff(amiApiAdapter, runId,
+          successStatusCode, done);
+      },
+      function(err) {
+        return(err);
+      }
+    );
+
+    it('19. aarch64u16nodall service image project build is successful',
+      function (done) {
+        var runId = _.findWhere(runs, {projectName: 'aarch64_u16nodall', subscriptionOrgName: 'ami-v6-4-4'}).id;
+        if(global.testManual === 'true') {
+          console.log('Skipping as this test case cannot be run as part of automation');
+          return done();
+        }
+        else
+        global.getRunByIdStatusWithBackOff(amiApiAdapter, runId,
+          successStatusCode, done);
+      },
+      function(err) {
+        return(err);
+      }
+    );
+
+    it('20. aarch64u16pytall service image project build is successful',
+      function (done) {
+        var runId = _.findWhere(runs, {projectName: 'aarch64_u16pytall', subscriptionOrgName: 'ami-v6-4-4'}).id;
+        if(global.testManual === 'true') {
+          console.log('Skipping as this test case cannot be run as part of automation');
+          return done();
+        }
+        else
+        global.getRunByIdStatusWithBackOff(amiApiAdapter, runId,
+          successStatusCode, done);
+      },
+      function(err) {
+        return(err);
+      }
+    );
+
+    it('21. c7 service image project build is successful',
+      function (done) {
+        var runId = _.findWhere(runs, {projectName: 'c7', subscriptionOrgName: 'ami-v6-4-4'}).id;
+        global.getRunByIdStatusWithBackOff(amiApiAdapter, runId,
+          successStatusCode, done);
+      },
+      function(err) {
+        return(err);
+      }
+    );
+
+    it('22. c7all service image project build is successful',
+      function (done) {
+        var runId = _.findWhere(runs, {projectName: 'c7all', subscriptionOrgName: 'ami-v6-4-4'}).id;
+        global.getRunByIdStatusWithBackOff(amiApiAdapter, runId,
+          successStatusCode, done);
+      },
+      function(err) {
+        return(err);
+      }
+    );
+
+    it('23. c7cppall service image project build is successful',
+      function (done) {
+        var runId = _.findWhere(runs, {projectName: 'c7cppall', subscriptionOrgName: 'ami-v6-4-4'}).id;
+        global.getRunByIdStatusWithBackOff(amiApiAdapter, runId,
+          successStatusCode, done);
+      },
+      function(err) {
+        return(err);
+      }
+    );
+
+    it('24. c7javall service image project build is successful',
+      function (done) {
+        var runId = _.findWhere(runs, {projectName: 'c7javall', subscriptionOrgName: 'ami-v6-4-4'}).id;
+        global.getRunByIdStatusWithBackOff(amiApiAdapter, runId,
+          successStatusCode, done);
+      },
+      function(err) {
+        return(err);
+      }
+    );
+
+    it('25. c7nodall service image project build is successful',
+      function (done) {
+        var runId = _.findWhere(runs, {projectName: 'c7nodall', subscriptionOrgName: 'ami-v6-4-4'}).id;
+        global.getRunByIdStatusWithBackOff(amiApiAdapter, runId,
+          successStatusCode, done);
+      },
+      function(err) {
+        return(err);
+      }
+    );
+
+    it('26. c7pytall service image project build is successful',
+      function (done) {
+        var runId = _.findWhere(runs, {projectName: 'c7pytall', subscriptionOrgName: 'ami-v6-4-4'}).id;
+        global.getRunByIdStatusWithBackOff(amiApiAdapter, runId,
+          successStatusCode, done);
+      },
+      function(err) {
+        return(err);
+      }
+    );
+
+    it('27. Disable all projects',
       function (done) {
         async.each(projectIds,
           function (projId, nextProjId) {

@@ -3,8 +3,8 @@
 var testSetup = require('../../../testSetup.js');
 var backoff = require('backoff');
 
-var testSuite = 'LANGUAGETESTS_AMI_master';
-var testSuiteDesc = 'Github Organization language tests for AMI master';
+var testSuite = 'LANGUAGETESTS_AMI_v6.4.4';
+var testSuiteDesc = 'Github Organization language tests for AMI v6.5.4';
 var test = util.format('%s - %s', testSuite, testSuiteDesc);
 
 describe(test,
@@ -48,97 +48,98 @@ describe(test,
                 assert.isNotEmpty(projects, 'User cannot find the projects');
 
                 var u16allProject = _.first(
-                  _.where(projects, {isOrg: true, fullName: 'ami-master/u16all'}
+                  _.where(projects, {isOrg: true, fullName: 'ami-v6-5-4/u16all'}
                   )
                 );
                 var u16cloallProject = _.first(
-                  _.where(projects, {isOrg: true, fullName: 'ami-master/u16cloall'}
+                  _.where(projects, {isOrg: true, fullName: 'ami-v6-5-4/u16cloall'}
                   )
                 );
                 var u16cppallProject = _.first(
-                  _.where(projects, {isOrg: true, fullName: 'ami-master/u16cppall'}
+                  _.where(projects, {isOrg: true, fullName: 'ami-v6-5-4/u16cppall'}
                   )
                 );
                 var u16golallProject = _.first(
-                  _.where(projects, {isOrg: true, fullName: 'ami-master/u16golall'}
+                  _.where(projects, {isOrg: true, fullName: 'ami-v6-5-4/u16golall'}
                   )
                 );
                 var u16javallProject = _.first(
-                  _.where(projects, {isOrg: true, fullName: 'ami-master/u16javall'}
+                  _.where(projects, {isOrg: true, fullName: 'ami-v6-5-4/u16javall'}
                   )
                 );
                 var u16nodallProject = _.first(
-                  _.where(projects, {isOrg: true, fullName: 'ami-master/u16nodall'}
+                  _.where(projects, {isOrg: true, fullName: 'ami-v6-5-4/u16nodall'}
                   )
                 );
                 var u16phpallProject = _.first(
-                  _.where(projects, {isOrg: true, fullName: 'ami-master/u16phpall'}
+                  _.where(projects, {isOrg: true, fullName: 'ami-v6-5-4/u16phpall'}
                   )
                 );
                 var u16pytallProject = _.first(
-                  _.where(projects, {isOrg: true, fullName: 'ami-master/u16pytall'}
+                  _.where(projects, {isOrg: true, fullName: 'ami-v6-5-4/u16pytall'}
                   )
                 );
                 var u16ruballProject = _.first(
-                  _.where(projects, {isOrg: true, fullName: 'ami-master/u16ruball'}
+                  _.where(projects, {isOrg: true, fullName: 'ami-v6-5-4/u16ruball'}
                   )
                 );
                 var u16scaallProject = _.first(
-                  _.where(projects, {isOrg: true, fullName: 'ami-master/u16scaall'}
+                  _.where(projects, {isOrg: true, fullName: 'ami-v6-5-4/u16scaall'}
                   )
                 );
                 var u16Project = _.first(
-                  _.where(projects, {isOrg: true, fullName: 'ami-master/u16'}
+                  _.where(projects, {isOrg: true, fullName: 'ami-v6-5-4/u16'}
                   )
                 );
                 var aarch64u16Project = _.first(
-                  _.where(projects, {isOrg: true, fullName: 'ami-master/aarch64_u16'}
+                  _.where(projects, {isOrg: true, fullName: 'ami-v6-5-4/aarch64_u16'}
                   )
                 );
                 var aarch64u16allProject = _.first(
-                  _.where(projects, {isOrg: true, fullName: 'ami-master/aarch64_u16all'}
+                  _.where(projects, {isOrg: true, fullName: 'ami-v6-5-4/aarch64_u16all'}
                   )
                 );
                 var aarch64u16cppallProject = _.first(
-                  _.where(projects, {isOrg: true, fullName: 'ami-master/aarch64_u16cppall'}
+                  _.where(projects, {isOrg: true, fullName: 'ami-v6-5-4/aarch64_u16cppall'}
                   )
                 );
                 var aarch64u16javallProject = _.first(
-                  _.where(projects, {isOrg: true, fullName: 'ami-master/aarch64_u16javall'}
+                  _.where(projects, {isOrg: true, fullName: 'ami-v6-5-4/aarch64_u16javall'}
                   )
                 );
                 var aarch64u16nodallProject = _.first(
-                  _.where(projects, {isOrg: true, fullName: 'ami-master/aarch64_u16nodall'}
+                  _.where(projects, {isOrg: true, fullName: 'ami-v6-5-4/aarch64_u16nodall'}
                   )
                 );
                 var aarch64u16pytallProject = _.first(
-                  _.where(projects, {isOrg: true, fullName: 'ami-master/aarch64_u16pytall'}
+                  _.where(projects, {isOrg: true, fullName: 'ami-v6-5-4/aarch64_u16pytall'}
                   )
                 );
                 var c7Project = _.first(
-                  _.where(projects, {isOrg: true, fullName: 'ami-master/c7'}
+                  _.where(projects, {isOrg: true, fullName: 'ami-v6-5-4/c7'}
                   )
                 );
                 var c7allProject = _.first(
-                  _.where(projects, {isOrg: true, fullName: 'ami-master/c7all'}
+                  _.where(projects, {isOrg: true, fullName: 'ami-v6-5-4/c7all'}
                   )
                 );
                 var c7cppallProject = _.first(
-                  _.where(projects, {isOrg: true, fullName: 'ami-master/c7cppall'}
+                  _.where(projects, {isOrg: true, fullName: 'ami-v6-5-4/c7cppall'}
                   )
                 );
                 var c7javallProject = _.first(
-                  _.where(projects, {isOrg: true, fullName: 'ami-master/c7javall'}
+                  _.where(projects, {isOrg: true, fullName: 'ami-v6-5-4/c7javall'}
                   )
                 );
                 var c7nodallProject = _.first(
-                  _.where(projects, {isOrg: true, fullName: 'ami-master/c7nodall'}
+                  _.where(projects, {isOrg: true, fullName: 'ami-v6-5-4/c7nodall'}
                   )
                 );
                 var c7pytallProject = _.first(
-                  _.where(projects, {isOrg: true, fullName: 'ami-master/c7pytall'}
+                  _.where(projects, {isOrg: true, fullName: 'ami-v6-5-4/c7pytall'}
                   )
                 );
+                var u16ProjectId = u16Project.id;
                 var u16allProjectId = u16allProject.id;
                 var u16cloallProjectId = u16cloallProject.id;
                 var u16cppallProjectId = u16cppallProject.id;
@@ -149,7 +150,6 @@ describe(test,
                 var u16pytallProjectId = u16pytallProject.id;
                 var u16ruballProjectId = u16ruballProject.id;
                 var u16scaallProjectId = u16scaallProject.id;
-                var u16ProjectId = u16Project.id;
                 var aarch64u16ProjectId = aarch64u16Project.id;
                 var aarch64u16allProjectId = aarch64u16allProject.id;
                 var aarch64u16cppallProjectId = aarch64u16cppallProject.id;
@@ -250,7 +250,7 @@ describe(test,
 
     it('4. u16 base image project build is successful',
       function (done) {
-        var runId = _.findWhere(runs, {projectName: 'u16', subscriptionOrgName: 'ami-master'}).id;
+        var runId = _.findWhere(runs, {projectName: 'u16', subscriptionOrgName: 'ami-v6-5-4'}).id;
         global.getRunByIdStatusWithBackOff(amiApiAdapter, runId,
           successStatusCode, done);
       },
@@ -261,7 +261,7 @@ describe(test,
 
     it('5. u16 cpp image project build is successful',
       function (done) {
-        var runId = _.findWhere(runs, {projectName: 'u16cppall', subscriptionOrgName: 'ami-master'}).id;
+        var runId = _.findWhere(runs, {projectName: 'u16cppall', subscriptionOrgName: 'ami-v6-5-4'}).id;
         global.getRunByIdStatusWithBackOff(amiApiAdapter, runId,
           successStatusCode, done);
       },
@@ -272,7 +272,7 @@ describe(test,
 
     it('6. u16 php image project build is successful',
       function (done) {
-        var runId = _.findWhere(runs, {projectName: 'u16phpall', subscriptionOrgName: 'ami-master'}).id;
+        var runId = _.findWhere(runs, {projectName: 'u16phpall', subscriptionOrgName: 'ami-v6-5-4'}).id;
         global.getRunByIdStatusWithBackOff(amiApiAdapter, runId,
           successStatusCode, done);
       },
@@ -283,7 +283,7 @@ describe(test,
 
     it('7. u16 go image project build is successful',
       function (done) {
-        var runId = _.findWhere(runs, {projectName: 'u16golall', subscriptionOrgName: 'ami-master'}).id;
+        var runId = _.findWhere(runs, {projectName: 'u16golall', subscriptionOrgName: 'ami-v6-5-4'}).id;
         global.getRunByIdStatusWithBackOff(amiApiAdapter, runId,
           successStatusCode, done);
       },
@@ -294,7 +294,7 @@ describe(test,
 
     it('8. u16 scala image project build is successful',
       function (done) {
-        var runId = _.findWhere(runs, {projectName: 'u16scaall', subscriptionOrgName: 'ami-master'}).id;
+        var runId = _.findWhere(runs, {projectName: 'u16scaall', subscriptionOrgName: 'ami-v6-5-4'}).id;
         global.getRunByIdStatusWithBackOff(amiApiAdapter, runId,
           successStatusCode, done);
       },
@@ -305,7 +305,7 @@ describe(test,
 
     it('9. u16 java image project build is successful',
       function (done) {
-        var runId = _.findWhere(runs, {projectName: 'u16javall', subscriptionOrgName: 'ami-master'}).id;
+        var runId = _.findWhere(runs, {projectName: 'u16javall', subscriptionOrgName: 'ami-v6-5-4'}).id;
         global.getRunByIdStatusWithBackOff(amiApiAdapter, runId,
           successStatusCode, done);
       },
@@ -316,7 +316,7 @@ describe(test,
 
     it('10. u16 clojure image project build is successful',
       function (done) {
-        var runId = _.findWhere(runs, {projectName: 'u16cloall', subscriptionOrgName: 'ami-master'}).id;
+        var runId = _.findWhere(runs, {projectName: 'u16cloall', subscriptionOrgName: 'ami-v6-5-4'}).id;
         global.getRunByIdStatusWithBackOff(amiApiAdapter, runId,
           successStatusCode, done);
       },
@@ -327,7 +327,7 @@ describe(test,
 
     it('11. u16 nodejs image project build is successful',
       function (done) {
-        var runId = _.findWhere(runs, {projectName: 'u16nodall', subscriptionOrgName: 'ami-master'}).id;
+        var runId = _.findWhere(runs, {projectName: 'u16nodall', subscriptionOrgName: 'ami-v6-5-4'}).id;
         global.getRunByIdStatusWithBackOff(amiApiAdapter, runId,
           successStatusCode, done);
       },
@@ -338,7 +338,7 @@ describe(test,
 
     it('12. u16 python image project build is successful',
       function (done) {
-        var runId = _.findWhere(runs, {projectName: 'u16pytall', subscriptionOrgName: 'ami-master'}).id;
+        var runId = _.findWhere(runs, {projectName: 'u16pytall', subscriptionOrgName: 'ami-v6-5-4'}).id;
         global.getRunByIdStatusWithBackOff(amiApiAdapter, runId,
           successStatusCode, done);
       },
@@ -349,7 +349,7 @@ describe(test,
 
     it('13. u16all service image project build is successful',
       function (done) {
-        var runId = _.findWhere(runs, {projectName: 'u16all', subscriptionOrgName: 'ami-master'}).id;
+        var runId = _.findWhere(runs, {projectName: 'u16all', subscriptionOrgName: 'ami-v6-5-4'}).id;
         global.getRunByIdStatusWithBackOff(amiApiAdapter, runId,
           successStatusCode, done);
       },
@@ -360,7 +360,7 @@ describe(test,
 
     it('14. u16 ruby image project build is successful',
       function (done) {
-        var runId = _.findWhere(runs, {projectName: 'u16ruball', subscriptionOrgName: 'ami-master'}).id;
+        var runId = _.findWhere(runs, {projectName: 'u16ruball', subscriptionOrgName: 'ami-v6-5-4'}).id;
         global.getRunByIdStatusWithBackOff(amiApiAdapter, runId,
           successStatusCode, done);
       },
@@ -371,7 +371,7 @@ describe(test,
 
     it('15. aarch64u16 service image project build is successful',
       function (done) {
-        var runId = _.findWhere(runs, {projectName: 'aarch64_u16', subscriptionOrgName: 'ami-master'}).id;
+        var runId = _.findWhere(runs, {projectName: 'aarch64_u16', subscriptionOrgName: 'ami-v6-5-4'}).id;
         if(global.testManual === 'true') {
           console.log('Skipping as this test case cannot be run as part of automation');
           return done();
@@ -387,7 +387,7 @@ describe(test,
 
     it('16. aarch64u16all service image project build is successful',
       function (done) {
-        var runId = _.findWhere(runs, {projectName: 'aarch64_u16all', subscriptionOrgName: 'ami-master'}).id;
+        var runId = _.findWhere(runs, {projectName: 'aarch64_u16all', subscriptionOrgName: 'ami-v6-5-4'}).id;
         if(global.testManual === 'true') {
           console.log('Skipping as this test case cannot be run as part of automation');
           return done();
@@ -403,7 +403,7 @@ describe(test,
 
     it('17. aarch64u16cppall service image project build is successful',
       function (done) {
-        var runId = _.findWhere(runs, {projectName: 'aarch64_u16cppall', subscriptionOrgName: 'ami-master'}).id;
+        var runId = _.findWhere(runs, {projectName: 'aarch64_u16cppall', subscriptionOrgName: 'ami-v6-5-4'}).id;
         if(global.testManual === 'true') {
           console.log('Skipping as this test case cannot be run as part of automation');
           return done();
@@ -419,7 +419,7 @@ describe(test,
 
     it('18. aarch64u16javall service image project build is successful',
       function (done) {
-        var runId = _.findWhere(runs, {projectName: 'aarch64_u16javall', subscriptionOrgName: 'ami-master'}).id;
+        var runId = _.findWhere(runs, {projectName: 'aarch64_u16javall', subscriptionOrgName: 'ami-v6-5-4'}).id;
         if(global.testManual === 'true') {
           console.log('Skipping as this test case cannot be run as part of automation');
           return done();
@@ -435,7 +435,7 @@ describe(test,
 
     it('19. aarch64u16nodall service image project build is successful',
       function (done) {
-        var runId = _.findWhere(runs, {projectName: 'aarch64_u16nodall', subscriptionOrgName: 'ami-master'}).id;
+        var runId = _.findWhere(runs, {projectName: 'aarch64_u16nodall', subscriptionOrgName: 'ami-v6-5-4'}).id;
         if(global.testManual === 'true') {
           console.log('Skipping as this test case cannot be run as part of automation');
           return done();
@@ -451,7 +451,7 @@ describe(test,
 
     it('20. aarch64u16pytall service image project build is successful',
       function (done) {
-        var runId = _.findWhere(runs, {projectName: 'aarch64_u16pytall', subscriptionOrgName: 'ami-master'}).id;
+        var runId = _.findWhere(runs, {projectName: 'aarch64_u16pytall', subscriptionOrgName: 'ami-v6-5-4'}).id;
         if(global.testManual === 'true') {
           console.log('Skipping as this test case cannot be run as part of automation');
           return done();
@@ -467,7 +467,7 @@ describe(test,
 
     it('21. c7 service image project build is successful',
       function (done) {
-        var runId = _.findWhere(runs, {projectName: 'c7', subscriptionOrgName: 'ami-master'}).id;
+        var runId = _.findWhere(runs, {projectName: 'c7', subscriptionOrgName: 'ami-v6-5-4'}).id;
         global.getRunByIdStatusWithBackOff(amiApiAdapter, runId,
           successStatusCode, done);
       },
@@ -478,7 +478,7 @@ describe(test,
 
     it('22. c7all service image project build is successful',
       function (done) {
-        var runId = _.findWhere(runs, {projectName: 'c7all', subscriptionOrgName: 'ami-master'}).id;
+        var runId = _.findWhere(runs, {projectName: 'c7all', subscriptionOrgName: 'ami-v6-5-4'}).id;
         global.getRunByIdStatusWithBackOff(amiApiAdapter, runId,
           successStatusCode, done);
       },
@@ -489,7 +489,7 @@ describe(test,
 
     it('23. c7cppall service image project build is successful',
       function (done) {
-        var runId = _.findWhere(runs, {projectName: 'c7cppall', subscriptionOrgName: 'ami-master'}).id;
+        var runId = _.findWhere(runs, {projectName: 'c7cppall', subscriptionOrgName: 'ami-v6-5-4'}).id;
         global.getRunByIdStatusWithBackOff(amiApiAdapter, runId,
           successStatusCode, done);
       },
@@ -500,7 +500,7 @@ describe(test,
 
     it('24. c7javall service image project build is successful',
       function (done) {
-        var runId = _.findWhere(runs, {projectName: 'c7javall', subscriptionOrgName: 'ami-master'}).id;
+        var runId = _.findWhere(runs, {projectName: 'c7javall', subscriptionOrgName: 'ami-v6-5-4'}).id;
         global.getRunByIdStatusWithBackOff(amiApiAdapter, runId,
           successStatusCode, done);
       },
@@ -511,7 +511,7 @@ describe(test,
 
     it('25. c7nodall service image project build is successful',
       function (done) {
-        var runId = _.findWhere(runs, {projectName: 'c7nodall', subscriptionOrgName: 'ami-master'}).id;
+        var runId = _.findWhere(runs, {projectName: 'c7nodall', subscriptionOrgName: 'ami-v6-5-4'}).id;
         global.getRunByIdStatusWithBackOff(amiApiAdapter, runId,
           successStatusCode, done);
       },
@@ -522,7 +522,7 @@ describe(test,
 
     it('26. c7pytall service image project build is successful',
       function (done) {
-        var runId = _.findWhere(runs, {projectName: 'c7pytall', subscriptionOrgName: 'ami-master'}).id;
+        var runId = _.findWhere(runs, {projectName: 'c7pytall', subscriptionOrgName: 'ami-v6-5-4'}).id;
         global.getRunByIdStatusWithBackOff(amiApiAdapter, runId,
           successStatusCode, done);
       },
@@ -530,7 +530,7 @@ describe(test,
         return(err);
       }
     );
-  
+
     it('27. Disable all projects',
       function (done) {
         async.each(projectIds,
