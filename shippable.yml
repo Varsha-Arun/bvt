@@ -25,8 +25,9 @@ jobs:
       - TASK:
           name: execute_bvt
           runtime:
-            env:
-              - TEST_MANUAL=true
+            options:
+              env:
+                - TEST_MANUAL=true
           script:
             - pushd $(shipctl get_resource_state "bvt_repo")
             - shipctl copy_file_from_prev_state conf.json .
