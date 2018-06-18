@@ -307,7 +307,7 @@ describe(test,
       }
     );
 
-    it('12. Collaborater can get passthough nodes script',
+    it('13. Collaborater can get passthough nodes script',
       function (done) {
         collaboraterApiAdapter.getPassthroughNodesScripts('',
           function (err, passthroughNodes) {
@@ -325,7 +325,7 @@ describe(test,
       }
     );
 
-    it('12. Member can get passthough nodes script',
+    it('14. Member can get passthough nodes script',
       function (done) {
         memberApiAdapter.getPassthroughNodesScripts('',
           function (err, passthroughNodes) {
@@ -343,7 +343,7 @@ describe(test,
       }
     );
 
-    it('12. Public user cannot get passthough nodes script',
+    it('15. Public user cannot get passthough nodes script',
       function (done) {
         global.pubAdapter.getPassthroughNodesScripts('',
           function (err, response) {
@@ -357,7 +357,7 @@ describe(test,
       }
     );
 
-    it('12. Unauthorized user cannot get passthough nodes script',
+    it('16. Unauthorized user cannot get passthough nodes script',
       function (done) {
         unauthorizedApiAdapter.getPassthroughNodesScripts('',
           function (err, passthroughNodes) {
@@ -375,7 +375,7 @@ describe(test,
       }
     );
 
-    it('13. Owner can create Cluster Node for ubuntu 16.04',
+    it('17. Owner can create Cluster Node for ubuntu 16.04',
       function (done) {
         var body = {
           "subscriptionId": clusterNodes[0].subscriptionId,
@@ -414,7 +414,7 @@ describe(test,
       }
     );
 
-    it('14. Owner can get init script for cluster node by Id',
+    it('18. Owner can get init script for cluster node by Id',
       function (done) {
         clusterNodeId = clustersN.id;
         if(global.testManual === 'true') {
@@ -438,7 +438,7 @@ describe(test,
       }
     );
 
-    it('15. Trigger a manual build for public project',
+    it('19. Trigger a manual build for public project',
       function (done) {
         if(global.testManual === 'true') {
           console.log('Skipping as this test case cannot be run as part of automation');
@@ -478,7 +478,7 @@ describe(test,
       }
     );
 
-    it('16. Owner can update Cluster Node for ubuntu 16.04',
+    it('20. Owner can update Cluster Node for ubuntu 16.04',
       function (done) {
         clusterNodeId = clustersN.id;
         if(global.testManual === 'true') {
@@ -507,7 +507,7 @@ describe(test,
       }
     );
 
-    it('17. Owner can delete Cluster Node for ubuntu 16.04',
+    it('21. Owner can delete Cluster Node for ubuntu 16.04',
       function (done) {
         clusterNodeId = clustersN.id;
         if(global.testManual === 'true') {
@@ -536,7 +536,7 @@ describe(test,
       }
     );
 
-    it('18. Collaborater can create Cluster Node for ubuntu 16.04',
+    it('22. Collaborater can create Cluster Node for ubuntu 16.04',
       function (done) {
         var body = {
           "subscriptionId": clusterNodes[0].subscriptionId,
@@ -575,7 +575,7 @@ describe(test,
       }
     );
 
-    it('19. Collaborater can get init script for cluster node by Id',
+    it('23. Collaborater can get init script for cluster node by Id',
       function (done) {
         clusterNodeId = clustersN.id;
         if(global.testManual === 'true') {
@@ -599,7 +599,7 @@ describe(test,
       }
     );
 
-    it('20. Trigger a manual build for public project',
+    it('24. Trigger a manual build for public project',
       function (done) {
         if(global.testManual === 'true') {
           console.log('Skipping as this test case cannot be run as part of automation');
@@ -639,7 +639,7 @@ describe(test,
       }
     );
 
-    it('21. Collaborater can update Cluster Node for ubuntu 16.04',
+    it('25. Collaborater can update Cluster Node for ubuntu 16.04',
       function (done) {
         clusterNodeId = clustersN.id;
         if(global.testManual === 'true') {
@@ -668,7 +668,7 @@ describe(test,
       }
     );
 
-    it('22. Collaborater can delete Cluster Node for ubuntu 16.04',
+    it('26. Collaborater can delete Cluster Node for ubuntu 16.04',
       function (done) {
         clusterNodeId = clustersN.id;
         if(global.testManual === 'true') {
@@ -697,7 +697,7 @@ describe(test,
       }
     );
 
-    it('23. Member can create Cluster Node for ubuntu 16.04',
+    it('27. Member can create Cluster Node for ubuntu 16.04',
       function (done) {
         var body = {
           "subscriptionId": clusterNodes[0].subscriptionId,
@@ -736,7 +736,7 @@ describe(test,
       }
     );
 
-    it('24. Member can get init script for cluster node by Id',
+    it('28. Member can get init script for cluster node by Id',
       function (done) {
         clusterNodeId = clustersN.id;
         if(global.testManual === 'true') {
@@ -760,7 +760,7 @@ describe(test,
       }
     );
 
-    it('25. Trigger a manual build for public project',
+    it('29. Trigger a manual build for public project',
       function (done) {
         if(global.testManual === 'true') {
           console.log('Skipping as this test case cannot be run as part of automation');
@@ -800,7 +800,7 @@ describe(test,
       }
     );
 
-    it('26. Member can update Cluster Node for ubuntu 16.04',
+    it('30. Member can update Cluster Node for ubuntu 16.04',
       function (done) {
         clusterNodeId = clustersN.id;
         if(global.testManual === 'true') {
@@ -829,7 +829,7 @@ describe(test,
       }
     );
 
-    it('27. Member can delete Cluster Node for ubuntu 16.04',
+    it('31. Member can delete Cluster Node for ubuntu 16.04',
       function (done) {
         clusterNodeId = clustersN.id;
         if(global.testManual === 'true') {
@@ -858,7 +858,7 @@ describe(test,
       }
     );
 
-    it('28. Public user can create Cluster Node for ubuntu 16.04',
+    it('32. Public user can create Cluster Node for ubuntu 16.04',
       function (done) {
         var body = {
           "subscriptionId": clusterNodes[0].subscriptionId, //"5ad239c9a7921e07001a02b9",
@@ -888,7 +888,7 @@ describe(test,
       }
     );
 
-    it('29. Public user cannot get init script for cluster node by Id',
+    it('33. Public user cannot get init script for cluster node by Id',
       function (done) {
         clusterNodeId = clustersN.id;
         if(global.testManual === 'true') {
@@ -908,7 +908,7 @@ describe(test,
       }
     );
 
-    it('30. Public user can delete Cluster Node for ubuntu 16.04',
+    it('34. Public user can delete Cluster Node for ubuntu 16.04',
       function (done) {
         clusterNodeId = clustersN.id;
         if(global.testManual === 'true') {
@@ -929,7 +929,7 @@ describe(test,
       }
     );
 
-    it('31. Unauthorized user can create Cluster Node for ubuntu 16.04',
+    it('35. Unauthorized user can create Cluster Node for ubuntu 16.04',
       function (done) {
         var body = {
           "subscriptionId": clusterNodes[0].subscriptionId, //"5ad239c9a7921e07001a02b9",
@@ -959,7 +959,7 @@ describe(test,
       }
     );
 
-    it('32. Unauthorized user cannot get init script for cluster node by Id',
+    it('36. Unauthorized user cannot get init script for cluster node by Id',
       function (done) {
         clusterNodeId = clustersN.id;
         if(global.testManual === 'true') {
@@ -979,7 +979,7 @@ describe(test,
       }
     );
 
-    it('33. Unauthorized user can delete Cluster Node for ubuntu 16.04',
+    it('37. Unauthorized user can delete Cluster Node for ubuntu 16.04',
       function (done) {
         clusterNodeId = clustersN.id;
         if(global.testManual === 'true') {
@@ -1000,7 +1000,7 @@ describe(test,
       }
     );
 
-    it('34. Owner deletes a project',
+    it('38. Owner deletes a project',
       function (done) {
         var json = {projectId: project.id};
         ownerApiAdapter.deleteProjectById(project.id, json,
