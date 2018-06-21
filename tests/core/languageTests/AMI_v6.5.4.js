@@ -3,7 +3,7 @@
 var testSetup = require('../../../testSetup.js');
 var backoff = require('backoff');
 
-var testSuite = 'LANGUAGETESTS_AMI_v6.4.4';
+var testSuite = 'LANGUAGETESTS_AMI_v6.5.4';
 var testSuiteDesc = 'Github Organization language tests for AMI v6.5.4';
 var test = util.format('%s - %s', testSuite, testSuiteDesc);
 

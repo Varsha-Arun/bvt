@@ -465,7 +465,7 @@ describe(test,
       }
     );
 
-    it('21. c7 service image project build is successful',
+    it('21. c7 base image project build is successful',
       function (done) {
         var runId = _.findWhere(runs, {projectName: 'c7', subscriptionOrgName: 'ami-v6-4-4'}).id;
         global.getRunByIdStatusWithBackOff(amiApiAdapter, runId,

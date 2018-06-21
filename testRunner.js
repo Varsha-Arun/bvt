@@ -49,10 +49,7 @@ function testRun(next) {
     'tests/core/account/*.js',
     'tests/core/accountIntegration/*.js',
     'tests/core/api/*.js',
-    'tests/core/languageTests/AMI_master.js', // in RC only one AMI is there as of now
-    'tests/core/languageTests/AMI_v6.3.4.js',
-    'tests/core/languageTests/AMI_v6.4.4.js',
-    'tests/core/languageTests/AMI_v6.5.4.js',
+    'tests/core/languageTests/*.js',
     'tests/core/project/*.js',
     'tests/core/subscriptionIntegration/*.js',
     'tests/core/resources/GH_ORG_PRI_OWN_RSYNC.js',
