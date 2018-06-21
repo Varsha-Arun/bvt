@@ -31,7 +31,7 @@ jobs:
           script:
             - pushd $(shipctl get_resource_state "bvt_repo")
             - shipctl copy_file_from_prev_state conf.json .
-            - if [[ ! -s conf.json ]]; then echo "{}" > conf.json; fi
+            - if [[ -s conf.json ]]; then echo "{}" > conf.json; fi
             - ./test.sh
             - popd
     on_failure:
