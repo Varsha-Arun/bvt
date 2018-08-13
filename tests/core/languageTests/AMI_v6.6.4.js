@@ -522,7 +522,7 @@ describe(test,
 
     it('26. c7pytall service image project build is successful',
       function (done) {
-        var runId = _.findWhere(runs, {projectName: 'c7pytall', subscriptionOrgName: 'ami-v6-5-4'}).id;
+        var runId = _.findWhere(runs, {projectName: 'c7pytall', subscriptionOrgName: 'ami-v6-6-4'}).id;
         global.getRunByIdStatusWithBackOff(amiApiAdapter, runId,
           successStatusCode, done);
       },
