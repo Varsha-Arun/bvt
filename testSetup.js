@@ -189,7 +189,7 @@ global.deleteProjectWithBackoff = function (projectId, done) {
     initialDelay: 1000,
     maxDelay: global.DELETE_PROJ_DELAY
   });
-  expBackoff.failAfter(30); // fail after 30 attempts
+  expBackoff.failAfter(50); // fail after 50 attempts
   expBackoff.on('backoff',
     function (number, delay) {
       logger.info('Failed to delete project with id:', projectId,
@@ -241,9 +241,9 @@ global.getBuildStatusWithBackOff =
       {
         initialDelay: 1000, // ms
         maxDelay: 6400, // max retry interval of 6 seconds
-        failAfter: 30 // fail after 30 attempts(~180 sec)
       }
     );
+    expBackoff.failAfter(50); // fail after 50 attempts(~300 sec)
 
     expBackoff.on('backoff',
       function (number, delay) {
@@ -299,9 +299,9 @@ global.getRunByIdStatusWithBackOff =
       {
         initialDelay: 1000, // ms
         maxDelay: 6400, // max retry interval of 6 seconds
-        failAfter: 30 // fail after 30 attempts(~180 sec)
       }
     );
+    expBackoff.failAfter(200); // fail after 200 attempts(~1200 sec)
 
     expBackoff.on('backoff',
       function (number, delay) {
