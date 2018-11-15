@@ -50,6 +50,8 @@ function testRun(next) {
     'tests/core/accountIntegration/*.js',
     'tests/core/api/*.js',
     'tests/core/languageTests/AMI_v6.8.4.js',
+    'tests/core/languageTests/AMI_v6.9*.js',
+    'tests/core/languageTests/AMI_v6.10*.js',
     'tests/core/project/*.js',
     'tests/core/subscriptionIntegration/*.js',
     'tests/core/resources/GH_ORG_PRI_OWN_RSYNC.js',
