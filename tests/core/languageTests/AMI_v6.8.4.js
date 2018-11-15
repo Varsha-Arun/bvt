@@ -47,6 +47,10 @@ describe(test,
                 projects.test_resource_name = 'ghOwnerProjects';
                 assert.isNotEmpty(projects, 'User cannot find the projects');
 
+                var u14Project = _.first(
+                  _.where(projects, {isOrg: true, fullName: 'ami-v6-8-4/u14'}
+                  )
+                );
                 var u16allProject = _.first(
                   _.where(projects, {isOrg: true, fullName: 'ami-v6-8-4/u16all'}
                   )
@@ -139,6 +143,7 @@ describe(test,
                   _.where(projects, {isOrg: true, fullName: 'ami-v6-8-4/c7pytall'}
                   )
                 );
+                var u14ProjectId = u14Project.id;
                 var u16ProjectId = u16Project.id;
                 var u16allProjectId = u16allProject.id;
                 var u16cloallProjectId = u16cloallProject.id;
@@ -162,7 +167,7 @@ describe(test,
                 var c7javallProjectId = c7javallProject.id;
                 var c7nodallProjectId = c7nodallProject.id;
                 var c7pytallProjectId = c7pytallProject.id;
-                projectIds = [u16ProjectId, u16cppallProjectId, u16phpallProjectId, u16golallProjectId, u16scaallProjectId, u16javallProjectId, u16cloallProjectId, u16nodallProjectId, u16pytallProjectId, u16allProjectId, u16ruballProjectId, aarch64u16ProjectId, aarch64u16allProjectId, aarch64u16cppallProjectId, aarch64u16javallProjectId, aarch64u16nodallProjectId, aarch64u16pytallProjectId, c7ProjectId, c7allProjectId, c7cppallProjectId, c7javallProjectId, c7nodallProjectId, c7pytallProjectId];
+                projectIds = [u14ProjectId, u16ProjectId, u16cppallProjectId, u16phpallProjectId, u16golallProjectId, u16scaallProjectId, u16javallProjectId, u16cloallProjectId, u16nodallProjectId, u16pytallProjectId, u16allProjectId, u16ruballProjectId, aarch64u16ProjectId, aarch64u16allProjectId, aarch64u16cppallProjectId, aarch64u16javallProjectId, aarch64u16nodallProjectId, aarch64u16pytallProjectId, c7ProjectId, c7allProjectId, c7cppallProjectId, c7javallProjectId, c7nodallProjectId, c7pytallProjectId];
                 return done();
               }
             );
@@ -242,6 +247,11 @@ describe(test,
               );
 
             runs = rs;
+            var delayInMilliseconds = 1000; //1 second
+            setTimeout(function() {
+              //Code to be executed after 1 second since we need to get all the runs being created
+            }, delayInMilliseconds);
+            
             assert.isNotEmpty(runs, 'User cannot find the runs');
             return done();
           }
@@ -533,7 +543,18 @@ describe(test,
       }
     );
 
-    it('27. Disable all projects',
+    it('27. u14 base image project build is successful',
+      function (done) {
+        var runId = _.findWhere(runs, {projectName: 'u14', subscriptionOrgName: 'ami-v6-8-4'}).id;
+        global.getRunByIdStatusWithBackOff(amiApiAdapter, runId,
+          successStatusCode, done);
+      },
+      function(err) {
+        return(err);
+      }
+    );
+
+    it('28. Disable all projects',
       function (done) {
         async.each(projectIds,
           function (projId, nextProjId) {
