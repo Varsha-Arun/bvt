@@ -49,14 +49,13 @@ function testRun(next) {
     'tests/core/account/*.js',
     'tests/core/accountIntegration/*.js',
     'tests/core/api/*.js',
-    'tests/core/languageTests/AMI_v6.8.4.js',
-    'tests/core/languageTests/AMI_v6.9*.js',
-    'tests/core/languageTests/AMI_v6.10*.js',
+//    'tests/core/languageTests/AMI_v*.js',
     'tests/core/project/*.js',
     'tests/core/subscriptionIntegration/*.js',
     'tests/core/resources/GH_ORG_PRI_OWN_RSYNC.js',
     'tests/core/resources/GH_ORG_PRI_OWN_RUNSH.js',
-    'tests/core/resources/GH_IND_PUB_OWN_RUNCI.js'
+    'tests/core/resources/GH_IND_PUB_OWN_RUNCI.js',
+    'tests/core/resources/GH_IND_PRI_OWN_RUNSH_SHIPCTL.js'
   ];
 
   async.eachSeries(tests,
